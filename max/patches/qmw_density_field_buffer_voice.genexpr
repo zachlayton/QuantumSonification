@@ -1,0 +1,33 @@
+// QMW Density Field Buffer Voice
+//
+// Gen~ codebox.
+// Use this when Max has already written a 256-sample wavetable into buffer~
+// named density_table. Feed a frequency signal/control into in1.
+
+Buffer density_table("density_table");
+
+Param amp(0.2);
+Param default_freq(55);
+Param start(0);
+Param size(256);
+
+History phase(0);
+
+freq = (in1 > 0) * in1 + (in1 <= 0) * default_freq;
+phase = fract(phase + freq / samplerate);
+
+table_start = max(start, 0);
+table_end = table_start + max(size, 2);
+
+sample, sample_index = wave(
+    density_table,
+    phase,
+    table_start,
+    table_end,
+    0,
+    channels=1
+);
+
+out1 = sample * amp;
+out2 = phase;
+out3 = sample_index;

@@ -1,0 +1,21 @@
+{
+  "vertex_count": 4140,
+  "face_count": 8276,
+  "edge_count": 12414,
+  "boundary_edge_count": 0,
+  "nonmanifold_edge_count": 0,
+  "connected_components": 1,
+  "duplicate_face_count": 0,
+  "degenerate_face_count": 0,
+  "surface_area_m2": 0.43307307006409135,
+  "bounding_box_min_m": [
+    -0.21319235381003013,
+    -0.12392138752520054,
+    -0.2045744411582409
+  ],
+  "bounding_box_max_m": [
+    0.21319235381003013,
+    0.12392138752520054,
+    0.2045744411582409
+  ]
+}

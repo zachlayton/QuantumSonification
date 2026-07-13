@@ -1,0 +1,27 @@
+# Preserve text normalization across platforms.
+* text=auto
+*.py text eol=lf
+*.js text eol=lf
+*.genexpr text eol=lf
+*.maxpat text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.obj text eol=lf
+
+# Audio, numerical states, archives, and rendered media belong in Git LFS.
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.aif filter=lfs diff=lfs merge=lfs -text
+*.aiff filter=lfs diff=lfs merge=lfs -text
+*.flac filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.npz filter=lfs diff=lfs merge=lfs -text
+*.npy filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.3dm filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.pdf filter=lfs diff=lfs merge=lfs -text
+

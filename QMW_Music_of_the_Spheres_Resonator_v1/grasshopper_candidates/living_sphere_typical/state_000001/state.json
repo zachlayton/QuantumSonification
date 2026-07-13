@@ -1,0 +1,87 @@
+{
+  "revision": 1,
+  "created_at": 1783897389.741035,
+  "reason": "Grasshopper sphere typical T60",
+  "invalidated_domains": [
+    "geometry",
+    "material",
+    "quantum",
+    "timing",
+    "acoustics"
+  ],
+  "material_model": "surface_laplacian",
+  "mode_count": 16,
+  "spectral_gap": 19779.45407847635,
+  "frequency_min_hz": 268.6015583817368,
+  "frequency_max_hz": 777.4266888114925,
+  "mode_tracking_score": null,
+  "paths": {
+    "directory": "grasshopper_candidates/living_sphere_typical/state_000001",
+    "spectral_npz": "grasshopper_candidates/living_sphere_typical/state_000001/spectral_geometry.npz",
+    "material_npz": "grasshopper_candidates/living_sphere_typical/state_000001/surface_material.npz",
+    "material_json": "grasshopper_candidates/living_sphere_typical/state_000001/surface_material.json",
+    "quantum_npz": "grasshopper_candidates/living_sphere_typical/state_000001/quantum_eigenfield.npz",
+    "quantum_json": "grasshopper_candidates/living_sphere_typical/state_000001/quantum_eigenfield.json",
+    "timing_npz": "grasshopper_candidates/living_sphere_typical/state_000001/timing_snapshot.npz",
+    "timing_json": "grasshopper_candidates/living_sphere_typical/state_000001/timing_snapshot.json",
+    "ir_wav": "grasshopper_candidates/living_sphere_typical/state_000001/modal_ir.wav",
+    "ir_npz": "grasshopper_candidates/living_sphere_typical/state_000001/modal_ir.npz",
+    "ir_json": "grasshopper_candidates/living_sphere_typical/state_000001/modal_ir.json",
+    "bundle_npz": "grasshopper_candidates/living_sphere_typical/state_000001/living_spectral_state.npz"
+  },
+  "descriptors": {
+    "quantum": {
+      "dimension": 16,
+      "n_qubits": 4,
+      "purity": 0.7884999999999995,
+      "entropy_bits": 0.9469361556706559,
+      "max_mixed_entropy_bits": 4.0,
+      "coherence_l1": 0.8799999999999998,
+      "dominant_population": 0.4474999999999999,
+      "eigenvalues": [
+        0.8874999999999997,
+        0.0075000000000000075,
+        0.007500000000000007,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003,
+        0.007500000000000003
+      ]
+    },
+    "timing": {
+      "entropy_bits": 3.9729130620882556,
+      "effective_participation": 15.406045314935838
+    },
+    "acoustics": {
+      "material_model": "surface_laplacian",
+      "mode_count": 16,
+      "audible_mode_count": 16,
+      "frequency_min_hz": 268.6015583817368,
+      "frequency_max_hz": 777.4266888114925,
+      "decay_time_definition": "amplitude_time_constant",
+      "t60_min_seconds": 3.5357183961075243,
+      "t60_max_seconds": 5.12885580557459,
+      "slowest_tail_level_db_at_end": -116.98515667916723,
+      "phase_mode": "coherent",
+      "direct_gain": 0.08,
+      "tail_fade_seconds": 0.05,
+      "duration_seconds": 10.0,
+      "sample_rate": 48000
+    },
+    "spectral": {
+      "spectral_gap": 19779.45407847635,
+      "mean_spacing": 9727.874310516052,
+      "spacing_variance": 300379488.25386715,
+      "spectral_entropy": 3.790455366116318
+    }
+  }
+}

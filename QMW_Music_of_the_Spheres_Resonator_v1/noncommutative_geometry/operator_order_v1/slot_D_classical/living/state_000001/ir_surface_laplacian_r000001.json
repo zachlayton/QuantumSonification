@@ -1,0 +1,43 @@
+{
+  "bridge": "geometry_acoustics_bridge_v2",
+  "config": {
+    "sample_rate": 48000,
+    "duration_seconds": 8.0,
+    "highpass_hz": 12.0,
+    "peak_level": 0.8,
+    "stereo_width": 0.85,
+    "phase_mode": "coherent",
+    "direct_gain": 0.08,
+    "tail_fade_seconds": 0.02,
+    "auto_trim": true,
+    "trim_threshold_db": -60.0,
+    "trim_window_seconds": 0.02,
+    "trim_hold_seconds": 0.1,
+    "minimum_duration_seconds": 1.0,
+    "preserve_existing_files": true,
+    "seed": 23
+  },
+  "acoustics": {
+    "material_model": "surface_laplacian",
+    "mode_count": 20,
+    "audible_mode_count": 20,
+    "frequency_min_hz": 131.75672832814556,
+    "frequency_max_hz": 576.7892311488235,
+    "decay_time_definition": "amplitude_time_constant",
+    "t60_min_seconds": 4.082762278754564,
+    "t60_max_seconds": 6.84525471386565,
+    "slowest_tail_level_db_at_end": -56.27255903564031,
+    "phase_mode": "coherent",
+    "direct_gain": 0.08,
+    "tail_fade_seconds": 0.02,
+    "duration_seconds": 6.42,
+    "maximum_duration_seconds": 8.0,
+    "auto_trim": true,
+    "trimmed": true,
+    "trim_threshold_db": -60.0,
+    "trim_window_seconds": 0.02,
+    "trim_hold_seconds": 0.1,
+    "minimum_duration_seconds": 1.0,
+    "sample_rate": 48000
+  }
+}

@@ -1,0 +1,373 @@
+// QMW Density Field Quantum Resonator 16
+//
+// Gen~ codebox.
+// in1 is the carrier frequency in Hz.
+// m0..m15 excite sixteen resonant partials.
+// ph0..ph15 set smoothed per-partial timing/phase.
+// s0..s15 set lifetime: fast lanes flash, slow lanes ring.
+// h0..h15 are partial ratios. Defaults are harmonic 1..16, but these can
+// later be replaced by Hamiltonian energy-gap ratios.
+
+Param m0(0);
+Param m1(0);
+Param m2(0);
+Param m3(0);
+Param m4(0);
+Param m5(0);
+Param m6(0);
+Param m7(0);
+Param m8(0);
+Param m9(0);
+Param m10(0);
+Param m11(0);
+Param m12(0);
+Param m13(0);
+Param m14(0);
+Param m15(0);
+
+Param ph0(0);
+Param ph1(0);
+Param ph2(0);
+Param ph3(0);
+Param ph4(0);
+Param ph5(0);
+Param ph6(0);
+Param ph7(0);
+Param ph8(0);
+Param ph9(0);
+Param ph10(0);
+Param ph11(0);
+Param ph12(0);
+Param ph13(0);
+Param ph14(0);
+Param ph15(0);
+
+Param s0(0);
+Param s1(0);
+Param s2(0);
+Param s3(0);
+Param s4(0);
+Param s5(0);
+Param s6(0);
+Param s7(0);
+Param s8(0);
+Param s9(0);
+Param s10(0);
+Param s11(0);
+Param s12(0);
+Param s13(0);
+Param s14(0);
+Param s15(0);
+
+Param h0(1);
+Param h1(2);
+Param h2(3);
+Param h3(4);
+Param h4(5);
+Param h5(6);
+Param h6(7);
+Param h7(8);
+Param h8(9);
+Param h9(10);
+Param h10(11);
+Param h11(12);
+Param h12(13);
+Param h13(14);
+Param h14(15);
+Param h15(16);
+
+Param purity(1);
+Param entropy(0);
+Param coherence(0);
+Param amp(0.2);
+Param default_freq(55);
+Param attack_ms(12);
+Param slow_decay_ms(900);
+Param fast_decay_ms(70);
+Param phase_smooth_ms(100);
+Param magnitude_smooth_ms(100);
+Param brightness(0.65);
+Param mix_voices(4);
+Param output_ceiling(0.85);
+
+History p0(0);
+History p1(0);
+History p2(0);
+History p3(0);
+History p4(0);
+History p5(0);
+History p6(0);
+History p7(0);
+History p8(0);
+History p9(0);
+History p10(0);
+History p11(0);
+History p12(0);
+History p13(0);
+History p14(0);
+History p15(0);
+
+History e0(0);
+History e1(0);
+History e2(0);
+History e3(0);
+History e4(0);
+History e5(0);
+History e6(0);
+History e7(0);
+History e8(0);
+History e9(0);
+History e10(0);
+History e11(0);
+History e12(0);
+History e13(0);
+History e14(0);
+History e15(0);
+
+History sm0(0);
+History sm1(0);
+History sm2(0);
+History sm3(0);
+History sm4(0);
+History sm5(0);
+History sm6(0);
+History sm7(0);
+History sm8(0);
+History sm9(0);
+History sm10(0);
+History sm11(0);
+History sm12(0);
+History sm13(0);
+History sm14(0);
+History sm15(0);
+
+History sph0(0);
+History sph1(0);
+History sph2(0);
+History sph3(0);
+History sph4(0);
+History sph5(0);
+History sph6(0);
+History sph7(0);
+History sph8(0);
+History sph9(0);
+History sph10(0);
+History sph11(0);
+History sph12(0);
+History sph13(0);
+History sph14(0);
+History sph15(0);
+
+freq = (in1 > 0) * in1 + (in1 <= 0) * default_freq;
+pur = clamp(purity, 0, 1);
+ent = clamp(entropy, 0, 1);
+coh = clamp(coherence, 0, 1);
+
+mag_ms = max(magnitude_smooth_ms, 0.1);
+mag_coeff = exp(-1 / (mag_ms * 0.001 * samplerate));
+
+tm0 = clamp(m0, 0, 1);
+tm1 = clamp(m1, 0, 1);
+tm2 = clamp(m2, 0, 1);
+tm3 = clamp(m3, 0, 1);
+tm4 = clamp(m4, 0, 1);
+tm5 = clamp(m5, 0, 1);
+tm6 = clamp(m6, 0, 1);
+tm7 = clamp(m7, 0, 1);
+tm8 = clamp(m8, 0, 1);
+tm9 = clamp(m9, 0, 1);
+tm10 = clamp(m10, 0, 1);
+tm11 = clamp(m11, 0, 1);
+tm12 = clamp(m12, 0, 1);
+tm13 = clamp(m13, 0, 1);
+tm14 = clamp(m14, 0, 1);
+tm15 = clamp(m15, 0, 1);
+
+sm0 = tm0 + mag_coeff * (sm0 - tm0);
+sm1 = tm1 + mag_coeff * (sm1 - tm1);
+sm2 = tm2 + mag_coeff * (sm2 - tm2);
+sm3 = tm3 + mag_coeff * (sm3 - tm3);
+sm4 = tm4 + mag_coeff * (sm4 - tm4);
+sm5 = tm5 + mag_coeff * (sm5 - tm5);
+sm6 = tm6 + mag_coeff * (sm6 - tm6);
+sm7 = tm7 + mag_coeff * (sm7 - tm7);
+sm8 = tm8 + mag_coeff * (sm8 - tm8);
+sm9 = tm9 + mag_coeff * (sm9 - tm9);
+sm10 = tm10 + mag_coeff * (sm10 - tm10);
+sm11 = tm11 + mag_coeff * (sm11 - tm11);
+sm12 = tm12 + mag_coeff * (sm12 - tm12);
+sm13 = tm13 + mag_coeff * (sm13 - tm13);
+sm14 = tm14 + mag_coeff * (sm14 - tm14);
+sm15 = tm15 + mag_coeff * (sm15 - tm15);
+
+phase_ms = max(phase_smooth_ms, 0.1);
+phase_coeff = exp(-1 / (phase_ms * 0.001 * samplerate));
+
+dph0 = atan2(sin(ph0 - sph0), cos(ph0 - sph0));
+dph1 = atan2(sin(ph1 - sph1), cos(ph1 - sph1));
+dph2 = atan2(sin(ph2 - sph2), cos(ph2 - sph2));
+dph3 = atan2(sin(ph3 - sph3), cos(ph3 - sph3));
+dph4 = atan2(sin(ph4 - sph4), cos(ph4 - sph4));
+dph5 = atan2(sin(ph5 - sph5), cos(ph5 - sph5));
+dph6 = atan2(sin(ph6 - sph6), cos(ph6 - sph6));
+dph7 = atan2(sin(ph7 - sph7), cos(ph7 - sph7));
+dph8 = atan2(sin(ph8 - sph8), cos(ph8 - sph8));
+dph9 = atan2(sin(ph9 - sph9), cos(ph9 - sph9));
+dph10 = atan2(sin(ph10 - sph10), cos(ph10 - sph10));
+dph11 = atan2(sin(ph11 - sph11), cos(ph11 - sph11));
+dph12 = atan2(sin(ph12 - sph12), cos(ph12 - sph12));
+dph13 = atan2(sin(ph13 - sph13), cos(ph13 - sph13));
+dph14 = atan2(sin(ph14 - sph14), cos(ph14 - sph14));
+dph15 = atan2(sin(ph15 - sph15), cos(ph15 - sph15));
+
+sph0 = sph0 + (1 - phase_coeff) * dph0;
+sph1 = sph1 + (1 - phase_coeff) * dph1;
+sph2 = sph2 + (1 - phase_coeff) * dph2;
+sph3 = sph3 + (1 - phase_coeff) * dph3;
+sph4 = sph4 + (1 - phase_coeff) * dph4;
+sph5 = sph5 + (1 - phase_coeff) * dph5;
+sph6 = sph6 + (1 - phase_coeff) * dph6;
+sph7 = sph7 + (1 - phase_coeff) * dph7;
+sph8 = sph8 + (1 - phase_coeff) * dph8;
+sph9 = sph9 + (1 - phase_coeff) * dph9;
+sph10 = sph10 + (1 - phase_coeff) * dph10;
+sph11 = sph11 + (1 - phase_coeff) * dph11;
+sph12 = sph12 + (1 - phase_coeff) * dph12;
+sph13 = sph13 + (1 - phase_coeff) * dph13;
+sph14 = sph14 + (1 - phase_coeff) * dph14;
+sph15 = sph15 + (1 - phase_coeff) * dph15;
+
+atk_ms = max(attack_ms * mix(1.35, 0.65, coh), 0.1);
+atk_coeff = exp(-1 / (atk_ms * 0.001 * samplerate));
+
+spd0 = clamp(abs(s0), 0, 1);
+spd1 = clamp(abs(s1), 0, 1);
+spd2 = clamp(abs(s2), 0, 1);
+spd3 = clamp(abs(s3), 0, 1);
+spd4 = clamp(abs(s4), 0, 1);
+spd5 = clamp(abs(s5), 0, 1);
+spd6 = clamp(abs(s6), 0, 1);
+spd7 = clamp(abs(s7), 0, 1);
+spd8 = clamp(abs(s8), 0, 1);
+spd9 = clamp(abs(s9), 0, 1);
+spd10 = clamp(abs(s10), 0, 1);
+spd11 = clamp(abs(s11), 0, 1);
+spd12 = clamp(abs(s12), 0, 1);
+spd13 = clamp(abs(s13), 0, 1);
+spd14 = clamp(abs(s14), 0, 1);
+spd15 = clamp(abs(s15), 0, 1);
+
+dec0 = mix(slow_decay_ms, fast_decay_ms, spd0);
+dec1 = mix(slow_decay_ms, fast_decay_ms, spd1);
+dec2 = mix(slow_decay_ms, fast_decay_ms, spd2);
+dec3 = mix(slow_decay_ms, fast_decay_ms, spd3);
+dec4 = mix(slow_decay_ms, fast_decay_ms, spd4);
+dec5 = mix(slow_decay_ms, fast_decay_ms, spd5);
+dec6 = mix(slow_decay_ms, fast_decay_ms, spd6);
+dec7 = mix(slow_decay_ms, fast_decay_ms, spd7);
+dec8 = mix(slow_decay_ms, fast_decay_ms, spd8);
+dec9 = mix(slow_decay_ms, fast_decay_ms, spd9);
+dec10 = mix(slow_decay_ms, fast_decay_ms, spd10);
+dec11 = mix(slow_decay_ms, fast_decay_ms, spd11);
+dec12 = mix(slow_decay_ms, fast_decay_ms, spd12);
+dec13 = mix(slow_decay_ms, fast_decay_ms, spd13);
+dec14 = mix(slow_decay_ms, fast_decay_ms, spd14);
+dec15 = mix(slow_decay_ms, fast_decay_ms, spd15);
+
+dc0 = exp(-1 / (max(dec0, 0.1) * 0.001 * samplerate));
+dc1 = exp(-1 / (max(dec1, 0.1) * 0.001 * samplerate));
+dc2 = exp(-1 / (max(dec2, 0.1) * 0.001 * samplerate));
+dc3 = exp(-1 / (max(dec3, 0.1) * 0.001 * samplerate));
+dc4 = exp(-1 / (max(dec4, 0.1) * 0.001 * samplerate));
+dc5 = exp(-1 / (max(dec5, 0.1) * 0.001 * samplerate));
+dc6 = exp(-1 / (max(dec6, 0.1) * 0.001 * samplerate));
+dc7 = exp(-1 / (max(dec7, 0.1) * 0.001 * samplerate));
+dc8 = exp(-1 / (max(dec8, 0.1) * 0.001 * samplerate));
+dc9 = exp(-1 / (max(dec9, 0.1) * 0.001 * samplerate));
+dc10 = exp(-1 / (max(dec10, 0.1) * 0.001 * samplerate));
+dc11 = exp(-1 / (max(dec11, 0.1) * 0.001 * samplerate));
+dc12 = exp(-1 / (max(dec12, 0.1) * 0.001 * samplerate));
+dc13 = exp(-1 / (max(dec13, 0.1) * 0.001 * samplerate));
+dc14 = exp(-1 / (max(dec14, 0.1) * 0.001 * samplerate));
+dc15 = exp(-1 / (max(dec15, 0.1) * 0.001 * samplerate));
+
+// Higher entropy lifts weaker modes. Higher purity makes excitation more selective.
+exc_shape = mix(0.55, 1.6, pur);
+t0 = pow(sm0 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t1 = pow(sm1 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t2 = pow(sm2 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t3 = pow(sm3 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t4 = pow(sm4 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t5 = pow(sm5 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t6 = pow(sm6 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t7 = pow(sm7 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t8 = pow(sm8 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t9 = pow(sm9 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t10 = pow(sm10 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t11 = pow(sm11 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t12 = pow(sm12 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t13 = pow(sm13 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t14 = pow(sm14 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+t15 = pow(sm15 + 0.00001, exc_shape) * mix(0.35, 1, ent);
+
+e0 = (t0 > e0) * (t0 + atk_coeff * (e0 - t0)) + (t0 <= e0) * (t0 + dc0 * (e0 - t0));
+e1 = (t1 > e1) * (t1 + atk_coeff * (e1 - t1)) + (t1 <= e1) * (t1 + dc1 * (e1 - t1));
+e2 = (t2 > e2) * (t2 + atk_coeff * (e2 - t2)) + (t2 <= e2) * (t2 + dc2 * (e2 - t2));
+e3 = (t3 > e3) * (t3 + atk_coeff * (e3 - t3)) + (t3 <= e3) * (t3 + dc3 * (e3 - t3));
+e4 = (t4 > e4) * (t4 + atk_coeff * (e4 - t4)) + (t4 <= e4) * (t4 + dc4 * (e4 - t4));
+e5 = (t5 > e5) * (t5 + atk_coeff * (e5 - t5)) + (t5 <= e5) * (t5 + dc5 * (e5 - t5));
+e6 = (t6 > e6) * (t6 + atk_coeff * (e6 - t6)) + (t6 <= e6) * (t6 + dc6 * (e6 - t6));
+e7 = (t7 > e7) * (t7 + atk_coeff * (e7 - t7)) + (t7 <= e7) * (t7 + dc7 * (e7 - t7));
+e8 = (t8 > e8) * (t8 + atk_coeff * (e8 - t8)) + (t8 <= e8) * (t8 + dc8 * (e8 - t8));
+e9 = (t9 > e9) * (t9 + atk_coeff * (e9 - t9)) + (t9 <= e9) * (t9 + dc9 * (e9 - t9));
+e10 = (t10 > e10) * (t10 + atk_coeff * (e10 - t10)) + (t10 <= e10) * (t10 + dc10 * (e10 - t10));
+e11 = (t11 > e11) * (t11 + atk_coeff * (e11 - t11)) + (t11 <= e11) * (t11 + dc11 * (e11 - t11));
+e12 = (t12 > e12) * (t12 + atk_coeff * (e12 - t12)) + (t12 <= e12) * (t12 + dc12 * (e12 - t12));
+e13 = (t13 > e13) * (t13 + atk_coeff * (e13 - t13)) + (t13 <= e13) * (t13 + dc13 * (e13 - t13));
+e14 = (t14 > e14) * (t14 + atk_coeff * (e14 - t14)) + (t14 <= e14) * (t14 + dc14 * (e14 - t14));
+e15 = (t15 > e15) * (t15 + atk_coeff * (e15 - t15)) + (t15 <= e15) * (t15 + dc15 * (e15 - t15));
+
+bright = clamp(brightness + ent * 0.25, 0, 1);
+
+p0 = fract(p0 + freq * max(h0, 0.01) / samplerate);
+p1 = fract(p1 + freq * max(h1, 0.01) / samplerate);
+p2 = fract(p2 + freq * max(h2, 0.01) / samplerate);
+p3 = fract(p3 + freq * max(h3, 0.01) / samplerate);
+p4 = fract(p4 + freq * max(h4, 0.01) / samplerate);
+p5 = fract(p5 + freq * max(h5, 0.01) / samplerate);
+p6 = fract(p6 + freq * max(h6, 0.01) / samplerate);
+p7 = fract(p7 + freq * max(h7, 0.01) / samplerate);
+p8 = fract(p8 + freq * max(h8, 0.01) / samplerate);
+p9 = fract(p9 + freq * max(h9, 0.01) / samplerate);
+p10 = fract(p10 + freq * max(h10, 0.01) / samplerate);
+p11 = fract(p11 + freq * max(h11, 0.01) / samplerate);
+p12 = fract(p12 + freq * max(h12, 0.01) / samplerate);
+p13 = fract(p13 + freq * max(h13, 0.01) / samplerate);
+p14 = fract(p14 + freq * max(h14, 0.01) / samplerate);
+p15 = fract(p15 + freq * max(h15, 0.01) / samplerate);
+
+twopi = 6.283185307179586;
+partials =
+    e0 * sin(twopi * p0 + sph0) / pow(max(h0, 1), bright) +
+    e1 * sin(twopi * p1 + sph1) / pow(max(h1, 1), bright) +
+    e2 * sin(twopi * p2 + sph2) / pow(max(h2, 1), bright) +
+    e3 * sin(twopi * p3 + sph3) / pow(max(h3, 1), bright) +
+    e4 * sin(twopi * p4 + sph4) / pow(max(h4, 1), bright) +
+    e5 * sin(twopi * p5 + sph5) / pow(max(h5, 1), bright) +
+    e6 * sin(twopi * p6 + sph6) / pow(max(h6, 1), bright) +
+    e7 * sin(twopi * p7 + sph7) / pow(max(h7, 1), bright) +
+    e8 * sin(twopi * p8 + sph8) / pow(max(h8, 1), bright) +
+    e9 * sin(twopi * p9 + sph9) / pow(max(h9, 1), bright) +
+    e10 * sin(twopi * p10 + sph10) / pow(max(h10, 1), bright) +
+    e11 * sin(twopi * p11 + sph11) / pow(max(h11, 1), bright) +
+    e12 * sin(twopi * p12 + sph12) / pow(max(h12, 1), bright) +
+    e13 * sin(twopi * p13 + sph13) / pow(max(h13, 1), bright) +
+    e14 * sin(twopi * p14 + sph14) / pow(max(h14, 1), bright) +
+    e15 * sin(twopi * p15 + sph15) / pow(max(h15, 1), bright);
+
+voice_scale = 1 / sqrt(max(mix_voices, 1));
+sig = tanh(partials * 0.5);
+
+out1 = sig * amp * output_ceiling * voice_scale;
+out2 = e0 + e1 + e2 + e3 + e4 + e5 + e6 + e7 + e8 + e9 + e10 + e11 + e12 + e13 + e14 + e15;
+out3 = freq;

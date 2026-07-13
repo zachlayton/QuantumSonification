@@ -1,0 +1,122 @@
+{
+  "surface": {
+    "surface": "tanglecube",
+    "parameter": 11.8,
+    "resolution": 26,
+    "bound": 3.0,
+    "level": 0.0,
+    "radius_m": 0.25,
+    "revision": 1
+  },
+  "geometry_hash": "9b567ebae02bcb12268a1a5fb2bbdea09e4fef53b34d741b9c72485b7724246d",
+  "vertex_count": 7828,
+  "face_count": 15672,
+  "paths": {
+    "candidate_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/tanglecube_r000001_candidate.json",
+    "obj": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/tanglecube_r000001.obj",
+    "diagnostics_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/tanglecube_r000001_diagnostics.json"
+  },
+  "render": {
+    "modes": 24,
+    "material_model": "surface_laplacian",
+    "effective_wave_speed": 120.0,
+    "t60_seconds": 4.0,
+    "ir_duration_seconds": 8.0,
+    "sample_rate": 48000
+  },
+  "living_state": {
+    "revision": 2,
+    "created_at": 1783897892.327188,
+    "reason": "procedural algebraic surface",
+    "invalidated_domains": [
+      "geometry",
+      "material",
+      "quantum",
+      "timing",
+      "acoustics"
+    ],
+    "material_model": "surface_laplacian",
+    "mode_count": 24,
+    "spectral_gap": 34.360708853893755,
+    "frequency_min_hz": 111.95214911165651,
+    "frequency_max_hz": 460.0843513628344,
+    "mode_tracking_score": null,
+    "paths": {
+      "directory": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002",
+      "spectral_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/spectral_geometry.npz",
+      "material_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/surface_material.npz",
+      "material_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/surface_material.json",
+      "quantum_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/quantum_eigenfield.npz",
+      "quantum_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/quantum_eigenfield.json",
+      "timing_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/timing_snapshot.npz",
+      "timing_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/timing_snapshot.json",
+      "ir_wav": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/ir_surface_laplacian_r000002.wav",
+      "ir_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/ir_surface_laplacian_r000002.npz",
+      "ir_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/ir_surface_laplacian_r000002.json",
+      "bundle_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/algebraic_surfaces/tanglecube_v1/living/state_000002/living_spectral_state.npz"
+    },
+    "descriptors": {
+      "quantum": {
+        "dimension": 16,
+        "n_qubits": 4,
+        "purity": 0.7884999999999995,
+        "entropy_bits": 0.9469361556706559,
+        "max_mixed_entropy_bits": 4.0,
+        "coherence_l1": 0.8799999999999998,
+        "dominant_population": 0.4474999999999999,
+        "eigenvalues": [
+          0.8874999999999997,
+          0.0075000000000000075,
+          0.007500000000000007,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003,
+          0.007500000000000003
+        ]
+      },
+      "timing": {
+        "entropy_bits": 4.56402280706657,
+        "effective_participation": 23.2945392370822
+      },
+      "acoustics": {
+        "material_model": "surface_laplacian",
+        "mode_count": 24,
+        "audible_mode_count": 24,
+        "frequency_min_hz": 111.95214911165651,
+        "frequency_max_hz": 460.0843513628344,
+        "decay_time_definition": "amplitude_time_constant",
+        "t60_min_seconds": 3.6867172382381503,
+        "t60_max_seconds": 6.046047976679583,
+        "slowest_tail_level_db_at_end": -48.2298521488318,
+        "phase_mode": "coherent",
+        "direct_gain": 0.08,
+        "tail_fade_seconds": 0.02,
+        "duration_seconds": 4.86,
+        "maximum_duration_seconds": 8.0,
+        "auto_trim": true,
+        "trimmed": true,
+        "trim_threshold_db": -60.0,
+        "trim_window_seconds": 0.02,
+        "trim_hold_seconds": 0.1,
+        "minimum_duration_seconds": 1.0,
+        "sample_rate": 48000
+      },
+      "spectral": {
+        "spectral_gap": 34.360708853893755,
+        "mean_spacing": 23.737629505260255,
+        "spacing_variance": 2724.4375793123463,
+        "spectral_entropy": 4.294618878014155
+      }
+    }
+  },
+  "elapsed_seconds": 2.3138216660008766
+}

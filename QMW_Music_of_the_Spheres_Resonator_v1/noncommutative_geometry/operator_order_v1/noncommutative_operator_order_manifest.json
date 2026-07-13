@@ -1,0 +1,660 @@
+{
+  "experiment": "qmw.noncommutative_operator_order.v1",
+  "scope": "finite-dimensional noncommuting deformation prototype; not full Kontsevich deformation quantization",
+  "operator_config": {
+    "deformation": 0.85,
+    "commutator_gain": 1.0,
+    "radius_m": 0.25,
+    "ir_energy_norm": 0.35,
+    "ir_peak_ceiling": 0.25
+  },
+  "surface_config": {
+    "surface": "tanglecube",
+    "parameter": 11.8,
+    "resolution": 28,
+    "bound": 3.0,
+    "level": 0.0,
+    "radius_m": 0.25,
+    "revision": 1
+  },
+  "render_config": {
+    "modes": 20,
+    "material_model": "surface_laplacian",
+    "effective_wave_speed": 120.0,
+    "t60_seconds": 4.5,
+    "ir_duration_seconds": 8.0,
+    "sample_rate": 48000
+  },
+  "operators": {
+    "A_then_B": [
+      [
+        1.0915824322670242,
+        0.2762029364706819,
+        0.09817725622320639
+      ],
+      [
+        0.007719874269313991,
+        1.036537965337912,
+        0.32077171682417027
+      ],
+      [
+        0.05652825671269135,
+        0.014303336180656441,
+        0.8905615050635388
+      ]
+    ],
+    "B_then_A": [
+      [
+        1.0940052692342837,
+        0.34361005605851064,
+        0.20241654197172426
+      ],
+      [
+        0.008860280737632056,
+        1.034584606728118,
+        0.3003264900809301
+      ],
+      [
+        0.04455572406378282,
+        0.0,
+        0.8900920267060738
+      ]
+    ],
+    "commutator": [
+      [
+        0.9995181175894278,
+        0.06314012745913455,
+        0.09727747957411369
+      ],
+      [
+        0.003597409161072541,
+        1.0002702669631693,
+        -0.021213812270012178
+      ],
+      [
+        -0.012162241997640684,
+        -0.015125004335919439,
+        0.999564970331896
+      ]
+    ],
+    "classical": [
+      [
+        1.0921783270788474,
+        0.3070655502803041,
+        0.14730271434298134
+      ],
+      [
+        0.008248395364636979,
+        1.03538553236315,
+        0.31019732767826264
+      ],
+      [
+        0.05028090363835256,
+        0.007380143220990979,
+        0.8910547125254372
+      ]
+    ]
+  },
+  "operator_determinants": {
+    "A_then_B": 0.9999999999999996,
+    "B_then_A": 1.0,
+    "commutator": 0.9999999999999998,
+    "classical": 1.0
+  },
+  "commutator_frobenius_norm": 0.1667318805747719,
+  "slots": {
+    "A": {
+      "slot": "A",
+      "label": "A_then_B",
+      "geometry_hash": "52f2d199dea00d02ae0f4a5c8174b874a4d96ba87687ff15528590dc05d73581",
+      "vertex_count": 8896,
+      "face_count": 17808,
+      "paths": {
+        "candidate_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/slot_A_A_then_B_candidate.json",
+        "obj_m": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/slot_A_A_then_B.obj",
+        "obj_rhino_mm": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/slot_A_A_then_B_rhino_mm.obj"
+      },
+      "diagnostics": {
+        "vertex_count": 8896,
+        "face_count": 17808,
+        "edge_count": 26712,
+        "boundary_edge_count": 0,
+        "nonmanifold_edge_count": 0,
+        "connected_components": 1,
+        "duplicate_face_count": 0,
+        "degenerate_face_count": 0,
+        "surface_area_m2": 0.3252128061361028,
+        "bounding_box_min_m": [
+          -0.17394426310824315,
+          -0.16336773660691356,
+          -0.11949375410367961
+        ],
+        "bounding_box_max_m": [
+          0.17394426310824315,
+          0.16336773660691356,
+          0.11949375410367961
+        ]
+      },
+      "living_state": {
+        "revision": 1,
+        "created_at": 1783904223.643035,
+        "reason": "procedural algebraic surface",
+        "invalidated_domains": [
+          "geometry",
+          "material",
+          "quantum",
+          "timing",
+          "acoustics"
+        ],
+        "material_model": "surface_laplacian",
+        "mode_count": 20,
+        "spectral_gap": 46.564962481959185,
+        "frequency_min_hz": 130.3259821131587,
+        "frequency_max_hz": 566.5311045491683,
+        "mode_tracking_score": null,
+        "paths": {
+          "directory": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001",
+          "spectral_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/spectral_geometry.npz",
+          "material_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/surface_material.npz",
+          "material_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/surface_material.json",
+          "quantum_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/quantum_eigenfield.npz",
+          "quantum_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/quantum_eigenfield.json",
+          "timing_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/timing_snapshot.npz",
+          "timing_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/timing_snapshot.json",
+          "ir_wav": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/ir_surface_laplacian_r000001.wav",
+          "ir_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/ir_surface_laplacian_r000001.npz",
+          "ir_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/ir_surface_laplacian_r000001.json",
+          "bundle_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/living_spectral_state.npz"
+        },
+        "descriptors": {
+          "quantum": {
+            "dimension": 16,
+            "n_qubits": 4,
+            "purity": 0.7884999999999995,
+            "entropy_bits": 0.9469361556706559,
+            "max_mixed_entropy_bits": 4.0,
+            "coherence_l1": 0.8799999999999998,
+            "dominant_population": 0.4474999999999999,
+            "eigenvalues": [
+              0.8874999999999997,
+              0.0075000000000000075,
+              0.007500000000000007,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003
+            ]
+          },
+          "timing": {
+            "entropy_bits": 4.297981962566038,
+            "effective_participation": 19.337862758663363
+          },
+          "acoustics": {
+            "material_model": "surface_laplacian",
+            "mode_count": 20,
+            "audible_mode_count": 20,
+            "frequency_min_hz": 130.3259821131587,
+            "frequency_max_hz": 566.5311045491683,
+            "decay_time_definition": "amplitude_time_constant",
+            "t60_min_seconds": 4.087235908079744,
+            "t60_max_seconds": 6.835923101478349,
+            "slowest_tail_level_db_at_end": -57.57817841966059,
+            "phase_mode": "coherent",
+            "direct_gain": 0.08,
+            "tail_fade_seconds": 0.02,
+            "duration_seconds": 6.56,
+            "maximum_duration_seconds": 8.0,
+            "auto_trim": true,
+            "trimmed": true,
+            "trim_threshold_db": -60.0,
+            "trim_window_seconds": 0.02,
+            "trim_hold_seconds": 0.1,
+            "minimum_duration_seconds": 1.0,
+            "sample_rate": 48000
+          },
+          "spectral": {
+            "spectral_gap": 46.564962481959185,
+            "mean_spacing": 43.86095928118081,
+            "spacing_variance": 3801.2005863105696,
+            "spectral_entropy": 3.9982580894371984
+          }
+        }
+      },
+      "normalized_ir": {
+        "source": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/living/state_000001/ir_surface_laplacian_r000001.wav",
+        "path": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_A_A_then_B/slot_A_A_then_B_normalized.wav",
+        "scale": 0.01889216492745127,
+        "peak_before": 0.800000011920929,
+        "peak_after": 0.015113732167173172,
+        "energy_before": 18.52619863017564,
+        "energy_after": 0.3499999999999887
+      },
+      "elapsed_seconds": 1.9387708749854937
+    },
+    "B": {
+      "slot": "B",
+      "label": "B_then_A",
+      "geometry_hash": "86b1fa768cea3a0b4a08910cca35726633c5d161aaf39461cdab005fbb0dfa5d",
+      "vertex_count": 8896,
+      "face_count": 17808,
+      "paths": {
+        "candidate_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/slot_B_B_then_A_candidate.json",
+        "obj_m": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/slot_B_B_then_A.obj",
+        "obj_rhino_mm": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/slot_B_B_then_A_rhino_mm.obj"
+      },
+      "diagnostics": {
+        "vertex_count": 8896,
+        "face_count": 17808,
+        "edge_count": 26712,
+        "boundary_edge_count": 0,
+        "nonmanifold_edge_count": 0,
+        "connected_components": 1,
+        "duplicate_face_count": 0,
+        "degenerate_face_count": 0,
+        "surface_area_m2": 0.3005831185263339,
+        "bounding_box_min_m": [
+          -0.18347055403921433,
+          -0.154529779671783,
+          -0.11222598968300403
+        ],
+        "bounding_box_max_m": [
+          0.18347055403921433,
+          0.154529779671783,
+          0.11222598968300403
+        ]
+      },
+      "living_state": {
+        "revision": 1,
+        "created_at": 1783904225.5514612,
+        "reason": "procedural algebraic surface",
+        "invalidated_domains": [
+          "geometry",
+          "material",
+          "quantum",
+          "timing",
+          "acoustics"
+        ],
+        "material_model": "surface_laplacian",
+        "mode_count": 20,
+        "spectral_gap": 48.84983785255493,
+        "frequency_min_hz": 133.48514603148064,
+        "frequency_max_hz": 589.3297996458272,
+        "mode_tracking_score": null,
+        "paths": {
+          "directory": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001",
+          "spectral_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/spectral_geometry.npz",
+          "material_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/surface_material.npz",
+          "material_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/surface_material.json",
+          "quantum_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/quantum_eigenfield.npz",
+          "quantum_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/quantum_eigenfield.json",
+          "timing_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/timing_snapshot.npz",
+          "timing_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/timing_snapshot.json",
+          "ir_wav": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/ir_surface_laplacian_r000001.wav",
+          "ir_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/ir_surface_laplacian_r000001.npz",
+          "ir_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/ir_surface_laplacian_r000001.json",
+          "bundle_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/living_spectral_state.npz"
+        },
+        "descriptors": {
+          "quantum": {
+            "dimension": 16,
+            "n_qubits": 4,
+            "purity": 0.7884999999999995,
+            "entropy_bits": 0.9469361556706559,
+            "max_mixed_entropy_bits": 4.0,
+            "coherence_l1": 0.8799999999999998,
+            "dominant_population": 0.4474999999999999,
+            "eigenvalues": [
+              0.8874999999999997,
+              0.0075000000000000075,
+              0.007500000000000007,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003
+            ]
+          },
+          "timing": {
+            "entropy_bits": 4.297981962566038,
+            "effective_participation": 19.337862758663352
+          },
+          "acoustics": {
+            "material_model": "surface_laplacian",
+            "mode_count": 20,
+            "audible_mode_count": 20,
+            "frequency_min_hz": 133.48514603148064,
+            "frequency_max_hz": 589.3297996458272,
+            "decay_time_definition": "amplitude_time_constant",
+            "t60_min_seconds": 4.078199895678663,
+            "t60_max_seconds": 6.85792009338898,
+            "slowest_tail_level_db_at_end": -56.34361362309962,
+            "phase_mode": "coherent",
+            "direct_gain": 0.08,
+            "tail_fade_seconds": 0.02,
+            "duration_seconds": 6.44,
+            "maximum_duration_seconds": 8.0,
+            "auto_trim": true,
+            "trimmed": true,
+            "trim_threshold_db": -60.0,
+            "trim_window_seconds": 0.02,
+            "trim_hold_seconds": 0.1,
+            "minimum_duration_seconds": 1.0,
+            "sample_rate": 48000
+          },
+          "spectral": {
+            "spectral_gap": 48.84983785255493,
+            "mean_spacing": 47.5431150040157,
+            "spacing_variance": 3972.9446505753226,
+            "spectral_entropy": 3.993091695509309
+          }
+        }
+      },
+      "normalized_ir": {
+        "source": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/living/state_000001/ir_surface_laplacian_r000001.wav",
+        "path": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_B_B_then_A/slot_B_B_then_A_normalized.wav",
+        "scale": 0.01925701176889001,
+        "peak_before": 0.800000011920929,
+        "peak_after": 0.015405609644673478,
+        "energy_before": 18.175197907155574,
+        "energy_after": 0.3499999999999905
+      },
+      "elapsed_seconds": 1.9089394999900833
+    },
+    "C": {
+      "slot": "C",
+      "label": "commutator",
+      "geometry_hash": "685e22e61e5b123115c55d4383b1fd718c64a66528e363287e8eb739d60535d6",
+      "vertex_count": 8896,
+      "face_count": 17808,
+      "paths": {
+        "candidate_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/slot_C_commutator_candidate.json",
+        "obj_m": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/slot_C_commutator.obj",
+        "obj_rhino_mm": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/slot_C_commutator_rhino_mm.obj"
+      },
+      "diagnostics": {
+        "vertex_count": 8896,
+        "face_count": 17808,
+        "edge_count": 26712,
+        "boundary_edge_count": 0,
+        "nonmanifold_edge_count": 0,
+        "connected_components": 1,
+        "duplicate_face_count": 0,
+        "degenerate_face_count": 0,
+        "surface_area_m2": 0.48065217264393373,
+        "bounding_box_min_m": [
+          -0.17481938003626418,
+          -0.1592179123839492,
+          -0.159394687112442
+        ],
+        "bounding_box_max_m": [
+          0.17481938003626418,
+          0.1592179123839492,
+          0.159394687112442
+        ]
+      },
+      "living_state": {
+        "revision": 1,
+        "created_at": 1783904227.4954612,
+        "reason": "procedural algebraic surface",
+        "invalidated_domains": [
+          "geometry",
+          "material",
+          "quantum",
+          "timing",
+          "acoustics"
+        ],
+        "material_model": "surface_laplacian",
+        "mode_count": 20,
+        "spectral_gap": 36.209983876272865,
+        "frequency_min_hz": 114.92527282391005,
+        "frequency_max_hz": 476.90673196390827,
+        "mode_tracking_score": null,
+        "paths": {
+          "directory": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001",
+          "spectral_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/spectral_geometry.npz",
+          "material_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/surface_material.npz",
+          "material_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/surface_material.json",
+          "quantum_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/quantum_eigenfield.npz",
+          "quantum_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/quantum_eigenfield.json",
+          "timing_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/timing_snapshot.npz",
+          "timing_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/timing_snapshot.json",
+          "ir_wav": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/ir_surface_laplacian_r000001.wav",
+          "ir_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/ir_surface_laplacian_r000001.npz",
+          "ir_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/ir_surface_laplacian_r000001.json",
+          "bundle_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/living_spectral_state.npz"
+        },
+        "descriptors": {
+          "quantum": {
+            "dimension": 16,
+            "n_qubits": 4,
+            "purity": 0.7884999999999995,
+            "entropy_bits": 0.9469361556706559,
+            "max_mixed_entropy_bits": 4.0,
+            "coherence_l1": 0.8799999999999998,
+            "dominant_population": 0.4474999999999999,
+            "eigenvalues": [
+              0.8874999999999997,
+              0.0075000000000000075,
+              0.007500000000000007,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003
+            ]
+          },
+          "timing": {
+            "entropy_bits": 4.297981962566038,
+            "effective_participation": 19.337862758663356
+          },
+          "acoustics": {
+            "material_model": "surface_laplacian",
+            "mode_count": 20,
+            "audible_mode_count": 20,
+            "frequency_min_hz": 114.92527282391005,
+            "frequency_max_hz": 476.90673196390827,
+            "decay_time_definition": "amplitude_time_constant",
+            "t60_min_seconds": 4.110697331734929,
+            "t60_max_seconds": 6.764283005967853,
+            "slowest_tail_level_db_at_end": -53.752925428934645,
+            "phase_mode": "coherent",
+            "direct_gain": 0.08,
+            "tail_fade_seconds": 0.02,
+            "duration_seconds": 6.06,
+            "maximum_duration_seconds": 8.0,
+            "auto_trim": true,
+            "trimmed": true,
+            "trim_threshold_db": -60.0,
+            "trim_window_seconds": 0.02,
+            "trim_hold_seconds": 0.1,
+            "minimum_duration_seconds": 1.0,
+            "sample_rate": 48000
+          },
+          "spectral": {
+            "spectral_gap": 36.209983876272865,
+            "mean_spacing": 30.91209340515858,
+            "spacing_variance": 3409.233639110858,
+            "spectral_entropy": 4.0115752617682885
+          }
+        }
+      },
+      "normalized_ir": {
+        "source": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/living/state_000001/ir_surface_laplacian_r000001.wav",
+        "path": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_C_commutator/slot_C_commutator_normalized.wav",
+        "scale": 0.018149576755373625,
+        "peak_before": 0.800000011920929,
+        "peak_after": 0.014519661620658715,
+        "energy_before": 19.284196249721028,
+        "energy_after": 0.3499999999999924
+      },
+      "elapsed_seconds": 1.9419011249556206
+    },
+    "D": {
+      "slot": "D",
+      "label": "classical",
+      "geometry_hash": "cb75a4cc7de88f7255d17adf7c0d97d5a336fed3231df53dd0458866262436f1",
+      "vertex_count": 8896,
+      "face_count": 17808,
+      "paths": {
+        "candidate_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/slot_D_classical_candidate.json",
+        "obj_m": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/slot_D_classical.obj",
+        "obj_rhino_mm": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/slot_D_classical_rhino_mm.obj"
+      },
+      "diagnostics": {
+        "vertex_count": 8896,
+        "face_count": 17808,
+        "edge_count": 26712,
+        "boundary_edge_count": 0,
+        "nonmanifold_edge_count": 0,
+        "connected_components": 1,
+        "duplicate_face_count": 0,
+        "degenerate_face_count": 0,
+        "surface_area_m2": 0.3138559546709194,
+        "bounding_box_min_m": [
+          -0.17860576758332197,
+          -0.15919342268934308,
+          -0.11616240032423966
+        ],
+        "bounding_box_max_m": [
+          0.17860576758332197,
+          0.15919342268934308,
+          0.11616240032423966
+        ]
+      },
+      "living_state": {
+        "revision": 1,
+        "created_at": 1783904229.421358,
+        "reason": "procedural algebraic surface",
+        "invalidated_domains": [
+          "geometry",
+          "material",
+          "quantum",
+          "timing",
+          "acoustics"
+        ],
+        "material_model": "surface_laplacian",
+        "mode_count": 20,
+        "spectral_gap": 47.59297457100138,
+        "frequency_min_hz": 131.75672832814556,
+        "frequency_max_hz": 576.7892311488235,
+        "mode_tracking_score": null,
+        "paths": {
+          "directory": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001",
+          "spectral_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/spectral_geometry.npz",
+          "material_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/surface_material.npz",
+          "material_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/surface_material.json",
+          "quantum_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/quantum_eigenfield.npz",
+          "quantum_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/quantum_eigenfield.json",
+          "timing_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/timing_snapshot.npz",
+          "timing_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/timing_snapshot.json",
+          "ir_wav": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/ir_surface_laplacian_r000001.wav",
+          "ir_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/ir_surface_laplacian_r000001.npz",
+          "ir_json": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/ir_surface_laplacian_r000001.json",
+          "bundle_npz": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/living_spectral_state.npz"
+        },
+        "descriptors": {
+          "quantum": {
+            "dimension": 16,
+            "n_qubits": 4,
+            "purity": 0.7884999999999995,
+            "entropy_bits": 0.9469361556706559,
+            "max_mixed_entropy_bits": 4.0,
+            "coherence_l1": 0.8799999999999998,
+            "dominant_population": 0.4474999999999999,
+            "eigenvalues": [
+              0.8874999999999997,
+              0.0075000000000000075,
+              0.007500000000000007,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003,
+              0.007500000000000003
+            ]
+          },
+          "timing": {
+            "entropy_bits": 4.297981962566038,
+            "effective_participation": 19.337862758663363
+          },
+          "acoustics": {
+            "material_model": "surface_laplacian",
+            "mode_count": 20,
+            "audible_mode_count": 20,
+            "frequency_min_hz": 131.75672832814556,
+            "frequency_max_hz": 576.7892311488235,
+            "decay_time_definition": "amplitude_time_constant",
+            "t60_min_seconds": 4.082762278754564,
+            "t60_max_seconds": 6.84525471386565,
+            "slowest_tail_level_db_at_end": -56.27255903564031,
+            "phase_mode": "coherent",
+            "direct_gain": 0.08,
+            "tail_fade_seconds": 0.02,
+            "duration_seconds": 6.42,
+            "maximum_duration_seconds": 8.0,
+            "auto_trim": true,
+            "trimmed": true,
+            "trim_threshold_db": -60.0,
+            "trim_window_seconds": 0.02,
+            "trim_hold_seconds": 0.1,
+            "minimum_duration_seconds": 1.0,
+            "sample_rate": 48000
+          },
+          "spectral": {
+            "spectral_gap": 47.59297457100138,
+            "mean_spacing": 45.49916223476673,
+            "spacing_variance": 3851.6881513959365,
+            "spectral_entropy": 3.9961717545314714
+          }
+        }
+      },
+      "normalized_ir": {
+        "source": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/living/state_000001/ir_surface_laplacian_r000001.wav",
+        "path": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/slot_D_classical/slot_D_classical_normalized.wav",
+        "scale": 0.01921216756629277,
+        "peak_before": 0.800000011920929,
+        "peak_after": 0.0153697342820611,
+        "energy_before": 18.21762166045572,
+        "energy_after": 0.3499999999999851
+      },
+      "elapsed_seconds": 1.931962333037518
+    }
+  },
+  "ordered_geometry_difference": {
+    "rms_m": 0.006573981483798825,
+    "max_m": 0.0239309827592073
+  },
+  "manifest_path": "/Users/zlayton/QuantumSonification/QMW_Music_of_the_Spheres_Resonator_v1/noncommutative_geometry/operator_order_v1/noncommutative_operator_order_manifest.json"
+}

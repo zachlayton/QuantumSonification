@@ -1,0 +1,20 @@
+{
+  "bridge": "geometry_acoustics_bridge_v2",
+  "config": {
+    "sample_rate": 48000,
+    "duration_seconds": 1.0,
+    "highpass_hz": 5.0,
+    "peak_level": 0.8,
+    "stereo_width": 0.85,
+    "seed": 73
+  },
+  "acoustics": {
+    "material_model": "surface_laplacian",
+    "mode_count": 16,
+    "audible_mode_count": 16,
+    "frequency_min_hz": 268.60155838173705,
+    "frequency_max_hz": 777.426688811492,
+    "duration_seconds": 1.0,
+    "sample_rate": 48000
+  }
+}

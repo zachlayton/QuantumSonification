@@ -1,0 +1,482 @@
+// QMW Density Field Wavetable 256 Direct
+//
+// Gen~ codebox.
+// Feed a frequency signal/control into in1.
+// Map OSC real scanner values into params b0..b15.
+// Optional companion lists:
+//   imag      -> im0..im15
+//   magnitude -> m0..m15
+//   phase     -> ph0..ph15
+//   speed     -> s0..s15
+// The 16 basis values are treated as cyclic knots and interpolated as a
+// 256-point virtual wavetable.
+
+Param b0(0);
+Param b1(0);
+Param b2(0);
+Param b3(0);
+Param b4(0);
+Param b5(0);
+Param b6(0);
+Param b7(0);
+Param b8(0);
+Param b9(0);
+Param b10(0);
+Param b11(0);
+Param b12(0);
+Param b13(0);
+Param b14(0);
+Param b15(0);
+
+Param im0(0);
+Param im1(0);
+Param im2(0);
+Param im3(0);
+Param im4(0);
+Param im5(0);
+Param im6(0);
+Param im7(0);
+Param im8(0);
+Param im9(0);
+Param im10(0);
+Param im11(0);
+Param im12(0);
+Param im13(0);
+Param im14(0);
+Param im15(0);
+
+Param m0(1);
+Param m1(1);
+Param m2(1);
+Param m3(1);
+Param m4(1);
+Param m5(1);
+Param m6(1);
+Param m7(1);
+Param m8(1);
+Param m9(1);
+Param m10(1);
+Param m11(1);
+Param m12(1);
+Param m13(1);
+Param m14(1);
+Param m15(1);
+
+Param ph0(0);
+Param ph1(0);
+Param ph2(0);
+Param ph3(0);
+Param ph4(0);
+Param ph5(0);
+Param ph6(0);
+Param ph7(0);
+Param ph8(0);
+Param ph9(0);
+Param ph10(0);
+Param ph11(0);
+Param ph12(0);
+Param ph13(0);
+Param ph14(0);
+Param ph15(0);
+
+Param s0(0);
+Param s1(0);
+Param s2(0);
+Param s3(0);
+Param s4(0);
+Param s5(0);
+Param s6(0);
+Param s7(0);
+Param s8(0);
+Param s9(0);
+Param s10(0);
+Param s11(0);
+Param s12(0);
+Param s13(0);
+Param s14(0);
+Param s15(0);
+
+Param purity(1);
+Param entropy(0);
+Param coherence(0);
+Param amp(0.2);
+Param mix_voices(4);
+Param output_ceiling(0.85);
+Param default_freq(55);
+Param value_smooth_ms(40);
+Param magnitude_smooth_ms(100);
+Param phase_smooth_ms(80);
+Param fast_smooth_ms(10);
+Param slow_smooth_ms(150);
+Param phase_depth(0.025);
+Param imag_mix(0.35);
+Param drive(1.2);
+Param max_drive(4);
+Param auto_level(0.5);
+
+History phase(0);
+History sb0(0);
+History sb1(0);
+History sb2(0);
+History sb3(0);
+History sb4(0);
+History sb5(0);
+History sb6(0);
+History sb7(0);
+History sb8(0);
+History sb9(0);
+History sb10(0);
+History sb11(0);
+History sb12(0);
+History sb13(0);
+History sb14(0);
+History sb15(0);
+History sim0(0);
+History sim1(0);
+History sim2(0);
+History sim3(0);
+History sim4(0);
+History sim5(0);
+History sim6(0);
+History sim7(0);
+History sim8(0);
+History sim9(0);
+History sim10(0);
+History sim11(0);
+History sim12(0);
+History sim13(0);
+History sim14(0);
+History sim15(0);
+History sm0(1);
+History sm1(1);
+History sm2(1);
+History sm3(1);
+History sm4(1);
+History sm5(1);
+History sm6(1);
+History sm7(1);
+History sm8(1);
+History sm9(1);
+History sm10(1);
+History sm11(1);
+History sm12(1);
+History sm13(1);
+History sm14(1);
+History sm15(1);
+History sph0(0);
+History sph1(0);
+History sph2(0);
+History sph3(0);
+History sph4(0);
+History sph5(0);
+History sph6(0);
+History sph7(0);
+History sph8(0);
+History sph9(0);
+History sph10(0);
+History sph11(0);
+History sph12(0);
+History sph13(0);
+History sph14(0);
+History sph15(0);
+
+freq = (in1 > 0) * in1 + (in1 <= 0) * default_freq;
+phase = fract(phase + freq / samplerate);
+
+fast_ms = max(fast_smooth_ms, 0.1);
+slow_ms = max(slow_smooth_ms, fast_ms);
+base_ms = max(value_smooth_ms, 0.1);
+
+ms0 = mix(slow_ms, fast_ms, clamp(abs(s0), 0, 1));
+ms1 = mix(slow_ms, fast_ms, clamp(abs(s1), 0, 1));
+ms2 = mix(slow_ms, fast_ms, clamp(abs(s2), 0, 1));
+ms3 = mix(slow_ms, fast_ms, clamp(abs(s3), 0, 1));
+ms4 = mix(slow_ms, fast_ms, clamp(abs(s4), 0, 1));
+ms5 = mix(slow_ms, fast_ms, clamp(abs(s5), 0, 1));
+ms6 = mix(slow_ms, fast_ms, clamp(abs(s6), 0, 1));
+ms7 = mix(slow_ms, fast_ms, clamp(abs(s7), 0, 1));
+ms8 = mix(slow_ms, fast_ms, clamp(abs(s8), 0, 1));
+ms9 = mix(slow_ms, fast_ms, clamp(abs(s9), 0, 1));
+ms10 = mix(slow_ms, fast_ms, clamp(abs(s10), 0, 1));
+ms11 = mix(slow_ms, fast_ms, clamp(abs(s11), 0, 1));
+ms12 = mix(slow_ms, fast_ms, clamp(abs(s12), 0, 1));
+ms13 = mix(slow_ms, fast_ms, clamp(abs(s13), 0, 1));
+ms14 = mix(slow_ms, fast_ms, clamp(abs(s14), 0, 1));
+ms15 = mix(slow_ms, fast_ms, clamp(abs(s15), 0, 1));
+
+// Let the global fallback smoothing still matter if speed is not patched.
+ms0 = mix(base_ms, ms0, clamp(abs(s0), 0, 1));
+ms1 = mix(base_ms, ms1, clamp(abs(s1), 0, 1));
+ms2 = mix(base_ms, ms2, clamp(abs(s2), 0, 1));
+ms3 = mix(base_ms, ms3, clamp(abs(s3), 0, 1));
+ms4 = mix(base_ms, ms4, clamp(abs(s4), 0, 1));
+ms5 = mix(base_ms, ms5, clamp(abs(s5), 0, 1));
+ms6 = mix(base_ms, ms6, clamp(abs(s6), 0, 1));
+ms7 = mix(base_ms, ms7, clamp(abs(s7), 0, 1));
+ms8 = mix(base_ms, ms8, clamp(abs(s8), 0, 1));
+ms9 = mix(base_ms, ms9, clamp(abs(s9), 0, 1));
+ms10 = mix(base_ms, ms10, clamp(abs(s10), 0, 1));
+ms11 = mix(base_ms, ms11, clamp(abs(s11), 0, 1));
+ms12 = mix(base_ms, ms12, clamp(abs(s12), 0, 1));
+ms13 = mix(base_ms, ms13, clamp(abs(s13), 0, 1));
+ms14 = mix(base_ms, ms14, clamp(abs(s14), 0, 1));
+ms15 = mix(base_ms, ms15, clamp(abs(s15), 0, 1));
+
+c0 = exp(-1 / (ms0 * 0.001 * samplerate));
+c1 = exp(-1 / (ms1 * 0.001 * samplerate));
+c2 = exp(-1 / (ms2 * 0.001 * samplerate));
+c3 = exp(-1 / (ms3 * 0.001 * samplerate));
+c4 = exp(-1 / (ms4 * 0.001 * samplerate));
+c5 = exp(-1 / (ms5 * 0.001 * samplerate));
+c6 = exp(-1 / (ms6 * 0.001 * samplerate));
+c7 = exp(-1 / (ms7 * 0.001 * samplerate));
+c8 = exp(-1 / (ms8 * 0.001 * samplerate));
+c9 = exp(-1 / (ms9 * 0.001 * samplerate));
+c10 = exp(-1 / (ms10 * 0.001 * samplerate));
+c11 = exp(-1 / (ms11 * 0.001 * samplerate));
+c12 = exp(-1 / (ms12 * 0.001 * samplerate));
+c13 = exp(-1 / (ms13 * 0.001 * samplerate));
+c14 = exp(-1 / (ms14 * 0.001 * samplerate));
+c15 = exp(-1 / (ms15 * 0.001 * samplerate));
+
+sb0 = b0 + c0 * (sb0 - b0);
+sb1 = b1 + c1 * (sb1 - b1);
+sb2 = b2 + c2 * (sb2 - b2);
+sb3 = b3 + c3 * (sb3 - b3);
+sb4 = b4 + c4 * (sb4 - b4);
+sb5 = b5 + c5 * (sb5 - b5);
+sb6 = b6 + c6 * (sb6 - b6);
+sb7 = b7 + c7 * (sb7 - b7);
+sb8 = b8 + c8 * (sb8 - b8);
+sb9 = b9 + c9 * (sb9 - b9);
+sb10 = b10 + c10 * (sb10 - b10);
+sb11 = b11 + c11 * (sb11 - b11);
+sb12 = b12 + c12 * (sb12 - b12);
+sb13 = b13 + c13 * (sb13 - b13);
+sb14 = b14 + c14 * (sb14 - b14);
+sb15 = b15 + c15 * (sb15 - b15);
+
+sim0 = im0 + c0 * (sim0 - im0);
+sim1 = im1 + c1 * (sim1 - im1);
+sim2 = im2 + c2 * (sim2 - im2);
+sim3 = im3 + c3 * (sim3 - im3);
+sim4 = im4 + c4 * (sim4 - im4);
+sim5 = im5 + c5 * (sim5 - im5);
+sim6 = im6 + c6 * (sim6 - im6);
+sim7 = im7 + c7 * (sim7 - im7);
+sim8 = im8 + c8 * (sim8 - im8);
+sim9 = im9 + c9 * (sim9 - im9);
+sim10 = im10 + c10 * (sim10 - im10);
+sim11 = im11 + c11 * (sim11 - im11);
+sim12 = im12 + c12 * (sim12 - im12);
+sim13 = im13 + c13 * (sim13 - im13);
+sim14 = im14 + c14 * (sim14 - im14);
+sim15 = im15 + c15 * (sim15 - im15);
+
+mag_ms = max(magnitude_smooth_ms, 0.1);
+mag_coeff = exp(-1 / (mag_ms * 0.001 * samplerate));
+
+tm0 = clamp(m0, 0, 1);
+tm1 = clamp(m1, 0, 1);
+tm2 = clamp(m2, 0, 1);
+tm3 = clamp(m3, 0, 1);
+tm4 = clamp(m4, 0, 1);
+tm5 = clamp(m5, 0, 1);
+tm6 = clamp(m6, 0, 1);
+tm7 = clamp(m7, 0, 1);
+tm8 = clamp(m8, 0, 1);
+tm9 = clamp(m9, 0, 1);
+tm10 = clamp(m10, 0, 1);
+tm11 = clamp(m11, 0, 1);
+tm12 = clamp(m12, 0, 1);
+tm13 = clamp(m13, 0, 1);
+tm14 = clamp(m14, 0, 1);
+tm15 = clamp(m15, 0, 1);
+
+sm0 = tm0 + mag_coeff * (sm0 - tm0);
+sm1 = tm1 + mag_coeff * (sm1 - tm1);
+sm2 = tm2 + mag_coeff * (sm2 - tm2);
+sm3 = tm3 + mag_coeff * (sm3 - tm3);
+sm4 = tm4 + mag_coeff * (sm4 - tm4);
+sm5 = tm5 + mag_coeff * (sm5 - tm5);
+sm6 = tm6 + mag_coeff * (sm6 - tm6);
+sm7 = tm7 + mag_coeff * (sm7 - tm7);
+sm8 = tm8 + mag_coeff * (sm8 - tm8);
+sm9 = tm9 + mag_coeff * (sm9 - tm9);
+sm10 = tm10 + mag_coeff * (sm10 - tm10);
+sm11 = tm11 + mag_coeff * (sm11 - tm11);
+sm12 = tm12 + mag_coeff * (sm12 - tm12);
+sm13 = tm13 + mag_coeff * (sm13 - tm13);
+sm14 = tm14 + mag_coeff * (sm14 - tm14);
+sm15 = tm15 + mag_coeff * (sm15 - tm15);
+
+w0 = mix(0.25, 1, sm0);
+w1 = mix(0.25, 1, sm1);
+w2 = mix(0.25, 1, sm2);
+w3 = mix(0.25, 1, sm3);
+w4 = mix(0.25, 1, sm4);
+w5 = mix(0.25, 1, sm5);
+w6 = mix(0.25, 1, sm6);
+w7 = mix(0.25, 1, sm7);
+w8 = mix(0.25, 1, sm8);
+w9 = mix(0.25, 1, sm9);
+w10 = mix(0.25, 1, sm10);
+w11 = mix(0.25, 1, sm11);
+w12 = mix(0.25, 1, sm12);
+w13 = mix(0.25, 1, sm13);
+w14 = mix(0.25, 1, sm14);
+w15 = mix(0.25, 1, sm15);
+
+phase_ms = max(phase_smooth_ms, 0.1);
+phase_coeff = exp(-1 / (phase_ms * 0.001 * samplerate));
+
+// Phase arrives wrapped near -pi..pi. Smooth the shortest wrapped difference
+// so updates do not jump across the branch cut.
+dph0 = atan2(sin(ph0 - sph0), cos(ph0 - sph0));
+dph1 = atan2(sin(ph1 - sph1), cos(ph1 - sph1));
+dph2 = atan2(sin(ph2 - sph2), cos(ph2 - sph2));
+dph3 = atan2(sin(ph3 - sph3), cos(ph3 - sph3));
+dph4 = atan2(sin(ph4 - sph4), cos(ph4 - sph4));
+dph5 = atan2(sin(ph5 - sph5), cos(ph5 - sph5));
+dph6 = atan2(sin(ph6 - sph6), cos(ph6 - sph6));
+dph7 = atan2(sin(ph7 - sph7), cos(ph7 - sph7));
+dph8 = atan2(sin(ph8 - sph8), cos(ph8 - sph8));
+dph9 = atan2(sin(ph9 - sph9), cos(ph9 - sph9));
+dph10 = atan2(sin(ph10 - sph10), cos(ph10 - sph10));
+dph11 = atan2(sin(ph11 - sph11), cos(ph11 - sph11));
+dph12 = atan2(sin(ph12 - sph12), cos(ph12 - sph12));
+dph13 = atan2(sin(ph13 - sph13), cos(ph13 - sph13));
+dph14 = atan2(sin(ph14 - sph14), cos(ph14 - sph14));
+dph15 = atan2(sin(ph15 - sph15), cos(ph15 - sph15));
+
+sph0 = sph0 + (1 - phase_coeff) * dph0;
+sph1 = sph1 + (1 - phase_coeff) * dph1;
+sph2 = sph2 + (1 - phase_coeff) * dph2;
+sph3 = sph3 + (1 - phase_coeff) * dph3;
+sph4 = sph4 + (1 - phase_coeff) * dph4;
+sph5 = sph5 + (1 - phase_coeff) * dph5;
+sph6 = sph6 + (1 - phase_coeff) * dph6;
+sph7 = sph7 + (1 - phase_coeff) * dph7;
+sph8 = sph8 + (1 - phase_coeff) * dph8;
+sph9 = sph9 + (1 - phase_coeff) * dph9;
+sph10 = sph10 + (1 - phase_coeff) * dph10;
+sph11 = sph11 + (1 - phase_coeff) * dph11;
+sph12 = sph12 + (1 - phase_coeff) * dph12;
+sph13 = sph13 + (1 - phase_coeff) * dph13;
+sph14 = sph14 + (1 - phase_coeff) * dph14;
+sph15 = sph15 + (1 - phase_coeff) * dph15;
+
+// Real is the primary contour. Imag is a quadrature color. Phase rotates that
+// local complex pair. Magnitude decides how strongly each basis knot speaks.
+k0v = w0 * (sb0 * cos(sph0) - imag_mix * sim0 * sin(sph0));
+k1v = w1 * (sb1 * cos(sph1) - imag_mix * sim1 * sin(sph1));
+k2v = w2 * (sb2 * cos(sph2) - imag_mix * sim2 * sin(sph2));
+k3v = w3 * (sb3 * cos(sph3) - imag_mix * sim3 * sin(sph3));
+k4v = w4 * (sb4 * cos(sph4) - imag_mix * sim4 * sin(sph4));
+k5v = w5 * (sb5 * cos(sph5) - imag_mix * sim5 * sin(sph5));
+k6v = w6 * (sb6 * cos(sph6) - imag_mix * sim6 * sin(sph6));
+k7v = w7 * (sb7 * cos(sph7) - imag_mix * sim7 * sin(sph7));
+k8v = w8 * (sb8 * cos(sph8) - imag_mix * sim8 * sin(sph8));
+k9v = w9 * (sb9 * cos(sph9) - imag_mix * sim9 * sin(sph9));
+k10v = w10 * (sb10 * cos(sph10) - imag_mix * sim10 * sin(sph10));
+k11v = w11 * (sb11 * cos(sph11) - imag_mix * sim11 * sin(sph11));
+k12v = w12 * (sb12 * cos(sph12) - imag_mix * sim12 * sin(sph12));
+k13v = w13 * (sb13 * cos(sph13) - imag_mix * sim13 * sin(sph13));
+k14v = w14 * (sb14 * cos(sph14) - imag_mix * sim14 * sin(sph14));
+k15v = w15 * (sb15 * cos(sph15) - imag_mix * sim15 * sin(sph15));
+
+coh = clamp(coherence, 0, 1);
+ent = clamp(entropy, 0, 1);
+pur = clamp(purity, 0, 1);
+phase_offset = phase_depth * coh * (
+    sin(sph0) + sin(sph1) + sin(sph2) + sin(sph3) +
+    sin(sph4) + sin(sph5) + sin(sph6) + sin(sph7) +
+    sin(sph8) + sin(sph9) + sin(sph10) + sin(sph11) +
+    sin(sph12) + sin(sph13) + sin(sph14) + sin(sph15)
+) / 16;
+
+read_phase = fract(phase + phase_offset);
+knot_pos = read_phase * 16;
+k0 = floor(knot_pos);
+t = knot_pos - k0;
+
+// Cubic smoothstep interpolation. This keeps the 16-knot table from sounding
+// too stair-stepped while preserving the basis-state contour.
+t = t * t * (3 - 2 * t);
+
+i0 = k0;
+i1 = i0 + 1;
+i1 = i1 - (i1 >= 16) * 16;
+
+v0 =
+    (i0 == 0) * k0v +
+    (i0 == 1) * k1v +
+    (i0 == 2) * k2v +
+    (i0 == 3) * k3v +
+    (i0 == 4) * k4v +
+    (i0 == 5) * k5v +
+    (i0 == 6) * k6v +
+    (i0 == 7) * k7v +
+    (i0 == 8) * k8v +
+    (i0 == 9) * k9v +
+    (i0 == 10) * k10v +
+    (i0 == 11) * k11v +
+    (i0 == 12) * k12v +
+    (i0 == 13) * k13v +
+    (i0 == 14) * k14v +
+    (i0 == 15) * k15v;
+
+v1 =
+    (i1 == 0) * k0v +
+    (i1 == 1) * k1v +
+    (i1 == 2) * k2v +
+    (i1 == 3) * k3v +
+    (i1 == 4) * k4v +
+    (i1 == 5) * k5v +
+    (i1 == 6) * k6v +
+    (i1 == 7) * k7v +
+    (i1 == 8) * k8v +
+    (i1 == 9) * k9v +
+    (i1 == 10) * k10v +
+    (i1 == 11) * k11v +
+    (i1 == 12) * k12v +
+    (i1 == 13) * k13v +
+    (i1 == 14) * k14v +
+    (i1 == 15) * k15v;
+
+raw = mix(v0, v1, t);
+
+mean = (
+    k0v + k1v + k2v + k3v +
+    k4v + k5v + k6v + k7v +
+    k8v + k9v + k10v + k11v +
+    k12v + k13v + k14v + k15v
+) / 16;
+
+centered = raw - mean;
+peak01 = max(abs(k0v), abs(k1v));
+peak23 = max(abs(k2v), abs(k3v));
+peak45 = max(abs(k4v), abs(k5v));
+peak67 = max(abs(k6v), abs(k7v));
+peak89 = max(abs(k8v), abs(k9v));
+peak1011 = max(abs(k10v), abs(k11v));
+peak1213 = max(abs(k12v), abs(k13v));
+peak1415 = max(abs(k14v), abs(k15v));
+peak03 = max(peak01, peak23);
+peak47 = max(peak45, peak67);
+peak811 = max(peak89, peak1011);
+peak1215 = max(peak1213, peak1415);
+peak07 = max(peak03, peak47);
+peak815 = max(peak811, peak1215);
+knot_peak = max(max(peak07, peak815), 0.25);
+level_scale = mix(1, 1 / knot_peak, clamp(auto_level, 0, 1));
+centered = centered * level_scale;
+
+shaped_drive = drive * (1 + ent * 2) * mix(1.4, 0.75, pur);
+shaped_drive = min(shaped_drive, max(max_drive, 0.1));
+sig = tanh(centered * shaped_drive);
+
+voice_scale = 1 / sqrt(max(mix_voices, 1));
+out1 = sig * amp * output_ceiling * voice_scale;
+out2 = phase;
+out3 = read_phase * 256;
