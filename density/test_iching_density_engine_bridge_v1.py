@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-import iching_density_engine_bridge_v1 as live
+from density import iching_density_engine_bridge_v1 as live
 import qmw_iching_density_laplacian_bridge_v1 as source
 
 
