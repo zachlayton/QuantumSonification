@@ -1,7 +1,16 @@
 # qmw/backend/algorithms.py
 
+from dataclasses import dataclass, field
 from qiskit import QuantumCircuit
-from .quantum_backend import QuantumBackend, QuantumResult
+from .qmw_backend import QuantumBackend
+
+
+@dataclass
+class QuantumResult:
+    algorithm: str
+    bitstring: str
+    counts: dict
+    metadata: dict = field(default_factory=dict)
 
 
 def bernstein_vazirani_circuit(secret: str) -> QuantumCircuit:
@@ -36,11 +45,7 @@ def bernstein_vazirani_circuit(secret: str) -> QuantumCircuit:
 
 
 def run_bernstein_vazirani(secret: str, backend: QuantumBackend) -> QuantumResult:
-    qc = bernstein_vazirani_circuit(secret)
-    counts = backend.run_counts(qc)
-
-    # Most frequent result
-    measured = max(counts, key=counts.get)
+    measured, counts = backend.bernstein_vazirani(secret)
 
     return QuantumResult(
         algorithm="bernstein_vazirani",
