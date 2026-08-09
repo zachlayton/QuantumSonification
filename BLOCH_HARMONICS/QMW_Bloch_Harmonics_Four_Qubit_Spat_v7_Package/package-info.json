@@ -1,0 +1,32 @@
+{
+  "name": "QMW_Bloch_Harmonics_Four_Qubit_Spat_v7",
+  "displayname": "QMW Bloch Harmonics — Four Qubit Spat 8ch v7",
+  "version": "7.0.0",
+  "author": "Z. Layton",
+  "description": "Portable four-qubit Bloch-harmonic sonification demo with four resonator voices, convolution IR and eight-channel Spat5 VBAP spatialization.",
+  "tags": ["sonification", "quantum", "spherical harmonics", "spatial audio"],
+  "homepatcher": "QMW_Bloch_Harmonics_Four_Qubit_Spat_v7.maxpat",
+  "max_version_min": "8.0.0",
+  "max_version_max": "none",
+  "filelist": {
+    "patchers": [
+      "QMW_Bloch_Harmonics_Four_Qubit_Spat_v7.maxpat",
+      "qmw_bloch_convolution_ir~.maxpat",
+      "qmw_four_qubit_spat5_8ch~.maxpat",
+      "qmw_qubit_genexpr_voice~.maxpat",
+      "qmw_qubit_spat_control.maxpat",
+      "qmw_qubit_resonator.gendsp",
+      "qmw_density_field_resonator.gendsp"
+    ],
+    "media": [
+      "qmw_ir_heart.wav",
+      "qmw_ir_tanglecube.wav"
+    ],
+    "externals": [
+      "multiconvolve~.mxo"
+    ],
+    "misc": [
+      "HIRT-license.txt"
+    ]
+  }
+}

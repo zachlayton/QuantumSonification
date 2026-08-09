@@ -30,11 +30,6 @@ class WavepacketView:
 
         if probability is not None:
             probability = np.asarray(probability, dtype=float)
-            print(
-                "WAVEPACKET SEND:",
-                frame.source_name or "unknown",
-                len(probability),
-            )
             visual_osc.send_message(
                 f"{config.source_namespace}/wavepacket/probability",
                 [float(value) for value in probability],

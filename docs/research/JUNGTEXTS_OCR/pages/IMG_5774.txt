@@ -1,0 +1,83 @@
+CORRELATION TABLE I
+V. Mansfield and J. M. Spiegelman
+Quantum r
+DIFFERENT TEST COMBINATIONS
+analysis be
+APTITUDE SET
++
+T-W T-F W-F W-T F-T F-W
+understan
+devised fo
+Jarret's in
++
+1+
+various de
++
++
+important
+and inforr
+second, th
+independer
+(called loc
+S
+pletely inte
+that the vel
+know that for a given aptitude set the six test combinations occur
+Since the test selections are made independently and randomly, we
+influences
+natural exp
+of twins- each aptitude set is equally likely. In other words, in a
+equally often. For the moment, assume that we have a uniform sample
+dent existe
+assumption
+uniform sample it is just as likely that a twin will have an aptitude set
+that whatev
+the other t
+Regardi
+We have
+test results one half of the time.
+twins from this uniform sample were tested they would get the same
+outside of t
+less related
+uniform sample with no twins having either + + + or - - -
+For reasons that will be clear in a moment, next assume a non-
+because the
+of devoted
+eliminate those aptitude sets which always give S's for all test
+aptitude sets, but the other sets are equally represented. In this way we
+deviation.
+their reality
+and four D's and thus twins with these aptitude sets (our non-uniform
+combinations. For every remaining aptitude set there are now two S's
+found in his
+physical cor
+time. Reflection on Table I shows that any combination of aptitude
+population) will always score the same results only one-third of the
+and in Part
+Our exp
+sets will give at least one-third of the tests with the same results.
+tions betwe
+results must occur at least one-third of the time. This is a simplified version of
+Bell's Inequality.
+Assume any mix of aptitude sets you like in a tested population, the same test
+communicat
+the entire fal
+ments suppo
+theory as it
+lected data. Tested twins score the same results exactly one-fourth of
+the time when the test combinations are different. Since the tests are
+Now that the theoretical analysis is complete, examine the col-
+The culp
+dent existenc
+no doubt that the test results are the same exactly one-fourth of the
+administered to so many twins, we have excellent statistics. There is
+nature indep
+result of on
+minimum correlation we can have is one-third.
+time— an impossibility according to our analysis showing that the
+unconsciousl
+fundamental
+individual an
+Given that the experimental protocol is sound, where could the
+secondary im
+the measured

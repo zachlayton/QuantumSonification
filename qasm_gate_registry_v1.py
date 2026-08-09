@@ -640,7 +640,7 @@ _register(
     GateSpec(
         name="u1",
         qasm_name="u1",
-        qiskit_name="u1",
+        qiskit_name="p",
         kind="u_compat",
         category="compatibility",
         arity=1,
@@ -654,7 +654,7 @@ _register(
     GateSpec(
         name="u2",
         qasm_name="u2",
-        qiskit_name="u2",
+        qiskit_name="u",
         kind="u_compat",
         category="compatibility",
         arity=1,
@@ -668,7 +668,7 @@ _register(
     GateSpec(
         name="u3",
         qasm_name="u3",
-        qiskit_name="u3",
+        qiskit_name="u",
         kind="u_compat",
         category="compatibility",
         arity=1,

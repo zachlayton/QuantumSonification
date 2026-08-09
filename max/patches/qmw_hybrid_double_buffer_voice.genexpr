@@ -1,0 +1,29 @@
+// QMW hybrid double-buffer wavetable voice.
+// The control-rate renderer writes the inactive table then changes table_mix.
+
+Buffer table_a("qmw_hybrid_table_A");
+Buffer table_b("qmw_hybrid_table_B");
+
+Param amp(0.2);
+Param default_freq(55);
+Param table_mix(0);
+Param crossfade_ms(50);
+
+History phase(0);
+History smooth_mix(0);
+
+freq = (in1 > 0) * in1 + (in1 <= 0) * default_freq;
+phase = fract(phase + freq / samplerate);
+
+fade_ms = max(crossfade_ms, 0.1);
+fade_coeff = exp(-1 / (fade_ms * 0.001 * samplerate));
+smooth_mix = table_mix + fade_coeff * (smooth_mix - table_mix);
+
+sample_a, index_a = wave(table_a, phase, 0, 256, 0, channels=1);
+sample_b, index_b = wave(table_b, phase, 0, 256, 0, channels=1);
+sample = mix(sample_a, sample_b, smooth_mix);
+
+out1 = sample * amp;
+out2 = phase;
+out3 = smooth_mix;
+

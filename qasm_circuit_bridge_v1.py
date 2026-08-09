@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import math
 from dataclasses import dataclass, field
+from numbers import Integral, Real
 from typing import Any, List, Optional, Sequence, Union
 
 from qasm_gate_registry_v1 import (
@@ -225,6 +226,140 @@ class ComposerCircuit:
     classical_registers: dict[str, ClassicalRegisterSpec] = field(default_factory=dict)
     operations: List[CircuitOperation] = field(default_factory=list)
 
+    @classmethod
+    def from_qiskit_circuit(
+        cls,
+        circuit: Any,
+        *,
+        ignore_barriers: bool = True,
+    ) -> "ComposerCircuit":
+        """Import a Qiskit ``QuantumCircuit`` into the canonical score.
+
+        Qiskit's qubits are flattened to their circuit-global indices so that
+        circuits with several quantum registers remain executable by QMW's
+        single-register engines. Named classical registers are retained.
+
+        The importer is intentionally strict about unsupported instructions.
+        Callers should decompose or transpile synthesis output to the QMW gate
+        basis before importing rather than silently changing its semantics.
+        """
+        if not hasattr(circuit, "data") or not hasattr(circuit, "find_bit"):
+            raise TypeError("circuit must be a Qiskit QuantumCircuit-like object")
+
+        quantum_registers = list(getattr(circuit, "qregs", ()))
+        classical_registers = list(getattr(circuit, "cregs", ()))
+        qubit_register = (
+            quantum_registers[0].name
+            if len(quantum_registers) == 1
+            and len(quantum_registers[0]) == int(circuit.num_qubits)
+            else "q"
+        )
+
+        if classical_registers:
+            primary = classical_registers[0]
+            classical_register = primary.name
+            n_bits = len(primary)
+        else:
+            classical_register = "c"
+            n_bits = int(circuit.num_clbits)
+
+        score = cls(
+            n_qubits=int(circuit.num_qubits),
+            n_bits=n_bits,
+            qubit_register=qubit_register,
+            classical_register=classical_register,
+        )
+        for register in classical_registers[1:]:
+            score.declare_classical_register(register.name, len(register))
+
+        def parameter_value(value: Any) -> ParamValue:
+            if isinstance(value, bool):
+                raise TypeError("Boolean is not a valid gate parameter")
+            if isinstance(value, Integral):
+                return int(value)
+            if isinstance(value, Real):
+                return float(value)
+            # Qiskit Parameter and ParameterExpression objects retain a stable,
+            # parseable symbolic form through str() only for a bare parameter.
+            parameters = getattr(value, "parameters", None)
+            if parameters is not None:
+                parameter_names = {str(parameter) for parameter in parameters}
+                if len(parameter_names) != 1 or str(value) not in parameter_names:
+                    raise ValueError(
+                        f"Qiskit parameter expression {value!s} is not a bare parameter"
+                    )
+            return str(value)
+
+        def classical_target(bit: Any) -> ClassicalRef:
+            location = circuit.find_bit(bit)
+            registers = list(location.registers)
+            if registers:
+                register, index = registers[0]
+                return f"{register.name}[{int(index)}]"
+            return int(location.index)
+
+        qiskit_name_map = {
+            # Qiskit 2.x consolidated the legacy U-family helpers into u().
+            "u": "u3",
+        }
+
+        for step, instruction in enumerate(circuit.data):
+            operation = instruction.operation
+            raw_name = str(operation.name).lower()
+            if raw_name == "barrier" and ignore_barriers:
+                continue
+
+            name = qiskit_name_map.get(raw_name, raw_name)
+            qubits = [
+                int(circuit.find_bit(qubit).index)
+                for qubit in instruction.qubits
+            ]
+            params = [parameter_value(value) for value in operation.params]
+            target: ClassicalRef | None = None
+            measurement_route: MeasurementRoute | None = None
+            if instruction.clbits:
+                if len(instruction.clbits) != 1:
+                    raise ValueError(
+                        f"Qiskit instruction {raw_name!r} uses "
+                        f"{len(instruction.clbits)} classical bits; QMW supports one"
+                    )
+                target = classical_target(instruction.clbits[0])
+                if raw_name == "measure":
+                    target_text = str(target)
+                    if "[" in target_text and target_text.endswith("]"):
+                        register_name, bit_text = target_text[:-1].split("[", 1)
+                        bit_index = int(bit_text)
+                    else:
+                        register_name = score.classical_register
+                        bit_index = int(target)
+                    measurement_route = MeasurementRoute(
+                        target_register=register_name,
+                        osc_route=default_measurement_osc_route(register_name),
+                        register_bit=bit_index,
+                        process=DEFAULT_REGISTER_PROCESSES.get(
+                            normalize_register_bus_name(register_name),
+                            "measurement",
+                        ),
+                    )
+
+            try:
+                score.add(
+                    name,
+                    qubits,
+                    params=params,
+                    classical_target=target,
+                    step=step,
+                    label=getattr(operation, "label", None),
+                    measurement_route=measurement_route,
+                )
+            except (KeyError, ValueError) as exc:
+                raise ValueError(
+                    f"Unsupported Qiskit instruction {raw_name!r} at circuit "
+                    f"position {step}; decompose or transpile it to the QMW gate basis"
+                ) from exc
+
+        return score
+
     def declare_classical_register(
         self,
         name: str,
@@ -395,14 +530,24 @@ class ComposerCircuit:
             ) from exc
 
         qreg = QuantumRegister(self.n_qubits, self.qubit_register)
-        creg = ClassicalRegister(self.n_bits, self.classical_register)
+        creg = (
+            ClassicalRegister(self.n_bits, self.classical_register)
+            if self.n_bits > 0
+            else None
+        )
         extra_registers = [
             ClassicalRegister(register.width, register.name)
             for register in self.classical_registers.values()
             if register.name != self.classical_register
         ]
-        circuit = QuantumCircuit(qreg, creg, *extra_registers)
-        classical_registers = {self.classical_register: creg}
+        registers = [qreg]
+        if creg is not None:
+            registers.append(creg)
+        registers.extend(extra_registers)
+        circuit = QuantumCircuit(*registers)
+        classical_registers = {}
+        if creg is not None:
+            classical_registers[self.classical_register] = creg
         classical_registers.update(
             {
                 register.name: qiskit_register
@@ -428,6 +573,8 @@ class ComposerCircuit:
             if c is None:
                 raise ValueError("Measurement requires a classical target.")
             if isinstance(c, int):
+                if creg is None:
+                    raise ValueError("Measurement requires a classical register.")
                 return creg[c]
             text = str(c).strip()
             if "[" in text and text.endswith("]"):
@@ -437,6 +584,8 @@ class ComposerCircuit:
                     raise ValueError(f"Unknown classical register {name!r}.")
                 return register[int(index_text)]
             if text.isdigit():
+                if creg is None:
+                    raise ValueError("Measurement requires a classical register.")
                 return creg[int(text)]
             raise ValueError(f"Unsupported classical target for Qiskit: {c!r}.")
 
@@ -477,6 +626,19 @@ class ComposerCircuit:
             if spec.name == "nop":
                 continue
 
+            # Qiskit 2.x removed QuantumCircuit.u1/u2/u3 in favor of p/u.
+            # Keep the canonical compatibility operations while targeting the
+            # current API with exactly equivalent parameterizations.
+            if spec.name == "u1":
+                circuit.p(params[0], qubits[0])
+                continue
+            if spec.name == "u2":
+                circuit.u(math.pi / 2.0, params[0], params[1], qubits[0])
+                continue
+            if spec.name == "u3":
+                circuit.u(params[0], params[1], params[2], qubits[0])
+                continue
+
             qiskit_name = spec.qiskit_name
             if qiskit_name is None or not hasattr(circuit, qiskit_name):
                 raise NotImplementedError(
@@ -487,6 +649,41 @@ class ComposerCircuit:
             method(*params, *qubits)
 
         return circuit
+
+    def euler_decomposition_report(
+        self,
+        *,
+        basis: str = "ZXZ",
+        atol: float = 1e-10,
+    ) -> Any:
+        """Return Euler data for every numeric one-qubit operation.
+
+        Entanglers, measurements, and unresolved symbolic gates remain visible
+        in the report's ``skipped`` collection.
+        """
+        from qmw.euler import decompose_qiskit_circuit
+
+        return decompose_qiskit_circuit(
+            self.to_qiskit_circuit(),
+            basis=basis,
+            atol=atol,
+        )
+
+    def euler_osc_messages(
+        self,
+        *,
+        revision: int,
+        basis: str = "ZXZ",
+        atol: float = 1e-10,
+    ) -> List[tuple[str, object]]:
+        """Return the shared atomic Euler OSC transaction for this score."""
+        from qmw.euler import euler_osc_messages
+
+        report = self.euler_decomposition_report(
+            basis=basis,
+            atol=atol,
+        )
+        return list(euler_osc_messages(report, revision=int(revision)))
 
     def to_simulation_plan(self, *, include_measurement_rotations: bool = True) -> List[dict[str, object]]:
         """

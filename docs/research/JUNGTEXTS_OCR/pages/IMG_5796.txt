@@ -1,0 +1,39 @@
+Archetypes: The strange attractors of the psyche
+behaviour of non-linear systems is radically transforming many oper-
+mathematics and physics. Not surprisingly, such research into the
+most interestingly, it offers ways of understanding chaos not only
+ant paradigms of the worldwide scientific community today. And
+a psychodynamic one as well.
+from the traditional Jungian perspective - that of meaning - but from
+CHAOS THEORY!
+ing loops, like the feedback in a microphone-speaker system (GOLD-
+Chaotic systems stretch and fold back on themselves in self-reinforc-
+and is amplified, the speakers broadcast it into space, whereupon it
+BERGER 6, PP. 604-6). For example, as sound enters the microphone
+speakers in a loop that builds upon itself.
+enters the microphone again, is amplified, and sent out through the
+an ear-splitting screech, someone jumps up to turn down the ampli-
+. When the volume reaches
+fier. This is a simple geometric progression wherein not only the
+to infinity. Feedback loops can be defined by equations that 'work
+volume, but the rate of increase of the volume, quickly accelerates
+on themselves'
+becomes the basis for computation of the next.
+', so to speak, so that the result of any one computation
+ITERATION?
+Such equations are defined as 'iterative'. Unlike linear equations,
+ive equations determine their own destiny. Their outcome is rarely
+which proceed in an orderly fashion to a predictable outcome, iterat-
+predictable, for where they have been often seems to have little effect
+on where they continue to go. In fact, iterative equations are so
+differing values wind up, like our two marathoners, in vastly different
+unpredictable that any two of them that begin with only slightly
+istics of chaotic dynamics - is called 'sensitive dependence on initial
+places. This particular phenomenon - one of the defining character-
+conditions', or SDIC for short.
+SENSITIVE DEPENDENCE ON INITIAL CONDITIONS®
+Edward Lorenz, who in 1960 was using computers in an attempt to
+Perhaps the most widely referenced example of SDIC is that of
+was their unpredictability: like actual weather, the patterns would
+simulate weather patterns. The remarkable thing about his programs
+' See explanations at end of paper for this and following headings.

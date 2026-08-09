@@ -1,0 +1,18 @@
+{
+  "seed": 23,
+  "observation_hz": 30.0,
+  "source": "fallback",
+  "state_path": null,
+  "clock_dim": 2,
+  "branch_tracking": true,
+  "branch_threshold": 0.68,
+  "log_path": "relational_time_snapshots.jsonl",
+  "osc_enabled": true,
+  "osc_host": "127.0.0.1",
+  "osc_port": 7442,
+  "processes": [
+    {"name": "resonance", "rate": 1.4142135624, "coupling": 0.19, "threshold": 0.52, "midi_min": 36, "midi_max": 60},
+    {"name": "memory", "rate": 1.6180339887, "coupling": 0.13, "threshold": 0.58, "midi_min": 48, "midi_max": 72},
+    {"name": "spatial", "rate": 1.5707963268, "coupling": 0.23, "threshold": 0.62, "midi_min": 60, "midi_max": 84}
+  ]
+}

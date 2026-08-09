@@ -256,7 +256,13 @@ def modal_parameters_from_density(
     magnitude_centroid /= np.sum(np.abs(eigenvectors), axis=0) + 1e-12
 
     frequency_bend = 2.0 ** (0.08 * phase_centroid)
-    inharmonicity = 1.0 + 0.015 * config.frequency_spread * (magnitude_centroid - 8.5)
+    # Center the magnitude bend on the active Hilbert-space dimension. The
+    # original 8.5 constant is correct for 16 modes, but shifted smaller modal
+    # banks downward (an 8-mode bank is centered on 4.5).
+    centroid_center = 0.5 * (mode_count + 1.0)
+    inharmonicity = 1.0 + 0.015 * config.frequency_spread * (
+        magnitude_centroid - centroid_center
+    )
     frequencies = config.base_frequency_hz * harmonic_ladder * frequency_bend * inharmonicity
     frequencies = np.round(frequencies * 8.0) / 8.0
     frequencies = np.clip(frequencies, 20.0, config.sample_rate * 0.45)

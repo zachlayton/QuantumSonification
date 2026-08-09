@@ -1,0 +1,337 @@
+{
+  "conventions": {
+    "basis_order": "|q3 q2 q1 q0>",
+    "integer_basis_index": "q0 + 2*q1 + 4*q2 + 8*q3",
+    "primary_state_metric": "density-matrix trace distance",
+    "reference_route": "qmw_dense_exact"
+  },
+  "convergence": {
+    "configurations": {
+      "commuting_control": {
+        "interaction_strengths": [
+          0.91,
+          1.07,
+          0.83
+        ],
+        "interaction_time": 1.0,
+        "kick_angle": 3.141592653589793,
+        "longitudinal_fields": [
+          0.31,
+          -0.27,
+          0.19,
+          -0.11
+        ],
+        "periodic_boundary": false,
+        "periodic_coupling": 0.97,
+        "pulse_error": 0.0,
+        "transverse_fields": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "noncommuting_benchmark": {
+        "interaction_strengths": [
+          0.91,
+          1.07,
+          0.83
+        ],
+        "interaction_time": 1.0,
+        "kick_angle": 3.141592653589793,
+        "longitudinal_fields": [
+          0.31,
+          -0.27,
+          0.19,
+          -0.11
+        ],
+        "periodic_boundary": false,
+        "periodic_coupling": 0.97,
+        "pulse_error": 0.035,
+        "transverse_fields": [
+          0.17,
+          -0.11,
+          0.09,
+          -0.05
+        ]
+      }
+    },
+    "exact_route_maximum_trace_distance": {
+      "commuting_control": 1.1900152189038796e-14,
+      "noncommuting_benchmark": 3.0346420955381225e-14
+    },
+    "periods": 16,
+    "points": [
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 15,
+        "final_trace_distance": 1.2456125873094793e-14,
+        "gates_per_period": 33,
+        "magnetization_rmse": 5.484361606920839e-15,
+        "maximum_magnetization_error": 9.325873406851315e-15,
+        "maximum_trace_distance": 1.2456125873094793e-14,
+        "order": 1,
+        "repetitions": 1,
+        "two_qubit_gates_per_period": 6
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 27,
+        "final_trace_distance": 1.1893385321407214e-14,
+        "gates_per_period": 66,
+        "magnetization_rmse": 3.4387407524478316e-15,
+        "maximum_magnetization_error": 5.773159728050814e-15,
+        "maximum_trace_distance": 1.1893385321407214e-14,
+        "order": 1,
+        "repetitions": 2,
+        "two_qubit_gates_per_period": 12
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 51,
+        "final_trace_distance": 1.601989464339318e-14,
+        "gates_per_period": 132,
+        "magnetization_rmse": 1.3135728825822987e-14,
+        "maximum_magnetization_error": 2.220446049250313e-14,
+        "maximum_trace_distance": 1.601989464339318e-14,
+        "order": 1,
+        "repetitions": 4,
+        "two_qubit_gates_per_period": 24
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 99,
+        "final_trace_distance": 2.3913334327770127e-14,
+        "gates_per_period": 264,
+        "magnetization_rmse": 2.468494420760627e-14,
+        "maximum_magnetization_error": 4.18554080283684e-14,
+        "maximum_trace_distance": 2.3913334327770127e-14,
+        "order": 1,
+        "repetitions": 8,
+        "two_qubit_gates_per_period": 48
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 30,
+        "final_trace_distance": 1.2418819185014451e-14,
+        "gates_per_period": 60,
+        "magnetization_rmse": 5.5773068423549435e-15,
+        "maximum_magnetization_error": 9.103828801926284e-15,
+        "maximum_trace_distance": 1.2418819185014451e-14,
+        "order": 2,
+        "repetitions": 1,
+        "two_qubit_gates_per_period": 12
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 60,
+        "final_trace_distance": 1.3297893345276635e-14,
+        "gates_per_period": 120,
+        "magnetization_rmse": 8.782245144202725e-15,
+        "maximum_magnetization_error": 1.3100631690576847e-14,
+        "maximum_trace_distance": 1.3297893345276635e-14,
+        "order": 2,
+        "repetitions": 2,
+        "two_qubit_gates_per_period": 24
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 120,
+        "final_trace_distance": 2.1482957256590327e-14,
+        "gates_per_period": 240,
+        "magnetization_rmse": 2.1732397806639833e-14,
+        "maximum_magnetization_error": 3.6193270602780103e-14,
+        "maximum_trace_distance": 2.1482957256590327e-14,
+        "order": 2,
+        "repetitions": 4,
+        "two_qubit_gates_per_period": 48
+      },
+      {
+        "configuration": "commuting_control",
+        "depth_per_period": 240,
+        "final_trace_distance": 1.525070914195322e-14,
+        "gates_per_period": 480,
+        "magnetization_rmse": 1.0865214652970672e-14,
+        "maximum_magnetization_error": 1.965094753586527e-14,
+        "maximum_trace_distance": 1.525070914195322e-14,
+        "order": 2,
+        "repetitions": 8,
+        "two_qubit_gates_per_period": 96
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 20,
+        "final_trace_distance": 0.19838404081384675,
+        "gates_per_period": 53,
+        "magnetization_rmse": 0.0087645003933928,
+        "maximum_magnetization_error": 0.018697439105727964,
+        "maximum_trace_distance": 0.23856020569593317,
+        "order": 1,
+        "repetitions": 1,
+        "two_qubit_gates_per_period": 6
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 37,
+        "final_trace_distance": 0.08472802749762781,
+        "gates_per_period": 106,
+        "magnetization_rmse": 0.004210717827771817,
+        "maximum_magnetization_error": 0.009497502563534765,
+        "maximum_trace_distance": 0.10165267367000175,
+        "order": 1,
+        "repetitions": 2,
+        "two_qubit_gates_per_period": 12
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 71,
+        "final_trace_distance": 0.04133360448574153,
+        "gates_per_period": 212,
+        "magnetization_rmse": 0.0022379823799427326,
+        "maximum_magnetization_error": 0.004991966429865546,
+        "maximum_trace_distance": 0.04934680216794064,
+        "order": 1,
+        "repetitions": 4,
+        "two_qubit_gates_per_period": 24
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 139,
+        "final_trace_distance": 0.020601320953333998,
+        "gates_per_period": 424,
+        "magnetization_rmse": 0.0011605876186661169,
+        "maximum_magnetization_error": 0.0026145364265748317,
+        "maximum_trace_distance": 0.02443104153017383,
+        "order": 1,
+        "repetitions": 8,
+        "two_qubit_gates_per_period": 48
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 40,
+        "final_trace_distance": 0.08704792818405668,
+        "gates_per_period": 96,
+        "magnetization_rmse": 0.01090324733439487,
+        "maximum_magnetization_error": 0.01658108501830724,
+        "maximum_trace_distance": 0.09933999125865692,
+        "order": 2,
+        "repetitions": 1,
+        "two_qubit_gates_per_period": 12
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 80,
+        "final_trace_distance": 0.014763774902688195,
+        "gates_per_period": 192,
+        "magnetization_rmse": 0.0015029352551743744,
+        "maximum_magnetization_error": 0.0022628548180329,
+        "maximum_trace_distance": 0.016317247584122535,
+        "order": 2,
+        "repetitions": 2,
+        "two_qubit_gates_per_period": 24
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 160,
+        "final_trace_distance": 0.0034608073088931842,
+        "gates_per_period": 384,
+        "magnetization_rmse": 0.0003427200016632818,
+        "maximum_magnetization_error": 0.0005160825263530455,
+        "maximum_trace_distance": 0.00382313528006888,
+        "order": 2,
+        "repetitions": 4,
+        "two_qubit_gates_per_period": 48
+      },
+      {
+        "configuration": "noncommuting_benchmark",
+        "depth_per_period": 320,
+        "final_trace_distance": 0.0008523715909797508,
+        "gates_per_period": 768,
+        "magnetization_rmse": 8.388746507548446e-05,
+        "maximum_magnetization_error": 0.0001263241027635864,
+        "maximum_trace_distance": 0.0009416236179413962,
+        "order": 2,
+        "repetitions": 8,
+        "two_qubit_gates_per_period": 96
+      }
+    ]
+  },
+  "hardware": {
+    "requirements": [
+      "credentials",
+      "backend selection",
+      "ISA circuit transpilation",
+      "observable layout",
+      "real queued execution"
+    ],
+    "route": "ibm_runtime_v2",
+    "status": "deferred"
+  },
+  "noise_controls": {
+    "base_single_qubit_error": 0.0015,
+    "base_two_qubit_error": 0.012,
+    "circuit_control": "same order-2 compiled circuit and gate alphabet",
+    "periods": 16,
+    "points": [
+      {
+        "final_purity": 1.0000000000000107,
+        "final_trace_distance_from_zero_noise": 0.0,
+        "maximum_trace_distance_from_qmw": 0.09933999125865933,
+        "maximum_trace_distance_from_zero_noise": 0.0,
+        "minimum_purity": 1.0,
+        "noise_scale": 0.0,
+        "single_qubit_error": 0.0,
+        "two_qubit_error": 0.0
+      },
+      {
+        "final_purity": 0.3909384283468995,
+        "final_trace_distance_from_zero_noise": 0.39054446568857804,
+        "maximum_trace_distance_from_qmw": 0.39931172422712335,
+        "maximum_trace_distance_from_zero_noise": 0.39054446568857804,
+        "minimum_purity": 0.3909384283468995,
+        "noise_scale": 0.25,
+        "single_qubit_error": 0.000375,
+        "two_qubit_error": 0.003
+      },
+      {
+        "final_purity": 0.19215548155459355,
+        "final_trace_distance_from_zero_noise": 0.6095040388422346,
+        "maximum_trace_distance_from_qmw": 0.6125949770257707,
+        "maximum_trace_distance_from_zero_noise": 0.6095040388422346,
+        "minimum_purity": 0.19215548155459355,
+        "noise_scale": 0.5,
+        "single_qubit_error": 0.00075,
+        "two_qubit_error": 0.006
+      },
+      {
+        "final_purity": 0.0911667260467857,
+        "final_trace_distance_from_zero_noise": 0.8084231868167626,
+        "maximum_trace_distance_from_qmw": 0.8091277132860819,
+        "maximum_trace_distance_from_zero_noise": 0.8084231868167626,
+        "minimum_purity": 0.0911667260467857,
+        "noise_scale": 1.0,
+        "single_qubit_error": 0.0015,
+        "two_qubit_error": 0.012
+      },
+      {
+        "final_purity": 0.06561450345777088,
+        "final_trace_distance_from_zero_noise": 0.9092113477755174,
+        "maximum_trace_distance_from_qmw": 0.9092825982846888,
+        "maximum_trace_distance_from_zero_noise": 0.9092113477755174,
+        "minimum_purity": 0.06561450345777088,
+        "noise_scale": 2.0,
+        "single_qubit_error": 0.003,
+        "two_qubit_error": 0.024
+      }
+    ]
+  },
+  "schema": "qmw.floquet_execution_comparison.v1",
+  "scientific_status": "finite four-qubit benchmark; not evidence of a thermodynamic phase",
+  "software": {
+    "numpy": "2.4.6",
+    "python": "3.12.12",
+    "qiskit": "2.4.2",
+    "qiskit_aer": "0.17.2"
+  },
+  "title": "QMW Hamiltonian execution and comparison bridge"
+}

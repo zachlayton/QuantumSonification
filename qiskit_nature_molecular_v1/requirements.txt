@@ -1,0 +1,7 @@
+qiskit>=1.4,<3.0
+qiskit-nature==0.8.*
+qiskit-algorithms>=0.4,<0.5
+pyscf>=2.8,<3
+numpy>=2
+scipy>=1.4
+h5py

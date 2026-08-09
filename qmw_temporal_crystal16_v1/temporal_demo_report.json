@@ -1,0 +1,146 @@
+{
+  "bundle": "qmw_temporal_crystal16_v1",
+  "canonical_density_shape": [
+    16,
+    16
+  ],
+  "claim_boundary": {
+    "floquet": "finite-size candidate signatures only; four qubits do not establish a thermodynamic time-crystalline phase",
+    "lfsr": "programmed finite-state recurrence",
+    "spqt": "programmed rational phase geometry"
+  },
+  "debruijn16_orbit": [
+    0,
+    8,
+    4,
+    2,
+    9,
+    12,
+    6,
+    11,
+    5,
+    10,
+    13,
+    14,
+    15,
+    7,
+    3,
+    1
+  ],
+  "engine": {
+    "aion": {
+      "dominant_amplitude": 0.6341728237580417,
+      "dominant_frequency": 0.49230769230769234,
+      "establishes_time_crystal": false,
+      "locking_error": 0.007692307692307666,
+      "peak_to_background": 46.91056787357444,
+      "protocol": "floquet_repeated_single_period_map",
+      "samples": 65,
+      "target_amplitude": 0.9958437529260468,
+      "target_bin_frequency": 0.49230769230769234,
+      "target_frequency": 0.5
+    },
+    "history_frames": 65,
+    "last_protocol": "floquet_repeated_single_period_map",
+    "revision": 64
+  },
+  "floquet": {
+    "dominant_frequency": 0.5,
+    "kick_angle": 3.235840433197487,
+    "peak_to_background": 12865.198934427413,
+    "periods": 64,
+    "pi_pairing_score": 0.9999988940365803,
+    "protocol_kind": "floquet_repeated_single_period_map",
+    "pulse_error": 0.03,
+    "scientific_status": "finite-size candidate signatures only; four qubits do not establish a thermodynamic time-crystalline phase",
+    "target_amplitude": 0.9961146284906036,
+    "target_frequency": 0.5,
+    "two_period_return_distance": 0.11294292166933743
+  },
+  "lfsr": {
+    "coherence_orbit_lengths": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+    ],
+    "feedback_exponents": [
+      1,
+      0
+    ],
+    "full_cycle_decimation": true,
+    "nonzero_states_visited": 15,
+    "period": 15,
+    "primitive_polynomial": "x^4 + x + 1",
+    "protocol_kind": "programmed_maximal_lfsr",
+    "unitarity_error": 0.0,
+    "zero_fixed": true
+  },
+  "lfsr_nonzero_orbit": [
+    1,
+    8,
+    4,
+    2,
+    9,
+    12,
+    6,
+    11,
+    5,
+    10,
+    13,
+    14,
+    15,
+    7,
+    3
+  ],
+  "pythagorean_comma": "531441/524288",
+  "pythagorean_comma_cents": 23.460010384649014,
+  "rigidity_sweep": [
+    {
+      "dominant_frequency": 0.5,
+      "locking_error": 0.0,
+      "pairing_score": 0.9998636833981716,
+      "peak_to_background": 1517.7456907970507,
+      "pulse_error": -0.1,
+      "target_amplitude": 0.9500103899886602
+    },
+    {
+      "dominant_frequency": 0.5,
+      "locking_error": 0.0,
+      "pairing_score": 0.999991466247206,
+      "peak_to_background": 4159.530937643591,
+      "pulse_error": -0.05,
+      "target_amplitude": 0.9888975453159867
+    },
+    {
+      "dominant_frequency": 0.5,
+      "locking_error": 0.0,
+      "pairing_score": 0.9999999999999994,
+      "peak_to_background": 999999999999972.1,
+      "pulse_error": 0.0,
+      "target_amplitude": 0.9999999999999722
+    },
+    {
+      "dominant_frequency": 0.5,
+      "locking_error": 0.0,
+      "pairing_score": 0.9999914662472063,
+      "peak_to_background": 4159.530937641753,
+      "pulse_error": 0.05,
+      "target_amplitude": 0.9888975453159906
+    },
+    {
+      "dominant_frequency": 0.5,
+      "locking_error": 0.0,
+      "pairing_score": 0.9998636833981716,
+      "peak_to_background": 1517.7456907966775,
+      "pulse_error": 0.1,
+      "target_amplitude": 0.9500103899886546
+    }
+  ],
+  "score_lfsr_return_ticks": 240,
+  "spqt_macrocycle_with_default_ratios_and_lfsr": 720
+}

@@ -1,0 +1,83 @@
+rosites in quantum physics and Jungian psychology
+pattern on the film.
+from the half-silvered mirror will shift the location of the interference
+273
+che
+full-
+light
+3 and
+Next put a much more efficient absorber into the system, one that
+II.2 Light as particles with well-defined trajectories
+arated
+ing in
+allows only a tiny fraction of the entering light through. Then we
+• half-
+a time. We get more sensitive measurements by replacing the film
+can see the darkening of one photographic grain of silver bromide at
+Ilvered
+ce. We
+with a photodetector-a light sensitive device that outputs a small
+and putting it through a loudspeaker gives a random series of clicks.
+electrical current each time light is captured. Amplifying the current
+e alter-
+1 inter-
+popcorn popping. The more efficient the absorber, the longer the
+The clicks are always sharp and occur at unpredictable times, like
+- appar-
+average time between clicks, but we can never predict the individual
+in the
+arrival time for any click. (Is God playing dice?) Yet if we keep count
+1 bands.
+of the average clicks per unit time at a given location and plot them
+generate
+up we still get the same interference pattern found with film.
+parts of the system. The time-averaged count is largest in the beam
+Let's explore the average number of counts per second for different
+the half-
+from the
+just before the first interaction with the half-silvered mirror. This
+y travels
+count is reduced by half for the light reflected from the half-silvered
+ich ray is
+mirror or the light transmitted. This sharp clicking tells us that light
+terence at
+per second - though individual chunks arrive at random. These ident-
+comes in chunks of equal size. More intense light is just more chunks
+giving an
+ical packets of light are called photons.
+our east-
+Next use an even more efficient absorber so that on the average
+site routes
+random we sometimes go for hours without any click at all and then
+only two photons per hour escape the absorber. (Of course, being
+These in-
+total dis-
+tersection,
+a closely spaced burst comes, and so on.) Since the light transit time
+through typical interferometers is about 1X10* seconds we can be
+ittle to one
+sure that only one photon at a time is in the system. If we use two
+The
+first splitting. We find photons in only one arm at a time-there is
+detectors we can monitor the reflected and transmitted light after the
+rays cannot
+mum.
+sufficiently
+on-zero and
+no splitting of the photons at the half-silvered mirror. The photon
+both arms at once. From this and many similar experiments, we find
+goes one way or the other (reflected or transmitted), but never along
+en the phase
+rence along
+that photons are unsplittable chunks of light energy acting like particles.
+paratus give
+alley
+(unex-
+al travel dis-
+the
+II.3 Light as both waves and particles
+ards or away
+Because
+Trouble is looming. A particle is an extremely localized entity of
+variable in amplitude, spread out, and capable of interference. An
+fixed size with a well-defined trajectory, while a wave is completely

@@ -1,0 +1,33 @@
+48
+Psychological Perspectives
+For the Technically-Minded Only
+FIGURE 1: The complex plane.
+Y
+P =(Xp,Yp)
+i = (0,1)
+¡Yp
+0
+1=(1,0)
+the added convention that i times i equals -1. In order to represent this
+The imaginary unit i is a number that obeys all rules of arithmetic with
+plane." In a plane two lines or axes, denoted by X and Y, intersect at right angles
+mathematical symbol graphically, we can make use of what is called a "complex
+by its perpendicular distance from the axes X and Y: the point P, for example,
+at a point O. Any point in the entire plane may then be uniquely determined
+by the distance Xp from the X-axis and the distance Yp from the Y-axis. Con-
+versely, any pair of numbers (a, b) can be represented by a point in the plane
+unit. Here x is called the real part of the complex number, while y, since it is
+Complex numbers can be written as x + iy where i denotes the imaginary
+is characterized by a pair of numbers (x, y). The imaginary unit corresponds
+multiplied by i, is called the imaginary part. This means that any complex number
+unit into a couple!' The ordinary unit corresponds with the pair (1, 0).
+with the pair (0, 1). This is why Pauli stated: "The i makes the void and the
+is easy to turn this plane into the complex plane. We only need agree upon mak-
+Since pairs of numbers can be represented by points in the XY-plane, it
+ing the distance x to the X-axis signify the real part of the complex number, and
+the complex number Xp + ip. Since the imaginary unit i is lying on the Y-
+the distance y to the X-axis signify the imaginary part. The point P then represents
+on the X-axis or real axis.
+axis, this axis is called the imaginary axis. All the complex numbers with
+vanishing imaginary parts are called " real numbers" and lie in the complex plane
+Mitzher-

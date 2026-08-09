@@ -1,0 +1,381 @@
+{
+  "schema": "qmw.ibm.pauli15.archive.v1",
+  "job": {
+    "id": "d9hoc4bsbqfc73eqd0m0",
+    "backend": "ibm_kingston",
+    "status": "Completed",
+    "created": "2026-07-24T15:34:41.272353Z",
+    "program": {
+      "id": "sampler"
+    },
+    "cost_units_reported_by_ibm": 600
+  },
+  "experiment": {
+    "mapping": "pauli15",
+    "transform": "qft",
+    "logical_qubit_pair": [
+      0,
+      1
+    ],
+    "basis_order": [
+      "XX",
+      "XY",
+      "XZ",
+      "YX",
+      "YY",
+      "YZ",
+      "ZX",
+      "ZY",
+      "ZZ"
+    ],
+    "shots_per_setting": 256,
+    "setting_count": 9,
+    "total_shots": 2304,
+    "bitstring_order": "q3 q2 q1 q0; logical q0 is rightmost"
+  },
+  "settings": [
+    {
+      "index": 0,
+      "basis": "XX",
+      "shots": 256,
+      "counts": {
+        "0000": 35,
+        "0001": 1,
+        "0010": 8,
+        "0011": 6,
+        "0100": 36,
+        "0101": 4,
+        "0110": 23,
+        "0111": 6,
+        "1000": 47,
+        "1001": 6,
+        "1010": 38,
+        "1011": 11,
+        "1100": 30,
+        "1110": 4,
+        "1111": 1
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 115,
+        "instruction_count": 145,
+        "logical_to_physical_layout": [
+          106,
+          117,
+          105,
+          104
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "basis": "XY",
+      "shots": 256,
+      "counts": {
+        "0000": 15,
+        "0001": 3,
+        "0010": 27,
+        "0011": 3,
+        "0100": 60,
+        "0101": 8,
+        "0110": 6,
+        "0111": 1,
+        "1000": 78,
+        "1001": 10,
+        "1010": 4,
+        "1011": 2,
+        "1100": 17,
+        "1101": 1,
+        "1110": 20,
+        "1111": 1
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 114,
+        "instruction_count": 144,
+        "logical_to_physical_layout": [
+          106,
+          117,
+          105,
+          104
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "basis": "XZ",
+      "shots": 256,
+      "counts": {
+        "0000": 34,
+        "0001": 3,
+        "0010": 12,
+        "0011": 3,
+        "0100": 46,
+        "0101": 2,
+        "0110": 25,
+        "0111": 7,
+        "1000": 29,
+        "1001": 5,
+        "1010": 44,
+        "1011": 6,
+        "1100": 15,
+        "1101": 3,
+        "1110": 21,
+        "1111": 1
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 112,
+        "instruction_count": 142,
+        "logical_to_physical_layout": [
+          106,
+          117,
+          105,
+          104
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "basis": "YX",
+      "shots": 256,
+      "counts": {
+        "0000": 21,
+        "0001": 11,
+        "0010": 8,
+        "0011": 1,
+        "0100": 36,
+        "0101": 31,
+        "0110": 20,
+        "0111": 3,
+        "1000": 34,
+        "1001": 8,
+        "1010": 33,
+        "1011": 10,
+        "1100": 17,
+        "1101": 19,
+        "1110": 3,
+        "1111": 1
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 115,
+        "instruction_count": 145,
+        "logical_to_physical_layout": [
+          106,
+          117,
+          105,
+          104
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "basis": "YY",
+      "shots": 256,
+      "counts": {
+        "0000": 13,
+        "0001": 6,
+        "0010": 13,
+        "0011": 3,
+        "0100": 60,
+        "0101": 16,
+        "0110": 2,
+        "0111": 3,
+        "1000": 78,
+        "1001": 14,
+        "1010": 3,
+        "1011": 5,
+        "1100": 5,
+        "1101": 9,
+        "1110": 15,
+        "1111": 11
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 114,
+        "instruction_count": 144,
+        "logical_to_physical_layout": [
+          106,
+          117,
+          105,
+          104
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "basis": "YZ",
+      "shots": 256,
+      "counts": {
+        "0000": 18,
+        "0001": 7,
+        "0010": 8,
+        "0011": 16,
+        "0100": 38,
+        "0101": 17,
+        "0110": 30,
+        "0111": 5,
+        "1000": 32,
+        "1001": 2,
+        "1010": 28,
+        "1011": 14,
+        "1100": 21,
+        "1101": 6,
+        "1110": 9,
+        "1111": 5
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 82,
+        "instruction_count": 150,
+        "logical_to_physical_layout": [
+          105,
+          106,
+          107,
+          117
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "basis": "ZX",
+      "shots": 256,
+      "counts": {
+        "0000": 30,
+        "0001": 12,
+        "0010": 4,
+        "0011": 5,
+        "0100": 22,
+        "0101": 30,
+        "0110": 10,
+        "0111": 13,
+        "1000": 17,
+        "1001": 30,
+        "1010": 24,
+        "1011": 14,
+        "1100": 19,
+        "1101": 20,
+        "1110": 5,
+        "1111": 1
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 109,
+        "instruction_count": 143,
+        "logical_to_physical_layout": [
+          117,
+          105,
+          104,
+          106
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "basis": "ZY",
+      "shots": 256,
+      "counts": {
+        "0000": 34,
+        "0001": 13,
+        "0010": 7,
+        "0011": 11,
+        "0100": 20,
+        "0101": 32,
+        "0110": 6,
+        "0111": 1,
+        "1000": 37,
+        "1001": 29,
+        "1010": 14,
+        "1011": 1,
+        "1100": 12,
+        "1101": 9,
+        "1110": 18,
+        "1111": 12
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 80,
+        "instruction_count": 150,
+        "logical_to_physical_layout": [
+          106,
+          105,
+          117,
+          107
+        ]
+      }
+    },
+    {
+      "index": 8,
+      "basis": "ZZ",
+      "shots": 256,
+      "counts": {
+        "0000": 25,
+        "0001": 10,
+        "0010": 7,
+        "0011": 7,
+        "0100": 18,
+        "0101": 30,
+        "0110": 26,
+        "0111": 15,
+        "1000": 19,
+        "1001": 21,
+        "1010": 20,
+        "1011": 32,
+        "1100": 9,
+        "1101": 8,
+        "1110": 3,
+        "1111": 6
+      },
+      "circuit": {
+        "target_qubits": 156,
+        "classical_bits": 8,
+        "depth": 106,
+        "instruction_count": 140,
+        "logical_to_physical_layout": [
+          117,
+          105,
+          104,
+          106
+        ]
+      }
+    }
+  ],
+  "pauli15": {
+    "XI": 0.7552083333333334,
+    "YI": 0.4192708333333333,
+    "ZI": 0.057291666666666664,
+    "IX": 0.34375,
+    "IY": 0.5078125,
+    "IZ": 0.08854166666666667,
+    "XX": 0.34375,
+    "XY": 0.3828125,
+    "XZ": 0.1015625,
+    "YX": -0.0390625,
+    "YY": 0.390625,
+    "YZ": 0.1640625,
+    "ZX": -0.0546875,
+    "ZY": 0.0,
+    "ZZ": 0.0234375
+  },
+  "features": {
+    "z_polarization": 0.07291666666666667,
+    "concurrence": 0.0,
+    "correlation_rms": 0.22597805364496495,
+    "entropy_bits": 0.9958612458757455
+  },
+  "source_exports": {
+    "info_filename": "job-d9hoc4bsbqfc73eqd0m0-info.json",
+    "info_sha256": "e097b679bc31d00c515b750958c660cfd67750a592cacdee9c50566adc0ccb3e",
+    "result_filename": "job-d9hoc4bsbqfc73eqd0m0-result.json",
+    "result_sha256": "eef91c95822f1f6dec5a573e0f480b51410582f88438cf6b9cd3d5071f12e2fd"
+  }
+}

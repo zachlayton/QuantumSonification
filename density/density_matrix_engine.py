@@ -473,11 +473,9 @@ class DensityMatrixEngine:
             )
 
     def set_param(self, name: str, value: float):
-     for name, value in updates.items():
-
-        self.set_param(name, value)
-
-    self.params[name] = float(value)
+        if name not in self.params:
+            raise KeyError(f"Unknown density parameter: {name}")
+        self.params[name] = float(value)
 
     def mean_coherence(self, rho):
         pairs = [

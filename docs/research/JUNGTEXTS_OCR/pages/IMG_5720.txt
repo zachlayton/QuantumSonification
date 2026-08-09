@@ -1,0 +1,43 @@
+The Archetypal View of Jung and Pauli
+63
+that the second particle must possess both position and momentum wave
+functions simultaneously and, therefore, both its position and momentum
+must be considered to be physically real and determinable. Hence, the quan-
+tum mechanical description of a single particle, with the limitations imposed
+upon it by Heisenberg's Indeterminacy Principle, must be incomplete.
+Because the original EPR experiment was only a thought-experiment
+and not then well enough defined to be physically performed, it was con-
+sidered to be a logical quandary and was often referred to as the "EPR
+paradox." In 1951 a significant advance toward a practical physical experiment
+was achieved by David Bohm with the publication of his version of the EPR
+experiment. 1 In this simplified thought-experiment, which used spin states
+instead of measurements of position and momentum, a system consisting of
+two particles is prepared to have a total spin state of zero. From the symmetry
+of the experimental arrangement and the conservation requirement that the
+combined spins of both particles remain the same before and after their separa-
+tion, the spin component of the second particle can be directly inferred to
+be the negative of the first. This occurs because, in a zero spin state, the paired
+particles must have equal and opposite spins that cancel each other.
+The direction in which the spin is measured is chosen by the experi-
+menter, who may select the measured orientation at random in such a way
+that no local connection can be held to exist between the two particles. Never-
+theless, in the outcome of the experiment, the spin of the second particle is
+correlated with the randomly chosen direction of the spin measurement of
+the first particle.
+This result suggested that if the possibility of non-local connections was
+denied, in accordance with the widely accepted postulates of special relativity,
+then the ability to determine the spin of the second particle in any randomly
+chosen direction could only be understood if that particle had an objectively
+existing spin in that randomly chosen direction. Quantum mechanics, how-
+ever, asserts that only one of three possible components of a particles spin
+may be determined, while the other two components are necessarily indeter-
+minable. Thus, the quantum mechanical description of a single particle was
+again found to be incomplete.
+In 1957 Bohm and Aharonov published another version of the EPR
+experiment in which the polarization of correlated pairs of photons produced
+in a positron-electron annihilation was considered. 15 This thought-experiment
+was yet a further refinement of the basic EPR experiment with the intent to
+move it towards a practical experimental test.
+If the quantum mechanical description of the single system were truly
+incomplete, Einstein, Bohm, and others hoped that, at a deeper level, cer-
+tain parameters or variables would be discovered to complete the description

@@ -17,9 +17,10 @@ from __future__ import annotations
 import ast
 from collections import deque
 from dataclasses import dataclass, field
+import json
 import math
 import threading
-from typing import Deque, Dict, List, Optional, Sequence, Tuple
+from typing import Callable, Deque, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -32,7 +33,7 @@ from qasm_circuit_bridge_v1 import (
 
 try:
     from pythonosc.dispatcher import Dispatcher
-    from pythonosc.osc_server import ThreadingOSCUDPServer
+    from pythonosc.osc_server import BlockingOSCUDPServer
     from pythonosc.udp_client import SimpleUDPClient
 except ImportError as exc:
     raise RuntimeError("Install dependency: pip install python-osc") from exc
@@ -351,11 +352,16 @@ class CircuitProgram:
         with self._lock:
             self.clear()
             # H(q0) -> CNOT 0→1 -> T(q0) -> CNOT 1→2 -> H(q3)
-            self.grid[0][0] = "H"
-            self.grid[0][1], self.grid[1][1] = "•", "⊕"
-            self.grid[0][2] = "T"
-            self.grid[1][3], self.grid[2][3] = "•", "⊕"
-            self.grid[3][4] = "H"
+            if self.n_qubits >= 1 and self.n_steps >= 1:
+                self.grid[0][0] = "H"
+            if self.n_qubits >= 2 and self.n_steps >= 2:
+                self.grid[0][1], self.grid[1][1] = "•", "⊕"
+            if self.n_qubits >= 1 and self.n_steps >= 3:
+                self.grid[0][2] = "T"
+            if self.n_qubits >= 3 and self.n_steps >= 4:
+                self.grid[1][3], self.grid[2][3] = "•", "⊕"
+            if self.n_qubits >= 4 and self.n_steps >= 5:
+                self.grid[3][4] = "H"
 
     def clear(self) -> None:
         with self._lock:
@@ -399,14 +405,28 @@ class CircuitProgram:
             messages.append("Incomplete CNOT ignored")
         return unitary, messages
 
-    def apply_next_column(self, rho: np.ndarray) -> Tuple[np.ndarray, int, List[str]]:
+    def take_next_column(self) -> Tuple[np.ndarray, int, List[str]]:
+        """Advance the playhead and return the column unitary without applying it.
+
+        Density engines that own an actual configuration use this API to unfold
+        the gate through its Hermitian generator.  ``apply_next_column`` remains
+        as the backwards-compatible instantaneous wrapper.
+        """
         if not self.enabled:
-            return rho, self.current_column, []
+            return (
+                np.eye(2 ** self.n_qubits, dtype=np.complex128),
+                self.current_column,
+                [],
+            )
         with self._lock:
             column = self.current_column
             self.current_column = (self.current_column + 1) % self.active_length
         unitary, labels = self.column_unitary(column)
         labels = [f"column {column}"] + labels
+        return unitary, column, labels
+
+    def apply_next_column(self, rho: np.ndarray) -> Tuple[np.ndarray, int, List[str]]:
+        unitary, column, labels = self.take_next_column()
         return normalize_density(unitary @ rho @ unitary.conj().T), column, labels
 
     def to_openqasm2_lines(self) -> List[str]:
@@ -445,6 +465,17 @@ class CircuitProgram:
         return "\n".join(self.to_openqasm2_lines())
 
 
+@dataclass
+class PendingCircuitLoad:
+    """Circuit score assembled off to the side until an OSC commit arrives."""
+
+    revision: int
+    expected_operations: int
+    kind: str
+    circuit: ComposerCircuit
+    metadata: dict[str, object] = field(default_factory=dict)
+
+
 class PilotWaveGraph:
     """Discrete guidance dynamics derived from quantum probability current.
 
@@ -457,34 +488,53 @@ class PilotWaveGraph:
         self.node = 0
         self.rng = np.random.default_rng(seed)
         self.n_nodes = n_nodes
+        self._initialized = False
         
 
     def update(self, rho: np.ndarray, hamiltonian: np.ndarray, dt: float) -> PilotFrame:
         currents = 2.0 * np.imag(hamiltonian * rho.T)
         np.fill_diagonal(currents, 0.0)
-        outgoing = np.maximum(currents[self.node], 0.0)
-        total = float(outgoing.sum())
         populations = np.clip(np.real(np.diag(rho)), 0.0, None)
+        population_total = float(populations.sum())
+        if not self._initialized:
+            probabilities = (
+                populations / population_total
+                if population_total > 1e-12
+                else np.ones(self.n_nodes) / self.n_nodes
+            )
+            self.node = int(self.rng.choice(self.n_nodes, p=probabilities))
+            self._initialized = True
 
-        if total > 1e-12:
-            weights = outgoing / total
-            next_node = int(self.rng.choice(self.n_nodes, p=weights))
+        source = self.node
+        source_population = float(populations[source])
+        outgoing_current = np.maximum(currents[:, source], 0.0)
+        outgoing_rates = (
+            outgoing_current / source_population
+            if source_population > 1e-15
+            else np.zeros(self.n_nodes, dtype=float)
+        )
+        total_rate = float(outgoing_rates.sum())
+        next_node = source
+        signed_current = 0.0
+
+        if total_rate > 1e-12:
+            weights = outgoing_rates / total_rate
             branch_entropy = float(-np.sum(weights[weights > 1e-12] * np.log2(weights[weights > 1e-12])))
-            signed_current = float(currents[self.node, next_node])
-            velocity = float(min(1.0, total * max(dt, 1e-6)))
+            jump_probability = float(-np.expm1(-total_rate * max(dt, 0.0)))
+            if self.rng.random() < jump_probability:
+                next_node = int(self.rng.choice(self.n_nodes, p=weights))
+                signed_current = float(currents[next_node, source])
+                self.node = next_node
+            velocity = float(min(1.0, total_rate * max(dt, 0.0)))
         else:
-            # No directed current: remain coherent with the population landscape,
-            # rather than adding generic Brownian drift.
-            weighted = populations / populations.sum() if populations.sum() > 1e-12 else np.ones(self.n_nodes) / self.n_nodes
-            next_node = int(self.rng.choice(self.n_nodes, p=weighted))
-            branch_entropy = float(-np.sum(weighted[weighted > 1e-12] * np.log2(weighted[weighted > 1e-12])))
-            signed_current = 0.0
+            # Zero current means zero motion. Population and entropy remain
+            # descriptors; they do not create a random walk.
+            branch_entropy = 0.0
             velocity = 0.0
 
-        phase_gradient = float(np.angle(rho[next_node, self.node])) if abs(rho[next_node, self.node]) > 1e-12 else 0.0
-        self.node = next_node
+        phase_gradient = float(np.angle(rho[next_node, source])) if abs(rho[next_node, source]) > 1e-12 else 0.0
         return PilotFrame(
-            node=self.node,
+            node=source,
             next_node=next_node,
             velocity=velocity,
             current=signed_current,
@@ -506,6 +556,7 @@ class QMWCircuitBridge:
         osc_out_port: int = 7400,
         osc_control_port: int = 7401,
         circuit_interval_seconds: float = 0.20,
+        osc_telemetry_hz: float | None = None,
     ) -> None:
         self.n_qubits = n_qubits
         self.dim = 2 ** n_qubits
@@ -524,6 +575,13 @@ class QMWCircuitBridge:
         self.client = SimpleUDPClient(osc_host, osc_out_port)
         self.circuit_interval_seconds = circuit_interval_seconds
         self._elapsed = 0.0
+        if osc_telemetry_hz is None:
+            self.osc_telemetry_interval = None
+        elif float(osc_telemetry_hz) <= 0.0:
+            self.osc_telemetry_interval = float("inf")
+        else:
+            self.osc_telemetry_interval = 1.0 / float(osc_telemetry_hz)
+        self._osc_telemetry_elapsed = 0.0
         self._step_requested = False
         self._spin_trails: List[Deque[Tuple[float, float, float]]] = [
             deque(maxlen=48) for _ in range(n_qubits)
@@ -531,9 +589,27 @@ class QMWCircuitBridge:
         self._previous_spin_vectors: List[Optional[Tuple[float, float, float]]] = [
             None for _ in range(n_qubits)
         ]
-        self._control_server: Optional[ThreadingOSCUDPServer] = None
+        self._control_server: Optional[BlockingOSCUDPServer] = None
         self._control_thread: Optional[threading.Thread] = None
+        self._external_control_handlers: Dict[str, Callable[..., None]] = {}
+        self._circuit_load_lock = threading.RLock()
+        self._pending_circuit_load: Optional[PendingCircuitLoad] = None
+        self._circuit_load_revision = -1
+        self._last_circuit_load_metadata: dict[str, object] = {}
+        self._authoritative_pilot_frame: Optional[PilotFrame] = None
         self.osc_control_port = osc_control_port
+
+    def set_authoritative_pilot_frame(self, frame: PilotFrame) -> None:
+        """Install the state owner's latest actual-configuration transition."""
+        self._authoritative_pilot_frame = frame
+        self.pilot.node = int(frame.next_node)
+        self.pilot._initialized = True
+
+    def add_control_handler(self, address: str, callback: Callable[..., None]) -> None:
+        """Register a conductor-owned OSC handler before the server starts."""
+        if self._control_server is not None:
+            raise RuntimeError("Control handlers must be registered before server start")
+        self._external_control_handlers[str(address)] = callback
 
     def start_control_server(self, host: str = "127.0.0.1") -> None:
         dispatcher = Dispatcher()
@@ -547,7 +623,17 @@ class QMWCircuitBridge:
         dispatcher.map("/qmw/circuit/interval", self._osc_interval)
         dispatcher.map("/qmw/circuit/preset", self._osc_preset)
         dispatcher.map("/qmw/circuit/step", self._osc_step)
-        self._control_server = ThreadingOSCUDPServer((host, self.osc_control_port), dispatcher)
+        dispatcher.map("/qmw/circuit/load/begin", self._osc_load_begin)
+        dispatcher.map("/qmw/circuit/load/op", self._osc_load_operation)
+        dispatcher.map("/qmw/circuit/load/metadata", self._osc_load_metadata)
+        dispatcher.map("/qmw/circuit/load/commit", self._osc_load_commit)
+        dispatcher.map("/qmw/circuit/load/abort", self._osc_load_abort)
+        for address, callback in self._external_control_handlers.items():
+            dispatcher.map(address, callback)
+        # Circuit-load messages form an ordered transaction. A threaded UDP
+        # server can dispatch commit before earlier operation datagrams finish,
+        # so consume control packets sequentially on this dedicated thread.
+        self._control_server = BlockingOSCUDPServer((host, self.osc_control_port), dispatcher)
         self._control_thread = threading.Thread(target=self._control_server.serve_forever, daemon=True)
         self._control_thread.start()
         print(f"QMW circuit control listening on udp://{host}:{self.osc_control_port}")
@@ -582,56 +668,198 @@ class QMWCircuitBridge:
             /qmw/circuit/op 2 cx 0,1
         """
         try:
-            if len(args) < 3:
-                raise ValueError(
-                    "Expected: step gate qubits [params] [classical_target]."
-                )
-
-            step = int(args[0])
-            name = str(args[1])
-            qubits = parse_qubit_refs(args[2])
-            params = parse_params(args[3]) if len(args) >= 4 else []
-            classical_target = (
-                parse_qubit_refs(args[4])[0]
-                if len(args) >= 5 and parse_qubit_refs(args[4])
-                else None
-            )
-            target_register = parse_optional_text(args, 5)
-            if target_register is not None:
-                target_register = normalize_register_bus_name(target_register)
-            register_bit_text = parse_optional_text(args, 6)
-            register_bit = parse_optional_int_text(register_bit_text)
-            route_offset = 1 if register_bit is not None else 0
-            osc_route = parse_optional_text(args, 6 + route_offset)
-            persistence = parse_optional_text(args, 7 + route_offset) or "single_shot"
-            shots_text = parse_optional_text(args, 8 + route_offset)
-            shots = int(shots_text) if shots_text is not None else 1
-            measurement_route = (
-                MeasurementRoute(
-                    target_register=target_register,
-                    osc_route=osc_route or default_measurement_osc_route(target_register),
-                    persistence=persistence,
-                    shots=shots,
-                    register_bit=register_bit,
-                )
-                if target_register is not None
-                else None
-            )
-
-            op = self.registry_circuit.add(
-                name,
-                qubits,
-                params=params,
-                classical_target=classical_target,
-                step=step,
-                measurement_route=measurement_route,
-                target_register=target_register,
-                register_bit=register_bit,
-            )
+            op = self._add_operation_from_osc_args(self.registry_circuit, args)
+            step = int(op.step if op.step is not None else 0)
+            qubits = op.qubits
             self._mirror_registry_operation_to_live_grid(op.name, qubits, step)
             self._send_registry_status()
         except Exception as exc:
             print(f"Circuit operation rejected: {exc}")
+
+    @staticmethod
+    def _add_operation_from_osc_args(
+        circuit: ComposerCircuit,
+        args: Sequence[object],
+    ):
+        if len(args) < 3:
+            raise ValueError("Expected: step gate qubits [params] [classical_target].")
+
+        step = int(args[0])
+        name = str(args[1])
+        qubits = parse_qubit_refs(args[2])
+        params = parse_params(args[3]) if len(args) >= 4 else []
+        parsed_target = parse_qubit_refs(args[4]) if len(args) >= 5 else []
+        classical_target = parsed_target[0] if parsed_target else None
+        target_register = parse_optional_text(args, 5)
+        if target_register is not None:
+            target_register = normalize_register_bus_name(target_register)
+        register_bit_text = parse_optional_text(args, 6)
+        register_bit = parse_optional_int_text(register_bit_text)
+        route_offset = 1 if register_bit is not None else 0
+        osc_route = parse_optional_text(args, 6 + route_offset)
+        persistence = parse_optional_text(args, 7 + route_offset) or "single_shot"
+        shots_text = parse_optional_text(args, 8 + route_offset)
+        shots = int(shots_text) if shots_text is not None else 1
+        measurement_route = (
+            MeasurementRoute(
+                target_register=target_register,
+                osc_route=osc_route or default_measurement_osc_route(target_register),
+                persistence=persistence,
+                shots=shots,
+                register_bit=register_bit,
+            )
+            if target_register is not None
+            else None
+        )
+        return circuit.add(
+            name,
+            qubits,
+            params=params,
+            classical_target=classical_target,
+            step=step,
+            measurement_route=measurement_route,
+            target_register=target_register,
+            register_bit=register_bit,
+        )
+
+    def _send_circuit_load_error(self, revision: int, message: str) -> None:
+        print(f"Circuit load rejected: {message}")
+        self.client.send_message(
+            "/qmw/circuit/load/error",
+            [int(revision), str(message)],
+        )
+
+    def _osc_load_begin(
+        self,
+        _address: str,
+        revision: int,
+        n_qubits: int,
+        n_bits: int,
+        operation_count: int,
+        kind: str = "synthesis",
+    ) -> None:
+        revision = int(revision)
+        try:
+            if int(n_qubits) != self.n_qubits:
+                raise ValueError(
+                    f"circuit has {n_qubits} qubits; live engine requires {self.n_qubits}"
+                )
+            if int(n_bits) < 0 or int(operation_count) < 0:
+                raise ValueError("bit and operation counts must be non-negative")
+            with self._circuit_load_lock:
+                current_revision = self._circuit_load_revision
+                if self._pending_circuit_load is not None:
+                    current_revision = max(
+                        current_revision,
+                        self._pending_circuit_load.revision,
+                    )
+                if revision <= current_revision:
+                    raise ValueError(
+                        f"stale revision {revision}; current is {current_revision}"
+                    )
+                self._pending_circuit_load = PendingCircuitLoad(
+                    revision=revision,
+                    expected_operations=int(operation_count),
+                    kind=str(kind),
+                    circuit=ComposerCircuit(
+                        n_qubits=self.n_qubits,
+                        n_bits=int(n_bits),
+                    ),
+                )
+        except Exception as exc:
+            self._send_circuit_load_error(revision, str(exc))
+
+    def _osc_load_operation(
+        self,
+        _address: str,
+        revision: int,
+        *args: object,
+    ) -> None:
+        revision = int(revision)
+        try:
+            with self._circuit_load_lock:
+                pending = self._pending_circuit_load
+                if pending is None or pending.revision != revision:
+                    raise ValueError(f"no pending load for revision {revision}")
+                if len(pending.circuit.operations) >= pending.expected_operations:
+                    raise ValueError("received more operations than declared")
+                self._add_operation_from_osc_args(pending.circuit, args)
+        except Exception as exc:
+            self._send_circuit_load_error(revision, str(exc))
+
+    def _osc_load_commit(self, _address: str, revision: int) -> None:
+        revision = int(revision)
+        try:
+            with self._circuit_load_lock:
+                pending = self._pending_circuit_load
+                if pending is None or pending.revision != revision:
+                    raise ValueError(f"no pending load for revision {revision}")
+                actual = len(pending.circuit.operations)
+                if actual != pending.expected_operations:
+                    raise ValueError(
+                        f"expected {pending.expected_operations} operations, received {actual}"
+                    )
+
+                # The score swap is atomic. The legacy grid is a projection of
+                # the subset it can display and execute; unsupported cells do
+                # not alter the canonical registry score.
+                self.registry_circuit = pending.circuit
+                self.circuit.clear()
+                for operation in self.registry_circuit.operations:
+                    if operation.step is None:
+                        continue
+                    self._mirror_registry_operation_to_live_grid(
+                        operation.name,
+                        operation.qubits,
+                        int(operation.step),
+                    )
+                used_steps = [
+                    int(operation.step)
+                    for operation in self.registry_circuit.operations
+                    if operation.step is not None
+                ]
+                if used_steps:
+                    self.circuit.active_length = min(
+                        self.circuit.n_steps,
+                        max(used_steps) + 1,
+                    )
+                self._circuit_load_revision = revision
+                self._last_circuit_load_metadata = dict(pending.metadata)
+                self._pending_circuit_load = None
+
+            self._send_registry_status()
+            self.client.send_message(
+                "/qmw/circuit/load/accepted",
+                [revision, pending.kind, actual, self.n_qubits],
+            )
+        except Exception as exc:
+            self._send_circuit_load_error(revision, str(exc))
+
+    def _osc_load_metadata(
+        self,
+        _address: str,
+        revision: int,
+        payload: str,
+    ) -> None:
+        revision = int(revision)
+        try:
+            decoded = json.loads(str(payload))
+            if not isinstance(decoded, dict):
+                raise ValueError("metadata must be a JSON object")
+            with self._circuit_load_lock:
+                pending = self._pending_circuit_load
+                if pending is None or pending.revision != revision:
+                    raise ValueError(f"no pending load for revision {revision}")
+                pending.metadata = decoded
+        except Exception as exc:
+            self._send_circuit_load_error(revision, str(exc))
+
+    def _osc_load_abort(self, _address: str, revision: int) -> None:
+        revision = int(revision)
+        with self._circuit_load_lock:
+            pending = self._pending_circuit_load
+            if pending is not None and pending.revision == revision:
+                self._pending_circuit_load = None
 
     def _osc_export_qasm(self, _address: str, *_: object) -> None:
         self._send_registry_status()
@@ -900,31 +1128,60 @@ class QMWCircuitBridge:
         else:
             self.client.send_message("/circuit/measurement/mode", "listen")
 
-    def apply_due_circuit_column(
+    def take_due_circuit_column(
         self,
-        rho: np.ndarray,
         dt: float,
-        ) -> Tuple[np.ndarray, Optional[int], List[str]]:
-
+    ) -> Tuple[Optional[np.ndarray], Optional[int], List[str]]:
+        """Return a due column unitary for generator unfolding by the owner."""
         # Explicit GUI Step: apply exactly one column immediately.
         if self._step_requested:
             self._step_requested = False
-            return self.circuit.apply_next_column(rho)
+            return self.circuit.take_next_column()
 
         # Run mode: advance according to the circuit clock.
         if not self.circuit.enabled:
-            return rho, None, []
+            return None, None, []
 
         self._elapsed += dt
 
         if self._elapsed < self.circuit_interval_seconds:
-            return rho, None, []
+            return None, None, []
 
         self._elapsed %= self.circuit_interval_seconds
-        return self.circuit.apply_next_column(rho)
+        return self.circuit.take_next_column()
+
+    def apply_due_circuit_column(
+        self,
+        rho: np.ndarray,
+        dt: float,
+    ) -> Tuple[np.ndarray, Optional[int], List[str]]:
+        """Backwards-compatible instantaneous circuit-column application."""
+        unitary, column, labels = self.take_due_circuit_column(dt)
+        if unitary is None:
+            return rho, None, []
+        return normalize_density(unitary @ rho @ unitary.conj().T), column, labels
 
     def update_and_send(self, rho: np.ndarray, hamiltonian: np.ndarray, dt: float, column: Optional[int] = None, labels: Sequence[str] = ()) -> PilotFrame:
-        frame = self.pilot.update(rho, hamiltonian, dt)
+        frame = (
+            self._authoritative_pilot_frame
+            if self._authoritative_pilot_frame is not None
+            else self.pilot.update(rho, hamiltonian, dt)
+        )
+        telemetry_dt = max(float(dt), 0.0)
+        if self.osc_telemetry_interval is not None:
+            self._osc_telemetry_elapsed += telemetry_dt
+            if self._osc_telemetry_elapsed < self.osc_telemetry_interval:
+                # Discrete circuit events must not wait for the telemetry
+                # clock, but continuous state messages can be rate-limited.
+                if column is not None:
+                    self.client.send_message(
+                        "/qmw/circuit/gate_event",
+                        [int(column), *[str(x) for x in labels]],
+                    )
+                return frame
+            telemetry_dt = self._osc_telemetry_elapsed
+            self._osc_telemetry_elapsed %= self.osc_telemetry_interval
+
         probabilities = np.real(np.diag(rho)).clip(0.0, 1.0)
         self.client.send_message("/qmw/circuit/playhead", int(self.circuit.current_column))
         self.client.send_message("/qmw/circuit/enabled", int(self.circuit.enabled))
@@ -938,6 +1195,8 @@ class QMWCircuitBridge:
         self.client.send_message("/qmw/pilot/current", frame.current)
         self.client.send_message("/qmw/pilot/phase_gradient", frame.phase_gradient)
         self.client.send_message("/qmw/pilot/branch_entropy", frame.branch_entropy)
+        self.client.send_message("/qmw/pilot/configuration", frame.next_node)
+        self.client.send_message("/qmw/pilot/beable_basis", "computational_z")
         if column is not None:
             self.client.send_message("/qmw/circuit/gate_event", [int(column), *[str(x) for x in labels]])
 
@@ -963,7 +1222,7 @@ class QMWCircuitBridge:
                     f"/qmw/density/mi/{qubit_a}{qubit_b}",
                     mi,
                 )
-        self._send_spin_state(rho, dt)
+        self._send_spin_state(rho, telemetry_dt)
         return frame
 
     def _send_spin_state(self, rho: np.ndarray, dt: float) -> None:

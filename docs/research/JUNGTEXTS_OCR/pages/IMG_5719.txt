@@ -1,0 +1,34 @@
+USING PAIRS OF CORRELATED PHOTONS
+DIAGRAM OF AN EPR EXPERIMENT
+A1
+) 6 đ đ
+2
+C
+S represents the source of the photon pairs,
+C represents a coincidence counter used to
+an excited calcium atom.
+compare the "arrivals" of the photon pairs
+direction of the polarization of the photons
+Al A2 are analyzers that determine the
+at the detectors.
+"passing through" them.
+The analyzers are adjustable for different
+polarization angles; the alignment of the
+D,, Da are detectors that report the "arrival"
+analyzer-detectors is also variable.
+of photons.
+t
+It is tempting but mistaken to imagine the photon pairs as particles that
+travel to the detectors carrying with them intrinsic properties such as their
+n
+polarization fully determined at the source. In this type of EPR experiment,
+changes are made to the analyzer settings after the photons have departed
+a
+the source and with such rapidity that no signal traveling at the speed of
+light could be exchanged between the paired photons. Nevertheless, the polariza-
+tions of the photon pairs are found to be correlated in the manner predictea
+Ir
+by quantum mechanics but which, as Bell showed, cannot be explained by
+W
+any local causal hidden variable theory of quantum phenomena.
+tai

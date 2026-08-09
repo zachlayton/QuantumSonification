@@ -1,0 +1,52 @@
+{
+  "osc": {
+    "host": "127.0.0.1",
+    "engine_port": 7400,
+    "visual_port": 7401,
+    "control_port": 7402,
+    "geometry_port": 7405,
+    "status_port": 7410
+  },
+  "engine": {
+    "enabled": true,
+    "implementation": "resonator_v9",
+    "protocol": "qmw-osc-v1",
+    "hz": 100.0,
+    "density_field_hz": 30.0,
+    "diagnostics_hz": 20.0,
+    "status_hz": 0.5,
+    "profile": "resonator",
+    "clock_source": "internal",
+    "excitation_source": "schrodinger_interference",
+    "audio_path": null
+  },
+  "geometry": {
+    "enabled": false,
+    "mode": "noncommutative",
+    "auto_update_interval": null,
+    "output_format": "wav"
+  },
+  "circuit_ui": {
+    "enabled": false,
+    "n_qubits": 4,
+    "n_steps": 16,
+    "osc_enabled": true
+  },
+  "qac_bridge": {
+    "enabled": false,
+    "input_port": 7401,
+    "output_port": 7400,
+    "engine_control_port": 7402,
+    "shots": 1024,
+    "inject_density": true
+  },
+  "recorder": {
+    "enabled": false,
+    "record_path": null,
+    "record_audio": false,
+    "record_osc": false,
+    "record_parameters": false
+  },
+  "verbose": false,
+  "quiet": false
+}
