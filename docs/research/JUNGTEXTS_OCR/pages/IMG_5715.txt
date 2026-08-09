@@ -1,0 +1,32 @@
+A FLAME MAKING
+THE UNDERLYING
+SYMMETRY OF
+SOUND VISIBLE
+Left to right:
+well bowed violin,
+badly bowed violin,
+flute, French horn
+concrete example, then the resulting group is called a "realization" of the
+When the elements and properties of a group are fulfilled by a specific,
+whose form becomes apparent only through its concrete "representations."
+abstract group. In this sense, the abstract group is very similar to the archetype,
+However, the archetype is conceived as more than an abstraction, and strictly
+speaking, it is irrepresentable. Realizations of groups may include groups of
+numbers, of matrices, of functions, etc. Therefore, the symmetries described
+by groups may be physical symmetries such as the symmetries of crystals,
+or they may be the abstract symmetries of various mathematical structures.
+Physics uses group theory to describe various types of symmetries of
+physical objects, but more importantly, it uses group theory in the formula-
+tion of fundamental physical laws. Statements of symmetry are essentially state-
+ments about the invariance of a particular property or quantity, and, in turn, the
+invariance of a quantity is a statement of the conservation of that quantity. Thus,
+principles of invariance and laws of conservation may be expressed using the
+mathematics of groups. For example, invariance under linear spatial displace-
+ment, rotational displacement, and temporal displacement implies the con-
+servation of linear momentum, angular momentum, and energy, respectively.
+Thus, in both classical and quantum mechanics, groups may be used to for-
+mulate these fundamental conservation principles. In particle physics, group
+theory is used to describe the conservation of more abstract quantities such
+as electric charge, baryon number, lepton numbers, isospin, and hypercharge,
+without which it would be impossible to understand the behavior of elemen-
+tary particles.

@@ -1,0 +1,90 @@
+272
+to decrease its intensity. It then falls on a half-silvered mirror that
+In Figure
+splits the light: transmitting exactly half and reflecting half. The
+4 monochromatic laser light goes through an absorber
+V. Mansfield and J. M. Spiegelman
+from the half-silver
+The opposites in qua
+is completely reflected. (The diagram separates the incoming and
+silvered mirror on the right. At the two full-silvered mirrors the light
+top of the figure while the transmitted half goes through to the full-
+reflected half of the light goes up to the full-silvered mirror at the
+pattern on the film
+II.2 Light as particl
+opposite directions interpenetrates rather than collides.) The half-
+in the actual apparatus. Unlike material bodies, light traveling in
+outgoing fully reflected rays for clarity, though they are not separated
+allows only a tiny
+Next put a much
+an see We get me
+the darkenn
+neglect light returning to the absorber.
+mirrors, half going through and half reflecting from its surface. We
+silvered mirror again splits the light reflected from the full-silvered
+a time.
+electrical current ea
+with a photodetect
+ference pattern, on the photographic film at the bottom of the appar-
+nating exposed (illuminated) and unexposed bands, called an inter-
+The two rays coming from the full-silvered mirrors generate alter-
+and putting it thro
+popcorn popping.
+The clicks are alw
+interference pattern while the valleys indicate the unexposed bands.
+atus. In the figure the hills represent the exposed bands in the
+average time betwe
+arrival time for any
+different hills and valleys.
+As explained below, different rays through the apparatus generate
+up we still get the
+of the average click
+parts of the system.
+Let's explore the
+silvered mirror and each split ray travels the same distance from the
+Imagine a particular ray that splits on first contact with the half-
+along a different arm. Then, since the travel distance for each ray is
+splitting point to the photographic film, although each ray travels
+just before the first
+count is reduced by
+mirror or the light
+the photographic film and thus constructively interfere, giving an
+the same, the two rays come together with zero phase difference at
+comes in chunks of
+ward and westward travelling equatorial waves taking opposite routes
+exposure maximum in the interference pattern. This is like our east-
+per second - though
+ical packets of light
+tance-providing South America and Africa are removed! These in-
+around the world on the equator but travelling the same total dis-
+Next use an even
+only two photons f
+random we sometin
+which is opposite their starting point.
+phase waves would constructively interfere at their intersection,
+a closely spaced bur
+sure that only one P
+through typical inte
+side or the other of the ray giving the exposure maximum. The
+Consider light rays that meet the half-silvered mirror a little to one
+be the same, therefore their phase relationship must be non-zero and
+distance travelled along each arm for these neighbouring rays cannot
+ist splitting. We fi
+detectors we can mo
+their resulting interference less than maximum. For rays sufficiently
+no splitting of the
+far from the maximum exposure ray the total travel difference along
+both arms at once. F
+goes one way or the
+the two arms gets to be exactly half a wavelength. Then the phase
+difference will be 180 degrees, giving an interference valley (unex-
+posed film). In this way, different paths through the apparatus give
+that photons are unsp
+the light and dark bands of the interference pattern. Because the
+interference pattern is sensitive to the differences in total travel dis-
+13 Light as both wa
+tance, moving either of the fully silvered mirrors towards or away
+weed size with a wel
+Trouble is looming•
+nanable
+1 amplitud

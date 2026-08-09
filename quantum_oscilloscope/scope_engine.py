@@ -3,9 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from pythonosc.udp_client import SimpleUDPClient
-
 from qmw.core import QuantumStateFrame
+from quantum_oscilloscope.resilient_udp import ResilientSimpleUDPClient
 from quantum_oscilloscope.views import (
     BlochView,
     BohmView,
@@ -53,8 +52,11 @@ class QuantumOscilloscope:
 
     def __init__(self, config: QuantumOscilloscopeConfig | None = None) -> None:
         self.config = config or QuantumOscilloscopeConfig()
-        self.osc = SimpleUDPClient(self.config.osc_host, self.config.osc_port)
-        self.visual_osc = SimpleUDPClient(
+        self.osc = ResilientSimpleUDPClient(
+            self.config.osc_host,
+            self.config.osc_port,
+        )
+        self.visual_osc = ResilientSimpleUDPClient(
             self.config.osc_host,
             self.config.visual_osc_port,
         )

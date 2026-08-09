@@ -1,0 +1,2 @@
+numpy>=1.26
+python-osc>=1.8.3

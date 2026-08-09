@@ -75,9 +75,10 @@ class MLXQuantumEngine:
             audio_descriptor=audio,
         )
 
-        trajectory_speed = self.trajectory.speed()
-        trajectory_acceleration = self.trajectory.acceleration_magnitude()
-        trajectory_direction_change = self.trajectory.direction_change()
+        trajectory = self.trajectory.kinematics()
+        trajectory_speed = trajectory["speed"]
+        trajectory_acceleration = trajectory["acceleration"]
+        trajectory_direction_change = trajectory["direction_change"]
 
         metrics = dict(density_metrics)
         metrics["trajectory_speed"] = trajectory_speed
@@ -140,5 +141,7 @@ class MLXQuantumEngine:
 
     def run(self):
         while True:
+            started = time.monotonic()
             self.step()
-            time.sleep(self.interval)
+            elapsed = time.monotonic() - started
+            time.sleep(max(0.0, self.interval - elapsed))

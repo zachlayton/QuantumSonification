@@ -1,0 +1,47 @@
+270
+Figure 2 90° Phase difference
+V. Mansfield and J. M. Spiegelman
+The opp
+B1
+in phase
+waves i
+B2
+differen
+Finali
+interfere
+ride,
+90 deg.
+turbed
+belled C
+A pha
+B1 + B2
+we plot
+the phas
+the two
+increasin
+ocean ex
+Figure 3 180° Phase difference
+dissipati
+waves tr
+ling wav
+fixed phe
+C1
+the phase
+addition,
+two wav
+C2
+ment.
+Figure 4 L
+C1 + C2
+180 degrees
+full wavelength and to a phase change of 360 degrees. A half cycle
+the next or from one minimum to the next, corresponds to one
+Laser
+AI and Az have zero degrees phase difference. They are completely
+corresponds to N/2 and a phase change of 180 degrees, and so on.
+intermediate amplitude, at the same place. Then the resulting amphi-
+in phase-each wave reaching a maximum or minimum, or any
+that of each individual wave.
+tude fluctuation in the sum, At + A2, shown in Figure I is double
+of 90 degrees (a quarter cycle or N/4). When Bi is maximum B2 is
+Figure 2 shows identical waves, BI and B2, with a phase difference

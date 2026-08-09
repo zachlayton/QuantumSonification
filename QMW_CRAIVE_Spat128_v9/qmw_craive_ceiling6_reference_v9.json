@@ -1,0 +1,44 @@
+{
+  "name": "CRAIVE ceiling loudspeakers 129-134",
+  "status": "reference_only_not_connected_to_the_128_channel_wfs_renderer",
+  "coordinate_system": {
+    "origin": "CRAIVE acoustic origin at room centre and 1.75 m listener height",
+    "units": "metres and degrees",
+    "front_axis": "+Y",
+    "azimuth_formula": "atan2(x,y)",
+    "elevation_formula": "atan2(z,hypot(x,y))"
+  },
+  "rendering_note": "CRAIVE documents channels 129-134 as HoA loudspeakers assisted by selected perimeter channels. They must not be appended to the perimeter WFS renderer as six generic outputs.",
+  "speakers": [
+    {
+      "channel": 129,
+      "xyz_m": [-2.3, 4.0, 2.67],
+      "aed_deg_deg_m": [-29.898901839, 30.056247784, 5.330938004]
+    },
+    {
+      "channel": 130,
+      "xyz_m": [2.3, 4.0, 2.67],
+      "aed_deg_deg_m": [29.898901839, 30.056247784, 5.330938004]
+    },
+    {
+      "channel": 131,
+      "xyz_m": [-2.3, 0.0, 2.67],
+      "aed_deg_deg_m": [-90.0, 49.257626466, 3.52404597]
+    },
+    {
+      "channel": 132,
+      "xyz_m": [2.3, 0.0, 2.67],
+      "aed_deg_deg_m": [90.0, 49.257626466, 3.52404597]
+    },
+    {
+      "channel": 133,
+      "xyz_m": [-2.3, -4.0, 2.67],
+      "aed_deg_deg_m": [-150.101098161, 30.056247784, 5.330938004]
+    },
+    {
+      "channel": 134,
+      "xyz_m": [2.3, -4.0, 2.67],
+      "aed_deg_deg_m": [150.101098161, 30.056247784, 5.330938004]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 9,
+      "minor": 0,
+      "revision": 0,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      100.0,
+      100.0,
+      1100.0,
+      760.0
+    ],
+    "gridsize": [
+      15.0,
+      15.0
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "in",
+          "maxclass": "newobj",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ],
+          "patching_rect": [
+            30.0,
+            30.0,
+            35.0,
+            22.0
+          ],
+          "text": "in 1"
+        }
+      },
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "numinlets": 1,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ],
+          "patching_rect": [
+            30.0,
+            75.0,
+            1020.0,
+            560.0
+          ],
+          "code": "// QMW Density-Field Harmonic-Modal Resonator 16 MC v3\n//\n// Musically coherent hybrid monitor. A restrained, phase-stable harmonic\n// carrier preserves the strong sixteen-harmonic reference of the earlier\n// instrument. Around it, quantum-field motion excites damped noise-driven\n// modes. Hamiltonian ratios deform the scaffold only by an explicit amount.\n//\n// Intended host:\n//   mc.gen~ @gen qmw_density_field_harmonic_modal_resonator16_mc_v3 @chans 16\n//\n// in1: fundamental frequency in Hz\n// out1: one resonant basis lane per MC channel\n\nParam m0(0);  Param m1(0);  Param m2(0);  Param m3(0);\nParam m4(0);  Param m5(0);  Param m6(0);  Param m7(0);\nParam m8(0);  Param m9(0);  Param m10(0); Param m11(0);\nParam m12(0); Param m13(0); Param m14(0); Param m15(0);\n\nParam ph0(0);  Param ph1(0);  Param ph2(0);  Param ph3(0);\nParam ph4(0);  Param ph5(0);  Param ph6(0);  Param ph7(0);\nParam ph8(0);  Param ph9(0);  Param ph10(0); Param ph11(0);\nParam ph12(0); Param ph13(0); Param ph14(0); Param ph15(0);\n\nParam s0(0);  Param s1(0);  Param s2(0);  Param s3(0);\nParam s4(0);  Param s5(0);  Param s6(0);  Param s7(0);\nParam s8(0);  Param s9(0);  Param s10(0); Param s11(0);\nParam s12(0); Param s13(0); Param s14(0); Param s15(0);\n\nParam h0(1);  Param h1(2);  Param h2(3);  Param h3(4);\nParam h4(5);  Param h5(6);  Param h6(7);  Param h7(8);\nParam h8(9);  Param h9(10); Param h10(11); Param h11(12);\nParam h12(13); Param h13(14); Param h14(15); Param h15(16);\n\nParam purity(1);\nParam entropy(0);\nParam coherence(0);\n\nParam amp(0.46);\nParam default_freq(55);\nParam magnitude_smooth_ms(80);\nParam harmonic_smooth_ms(180);\nParam harmonic_lock(1.0);\nParam reference_tone(0.20);\nParam excitation_attack_ms(4);\nParam ring_decay_ms(1250);\nParam transient_sensitivity(14);\nParam speed_drive(0.10);\nParam motion_threshold(0.025);\nParam phase_change_drive(0.02);\nParam excitation_floor(0.0002);\nParam resonance_q(34);\nParam coherence_q_depth(42);\nParam entropy_damping(0.68);\nParam brightness(0.72);\nParam output_ceiling(0.88);\n\nHistory smoothed_magnitude(0);\nHistory smoothed_ratio(1);\nHistory previous_magnitude(0);\nHistory previous_phase(0);\nHistory excitation_envelope(0);\nHistory ic1eq(0);\nHistory ic2eq(0);\nHistory dc_x(0);\nHistory dc_y(0);\nHistory reference_phase(0);\n\nlane_index = clamp(mc_channel - 1, 0, 15);\n\nlane_m =\n    (lane_index == 0) * m0 + (lane_index == 1) * m1 +\n    (lane_index == 2) * m2 + (lane_index == 3) * m3 +\n    (lane_index == 4) * m4 + (lane_index == 5) * m5 +\n    (lane_index == 6) * m6 + (lane_index == 7) * m7 +\n    (lane_index == 8) * m8 + (lane_index == 9) * m9 +\n    (lane_index == 10) * m10 + (lane_index == 11) * m11 +\n    (lane_index == 12) * m12 + (lane_index == 13) * m13 +\n    (lane_index == 14) * m14 + (lane_index == 15) * m15;\n\nlane_ph =\n    (lane_index == 0) * ph0 + (lane_index == 1) * ph1 +\n    (lane_index == 2) * ph2 + (lane_index == 3) * ph3 +\n    (lane_index == 4) * ph4 + (lane_index == 5) * ph5 +\n    (lane_index == 6) * ph6 + (lane_index == 7) * ph7 +\n    (lane_index == 8) * ph8 + (lane_index == 9) * ph9 +\n    (lane_index == 10) * ph10 + (lane_index == 11) * ph11 +\n    (lane_index == 12) * ph12 + (lane_index == 13) * ph13 +\n    (lane_index == 14) * ph14 + (lane_index == 15) * ph15;\n\nlane_s =\n    (lane_index == 0) * s0 + (lane_index == 1) * s1 +\n    (lane_index == 2) * s2 + (lane_index == 3) * s3 +\n    (lane_index == 4) * s4 + (lane_index == 5) * s5 +\n    (lane_index == 6) * s6 + (lane_index == 7) * s7 +\n    (lane_index == 8) * s8 + (lane_index == 9) * s9 +\n    (lane_index == 10) * s10 + (lane_index == 11) * s11 +\n    (lane_index == 12) * s12 + (lane_index == 13) * s13 +\n    (lane_index == 14) * s14 + (lane_index == 15) * s15;\n\nlane_h =\n    (lane_index == 0) * h0 + (lane_index == 1) * h1 +\n    (lane_index == 2) * h2 + (lane_index == 3) * h3 +\n    (lane_index == 4) * h4 + (lane_index == 5) * h5 +\n    (lane_index == 6) * h6 + (lane_index == 7) * h7 +\n    (lane_index == 8) * h8 + (lane_index == 9) * h9 +\n    (lane_index == 10) * h10 + (lane_index == 11) * h11 +\n    (lane_index == 12) * h12 + (lane_index == 13) * h13 +\n    (lane_index == 14) * h14 + (lane_index == 15) * h15;\n\npur = clamp(purity, 0, 1);\nent = clamp(entropy, 0, 1);\ncoh = clamp(coherence, 0, 1);\nspeed = clamp(abs(lane_s), 0, 1);\neffective_speed = clamp(\n    (speed - motion_threshold) / max(1 - motion_threshold, 0.001),\n    0,\n    1\n);\ntarget_magnitude = clamp(lane_m, 0, 1);\n\nmag_seconds = max(magnitude_smooth_ms, 0.1) * 0.001;\nmag_coeff = exp(-1 / max(mag_seconds * samplerate, 1));\nsmoothed_magnitude = target_magnitude\n    + mag_coeff * (smoothed_magnitude - target_magnitude);\n\nharmonic_ratio = lane_index + 1;\nquantum_ratio = max(lane_h, 0.01);\ntarget_ratio = mix(\n    quantum_ratio,\n    harmonic_ratio,\n    clamp(harmonic_lock, 0, 1)\n);\n\nratio_seconds = max(harmonic_smooth_ms, 0.1) * 0.001;\nratio_coeff = exp(-1 / max(ratio_seconds * samplerate, 1));\nsmoothed_ratio = target_ratio\n    + ratio_coeff * (smoothed_ratio - target_ratio);\n\n// Field motion injects energy. A change of population makes a sharp strike;\n// sustained state velocity behaves more like breath or bow pressure.\nmagnitude_change = abs(target_magnitude - previous_magnitude);\nphase_change = abs(atan2(\n    sin(lane_ph - previous_phase),\n    cos(lane_ph - previous_phase)\n)) / 3.141592653589793;\nprevious_magnitude = target_magnitude;\nprevious_phase = lane_ph;\n\ntransient_strike = clamp(\n    transient_sensitivity * magnitude_change\n    + phase_change_drive * phase_change,\n    0,\n    1\n) * sqrt(smoothed_magnitude);\n\nfloor_energy = max(excitation_floor, 0)\n    * (0.15 + 0.85 * sqrt(smoothed_magnitude));\nsustained_energy = speed_drive\n    * effective_speed\n    * sqrt(smoothed_magnitude);\ntarget_energy = max(sustained_energy, floor_energy);\n\nattack_seconds = max(excitation_attack_ms, 0.1) * 0.001;\nattack_coeff = exp(-1 / max(attack_seconds * samplerate, 1));\n\n// Fast-moving lanes ring for less time; coherent pure states ring longer.\neffective_decay_ms = max(\n    ring_decay_ms\n    * mix(1.20, 0.55, effective_speed)\n    * mix(0.72, 1.18, pur * coh),\n    8\n);\ndecay_coeff = exp(-1 / max(effective_decay_ms * 0.001 * samplerate, 1));\n\nexcitation_envelope =\n    (target_energy > excitation_envelope)\n    * (target_energy + attack_coeff\n        * (excitation_envelope - target_energy))\n    +\n    (target_energy <= excitation_envelope)\n    * (target_energy + decay_coeff\n        * (excitation_envelope - target_energy));\n\n// Population and phase discontinuities are true strikes. They bypass the\n// slower sustained-energy attack so a one-sample parameter change cannot be\n// averaged away.\nexcitation_envelope = max(excitation_envelope, transient_strike);\n\n// A TPT state-variable bandpass is the actual resonant body. The quantum\n// state changes its excitation and damping; it does not directly sweep an\n// oscillator phase.\nbase_frequency = (in1 > 0) * in1 + (in1 <= 0) * default_freq;\nmode_frequency = clamp(\n    base_frequency * smoothed_ratio,\n    20,\n    samplerate * 0.44\n);\n\n// The reference carrier never receives the conductor's phase. It supplies a\n// stable musical ruler; quantum phase remains reserved for the analytic\n// Hilbert projection downstream.\nreference_phase = fract(reference_phase + mode_frequency / samplerate);\n\nq_target = resonance_q\n    + coherence_q_depth * coh * pur;\nq_effective = clamp(\n    q_target * (1 - entropy_damping * ent),\n    2,\n    90\n);\n\nraw_excitation = noise();\ndrive = raw_excitation\n    * excitation_envelope\n    * mix(0.68, 1.15, ent);\n\ng = tan(3.141592653589793 * mode_frequency / samplerate);\nk = 1 / q_effective;\na1 = 1 / (1 + g * (g + k));\na2 = g * a1;\na3 = g * a2;\n\nv3 = drive - ic2eq;\nv1 = a1 * ic1eq + a2 * v3;\nv2 = ic2eq + a2 * ic1eq + a3 * v3;\nic1eq = 2 * v1 - ic1eq;\nic2eq = 2 * v2 - ic2eq;\n\nq_normalization = sqrt(q_effective * 0.08);\nspectral_rolloff = 1 / pow(max(smoothed_ratio, 1), brightness * 0.55);\nreference_signal = sin(6.283185307179586 * reference_phase)\n    * sqrt(smoothed_magnitude)\n    * spectral_rolloff\n    * clamp(reference_tone, 0, 0.5);\nmodal_raw = v1\n    * q_normalization\n    * spectral_rolloff\n    * amp;\n\n// Remove sub-audio residue without limiting the internal resonance.\ndc_coeff = exp(-6.283185307179586 * 18 / samplerate);\nmodal_dc = modal_raw - dc_x + dc_coeff * dc_y;\ndc_x = modal_raw;\ndc_y = modal_dc;\n\nout1 = (reference_signal + modal_dc) * output_ceiling;\n"
+        }
+      },
+      {
+        "box": {
+          "id": "out1",
+          "maxclass": "newobj",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "patching_rect": [
+            30.0,
+            670.0,
+            40.0,
+            22.0
+          ],
+          "text": "out 1"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "in",
+            0
+          ],
+          "destination": [
+            "code",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "out1",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

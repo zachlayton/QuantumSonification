@@ -1,0 +1,393 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 9,
+      "minor": 0,
+      "revision": 7,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      100,
+      100,
+      1220,
+      800
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "in1",
+          "maxclass": "newobj",
+          "patching_rect": [
+            30,
+            30,
+            45,
+            22
+          ],
+          "text": "in 1",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in2",
+          "maxclass": "newobj",
+          "patching_rect": [
+            125,
+            30,
+            45,
+            22
+          ],
+          "text": "in 2",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in3",
+          "maxclass": "newobj",
+          "patching_rect": [
+            220,
+            30,
+            45,
+            22
+          ],
+          "text": "in 3",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in4",
+          "maxclass": "newobj",
+          "patching_rect": [
+            315,
+            30,
+            45,
+            22
+          ],
+          "text": "in 4",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in5",
+          "maxclass": "newobj",
+          "patching_rect": [
+            410,
+            30,
+            45,
+            22
+          ],
+          "text": "in 5",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "patching_rect": [
+            30,
+            85,
+            1130,
+            570
+          ],
+          "numinlets": 5,
+          "numoutlets": 7,
+          "outlettype": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "code": "// QMW Analytic I/Q Rotator 16 MC v2\n//\n// Keeps both quadrature rails through the phase rotation.  out1/out2 and\n// out3/out4 are complete complex pre/post pairs; out5/out6 are deliberately\n// labelled real audition projections and out7 is their matrix-only delta.\n\nParam phase_depth(1);\nParam phase_spread(0);\nParam phase_bias(0);\nParam ssb_hz(0);\nParam projection_angle(0);\nParam delta_gain(1);\n\nHistory shift_phase(0);\n\nlane = clamp(mc_channel - 1, 0, 15);\ncentered_lane = lane - 7.5;\nshift_phase = fract(shift_phase + ssb_hz / samplerate);\n\ntheta = phase_bias\n    + in5 * phase_depth\n    + centered_lane * phase_spread\n    + 6.283185307179586 * shift_phase;\nc = cos(theta);\ns = sin(theta);\n\n// Complete norm-preserving rotations: |z'|^2 = |z|^2.\npre_i = in1 * c - in2 * s;\npre_q = in1 * s + in2 * c;\npost_i = in3 * c - in4 * s;\npost_q = in3 * s + in4 * c;\n\n// Real audio is created only here, at an explicit final projection angle.\npc = cos(projection_angle);\nps = sin(projection_angle);\npre_projection = pre_i * pc - pre_q * ps;\npost_projection = post_i * pc - post_q * ps;\n\nout1 = pre_i;\nout2 = pre_q;\nout3 = post_i;\nout4 = post_q;\nout5 = pre_projection;\nout6 = post_projection;\nout7 = (post_projection - pre_projection) * clamp(delta_gain, 0, 8);\n"
+        }
+      },
+      {
+        "box": {
+          "id": "out1",
+          "maxclass": "newobj",
+          "patching_rect": [
+            80,
+            700,
+            55,
+            22
+          ],
+          "text": "out 1",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out2",
+          "maxclass": "newobj",
+          "patching_rect": [
+            235,
+            700,
+            55,
+            22
+          ],
+          "text": "out 2",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out3",
+          "maxclass": "newobj",
+          "patching_rect": [
+            390,
+            700,
+            55,
+            22
+          ],
+          "text": "out 3",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out4",
+          "maxclass": "newobj",
+          "patching_rect": [
+            545,
+            700,
+            55,
+            22
+          ],
+          "text": "out 4",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out5",
+          "maxclass": "newobj",
+          "patching_rect": [
+            700,
+            700,
+            55,
+            22
+          ],
+          "text": "out 5",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out6",
+          "maxclass": "newobj",
+          "patching_rect": [
+            855,
+            700,
+            55,
+            22
+          ],
+          "text": "out 6",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out7",
+          "maxclass": "newobj",
+          "patching_rect": [
+            1010,
+            700,
+            55,
+            22
+          ],
+          "text": "out 7",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "in1",
+            0
+          ],
+          "destination": [
+            "code",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in2",
+            0
+          ],
+          "destination": [
+            "code",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in3",
+            0
+          ],
+          "destination": [
+            "code",
+            2
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in4",
+            0
+          ],
+          "destination": [
+            "code",
+            3
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in5",
+            0
+          ],
+          "destination": [
+            "code",
+            4
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "out1",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            1
+          ],
+          "destination": [
+            "out2",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            2
+          ],
+          "destination": [
+            "out3",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            3
+          ],
+          "destination": [
+            "out4",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            4
+          ],
+          "destination": [
+            "out5",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            5
+          ],
+          "destination": [
+            "out6",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            6
+          ],
+          "destination": [
+            "out7",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

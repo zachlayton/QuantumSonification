@@ -29,6 +29,12 @@ from typing import Dict, List
 
 import numpy as np
 
+from qmw.acoustics import (
+    controls_from_bloch,
+    harmonics_from_bloch,
+    harmonics_from_spherical,
+)
+
 try:
     from pythonosc.udp_client import SimpleUDPClient
 except ImportError as exc:
@@ -184,6 +190,12 @@ class EngineConfig:
 
     # Output scaling.
     clamp: float = 1.0
+
+    # Acoustic spherical-harmonic OSC output. Degree 1 yields three channels;
+    # degrees 1-3 yield fifteen. An empty tuple disables the connection.
+    harmonic_degrees: tuple[int, ...] = (1,)
+    harmonic_radial_power: float = 1.0
+    spatial_modal_enabled: bool = True
 
 
 # ------------------------------------------------------------
@@ -864,6 +876,38 @@ class QuantumSpinPolarizationEngine:
         self.client.send_message(f"/qubit/{q}/bloch/theta", data.bloch_theta)
         self.client.send_message(f"/qubit/{q}/bloch/phi", data.bloch_phi)
 
+        # Real acoustic spherical harmonics derived from the same coherent
+        # Bloch frame. Degree 1 is a normalized XYZ-equivalent control set.
+        if self.config.harmonic_degrees:
+            harmonic_frame = harmonics_from_spherical(
+                data.bloch_r,
+                data.bloch_theta,
+                data.bloch_phi,
+                degrees=self.config.harmonic_degrees,
+                radial_power=self.config.harmonic_radial_power,
+            )
+            for name, value in harmonic_frame.values().items():
+                self.client.send_message(
+                    f"/qubit/{q}/harmonic/{name}",
+                    value,
+                )
+
+        if self.config.spatial_modal_enabled:
+            controls = controls_from_bloch((data.x, data.y, data.z))
+            source = q + 1
+            self.client.send_message(
+                f"/qmw/acoustics/spat/source/{source}/aed",
+                list(controls.spat.aed),
+            )
+            self.client.send_message(
+                f"/qmw/acoustics/spat/source/{source}/aperture",
+                controls.spat.aperture_degrees,
+            )
+            self.client.send_message(
+                f"/qmw/acoustics/spat/source/{source}/spread",
+                controls.spat.spread_percent,
+            )
+
         # Measurement/listening basis outputs.
         self.client.send_message(f"/qubit/{q}/basis/theta", data.basis_theta)
         self.client.send_message(f"/qubit/{q}/basis/phi", data.basis_phi)
@@ -943,6 +987,35 @@ class QuantumSpinPolarizationEngine:
         self.client.send_message("/global/spin/x", avg_x)
         self.client.send_message("/global/spin/y", avg_y)
         self.client.send_message("/global/spin/z", avg_z)
+
+        if self.config.harmonic_degrees:
+            harmonic_frame = harmonics_from_bloch(
+                (avg_x, avg_y, avg_z),
+                degrees=self.config.harmonic_degrees,
+                radial_power=self.config.harmonic_radial_power,
+            )
+            for name, value in harmonic_frame.values().items():
+                self.client.send_message(f"/global/harmonic/{name}", value)
+
+        if self.config.spatial_modal_enabled:
+            controls = controls_from_bloch((avg_x, avg_y, avg_z))
+            reverb = controls.reverb
+            self.client.send_message(
+                "/qmw/acoustics/reverb/resonance", reverb.resonance
+            )
+            self.client.send_message("/qmw/acoustics/reverb/decay", reverb.decay)
+            self.client.send_message(
+                "/qmw/acoustics/reverb/damping", reverb.damping
+            )
+            self.client.send_message(
+                "/qmw/acoustics/modal/tilt", reverb.spectral_tilt
+            )
+            self.client.send_message(
+                "/qmw/acoustics/modal/warp", reverb.modal_warp
+            )
+            self.client.send_message(
+                "/qmw/acoustics/modal/weights", list(reverb.mode_weights)
+            )
 
         self.client.send_message("/global/polarization/degree", avg_degree)
         self.client.send_message("/global/polarization/circularity", avg_circularity)
@@ -1031,6 +1104,13 @@ class QuantumSpinPolarizationEngine:
         print(f"init state:  {cfg.init_state}")
         print(f"motion:      {cfg.motion}")
         print(f"measurement: {cfg.measurement_source}")
+        harmonic_label = (
+            ",".join(str(degree) for degree in cfg.harmonic_degrees)
+            if cfg.harmonic_degrees
+            else "off"
+        )
+        print(f"harmonics:   {harmonic_label}")
+        print(f"spat/modal:  {'on' if cfg.spatial_modal_enabled else 'off'}")
         print()
         print("Sending:")
         print("  /qubit/<i>/x")
@@ -1047,6 +1127,8 @@ class QuantumSpinPolarizationEngine:
         print("  /qubit/<i>/bloch/r")
         print("  /qubit/<i>/bloch/theta")
         print("  /qubit/<i>/bloch/phi")
+        if cfg.harmonic_degrees:
+            print("  /qubit/<i>/harmonic/Y_<degree>_<order>[c|s]")
         print("  /qubit/<i>/basis/theta")
         print("  /qubit/<i>/basis/phi")
         print("  /qubit/<i>/basis/projection")
@@ -1068,6 +1150,14 @@ class QuantumSpinPolarizationEngine:
         print("  /global/spin/x")
         print("  /global/spin/y")
         print("  /global/spin/z")
+        if cfg.harmonic_degrees:
+            print("  /global/harmonic/Y_<degree>_<order>[c|s]")
+        if cfg.spatial_modal_enabled:
+            print("  /qmw/acoustics/spat/source/<i>/aed")
+            print("  /qmw/acoustics/spat/source/<i>/aperture")
+            print("  /qmw/acoustics/spat/source/<i>/spread")
+            print("  /qmw/acoustics/reverb/resonance|decay|damping")
+            print("  /qmw/acoustics/modal/tilt|warp|weights")
         print("  /global/polarization/degree")
         print("  /global/polarization/circularity")
         print("  /global/polarization/linearity")
@@ -1089,6 +1179,7 @@ class QuantumSpinPolarizationEngine:
 
         try:
             while True:
+                started = time.monotonic()
                 self.evolve(cfg.interval)
                 self.send_osc()
 
@@ -1097,7 +1188,8 @@ class QuantumSpinPolarizationEngine:
                     self.print_status()
                     last_print = now
 
-                time.sleep(cfg.interval)
+                elapsed = time.monotonic() - started
+                time.sleep(max(0.0, cfg.interval - elapsed))
 
         except KeyboardInterrupt:
             print()
@@ -1107,6 +1199,21 @@ class QuantumSpinPolarizationEngine:
 # ------------------------------------------------------------
 # CLI
 # ------------------------------------------------------------
+
+def parse_harmonic_degrees(value: str) -> tuple[int, ...]:
+    """Parse comma-separated degrees, or ``off`` to disable the stream."""
+    normalized = value.strip().lower()
+    if normalized in {"", "off", "none"}:
+        return ()
+    try:
+        degrees = tuple(dict.fromkeys(int(item) for item in normalized.split(",")))
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(
+            "harmonic degrees must be comma-separated integers or 'off'"
+        ) from error
+    if not degrees or any(degree < 0 or degree > 8 for degree in degrees):
+        raise argparse.ArgumentTypeError("harmonic degrees must be between 0 and 8")
+    return degrees
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -1210,6 +1317,32 @@ def parse_args() -> argparse.Namespace:
         help="Neighbor ZZ coupling amount. Default: 0.018.",
     )
 
+    parser.add_argument(
+        "--harmonic-degrees",
+        type=parse_harmonic_degrees,
+        default=(1,),
+        help=(
+            "Comma-separated acoustic spherical-harmonic degrees, or off. "
+            "Default: 1. Example: 1,2,3."
+        ),
+    )
+
+    parser.add_argument(
+        "--harmonic-radial-power",
+        type=float,
+        default=1.0,
+        help=(
+            "Exponent applied to Bloch radius before harmonic output. "
+            "Default: 1.0."
+        ),
+    )
+
+    parser.add_argument(
+        "--no-spatial-modal",
+        action="store_true",
+        help="Disable Spat and modal-reverb control messages.",
+    )
+
     return parser.parse_args()
 
 
@@ -1223,6 +1356,12 @@ def main() -> None:
         raise ValueError(
             "This standalone prototype is intended for <= 8 qubits."
         )
+
+    if (
+        not math.isfinite(args.harmonic_radial_power)
+        or args.harmonic_radial_power < 0.0
+    ):
+        raise ValueError("--harmonic-radial-power must be finite and non-negative")
 
     config = EngineConfig(
         n_qubits=args.qubits,
@@ -1238,6 +1377,9 @@ def main() -> None:
         basis_theta=args.basis_theta,
         basis_phi=args.basis_phi,
         measurement_source=args.measurement_source,
+        harmonic_degrees=args.harmonic_degrees,
+        harmonic_radial_power=args.harmonic_radial_power,
+        spatial_modal_enabled=not args.no_spatial_modal,
     )
 
     engine = QuantumSpinPolarizationEngine(config)

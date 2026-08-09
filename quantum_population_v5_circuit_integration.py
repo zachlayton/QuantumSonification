@@ -71,10 +71,12 @@ class CircuitEnabledPopulationMixin:
         return pilot_to_population_guidance(pilot, rho_purity, rho_coherence)
 
     def guide_member(self, member, guidance: GuidanceVector, noise_amount: float = 0.03) -> None:
-        """Replace broad perturbation with directed state-dependent movement.
+        """Project deterministic configuration guidance into renderer space.
 
         Assumes your members have position/velocity numpy vectors. Adapt the
         field names and parameter dimensions to your actual v5 data structure.
+        ``noise_amount`` is retained only for backwards-compatible callers;
+        renderer noise must not change the quantum guidance path.
         """
         dim = len(member.position)
         node_bits = np.array([(guidance.node >> shift) & 1 for shift in range(3, -1, -1)], dtype=float)
@@ -87,11 +89,9 @@ class CircuitEnabledPopulationMixin:
         if norm > 1e-12:
             direction /= norm
 
-        controlled_noise = self.rng.normal(0.0, noise_amount * (0.25 + guidance.diffusion), size=dim)
         member.velocity = (
             0.70 * member.velocity
             + 0.24 * guidance.momentum * direction
             + 0.10 * guidance.phase_force * np.roll(direction, 1)
-            + controlled_noise
         )
         member.position = member.position + member.velocity

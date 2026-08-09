@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qmw-zx-modular"
+version = "0.1.0"
+description = "Semantics-first bridge between ZX diagrams and modular synthesis"
+readme = "zx_modular_v1/README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+pennylane = [
+  "pennylane>=0.45,<0.46",
+  "pyzx>=0.10,<0.11",
+]
+
+[project.scripts]
+qmw-zx-demo = "zx_modular_v1.examples.zx_modular_demo:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["zx_modular_v1*"]

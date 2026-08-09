@@ -1,0 +1,61 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {"major": 9, "minor": 0, "revision": 0, "architecture": "x64", "modernui": 1},
+    "rect": [120.0, 80.0, 1120.0, 700.0],
+    "gridsize": [15.0, 15.0],
+    "boxes": [
+      {"box":{"id":"title","maxclass":"comment","text":"BLOCH EMERGENT EVENT CLOCK v1","fontsize":19.0,"fontface":1,"patching_rect":[40.0,25.0,520.0,30.0]}},
+      {"box":{"id":"subtitle","maxclass":"comment","text":"Fixed-H lattice quench → intrinsic current/return extrema → reciprocal modal strikes","fontsize":13.0,"patching_rect":[40.0,60.0,720.0,22.0]}},
+      {"box":{"id":"instructions","maxclass":"comment","text":"No sweep and no internal metro. Enable DSP, then run StartBlochQuenchEvents.command. Silence between events is part of the model.","linecount":2,"patching_rect":[40.0,95.0,760.0,42.0]}},
+      {"box":{"id":"udp","maxclass":"newobj","text":"udpreceive 7490","numinlets":0,"numoutlets":1,"outlettype":["anything"],"patching_rect":[40.0,165.0,105.0,22.0]}},
+      {"box":{"id":"route","maxclass":"newobj","text":"route /qmw/bloch/event","numinlets":2,"numoutlets":2,"patching_rect":[40.0,285.0,175.0,22.0]}},
+      {"box":{"id":"fork","maxclass":"newobj","text":"t l l b","numinlets":1,"numoutlets":3,"patching_rect":[40.0,325.0,55.0,22.0]}},
+      {"box":{"id":"converter","maxclass":"newobj","text":"js qmw_bloch_event_to_gen.js","numinlets":1,"numoutlets":1,"patching_rect":[40.0,365.0,205.0,22.0]}},
+      {"box":{"id":"unpack","maxclass":"newobj","text":"unpack i i f f f f f","numinlets":1,"numoutlets":7,"patching_rect":[265.0,365.0,145.0,22.0]}},
+      {"box":{"id":"flash","maxclass":"button","numinlets":1,"numoutlets":1,"patching_rect":[430.0,165.0,28.0,28.0]}},
+      {"box":{"id":"flashlabel","maxclass":"comment","text":"INTRINSIC EVENT","fontface":1,"patching_rect":[470.0,168.0,130.0,22.0]}},
+      {"box":{"id":"eventid","maxclass":"number","numinlets":1,"numoutlets":2,"patching_rect":[40.0,430.0,62.0,22.0]}},
+      {"box":{"id":"kind","maxclass":"number","numinlets":1,"numoutlets":2,"patching_rect":[115.0,430.0,52.0,22.0]}},
+      {"box":{"id":"simtime","maxclass":"flonum","numinlets":1,"numoutlets":2,"patching_rect":[180.0,430.0,70.0,22.0]}},
+      {"box":{"id":"eventamp","maxclass":"flonum","numinlets":1,"numoutlets":2,"patching_rect":[265.0,430.0,62.0,22.0]}},
+      {"box":{"id":"fidelity","maxclass":"flonum","numinlets":1,"numoutlets":2,"patching_rect":[340.0,430.0,62.0,22.0]}},
+      {"box":{"id":"participation","maxclass":"flonum","numinlets":1,"numoutlets":2,"patching_rect":[415.0,430.0,62.0,22.0]}},
+      {"box":{"id":"current","maxclass":"flonum","numinlets":1,"numoutlets":2,"patching_rect":[490.0,430.0,62.0,22.0]}},
+      {"box":{"id":"labels","maxclass":"comment","text":"event       kind       sim t          strike       fidelity       modes       current direction","patching_rect":[40.0,460.0,565.0,22.0]}},
+      {"box":{"id":"loadbang","maxclass":"newobj","text":"loadbang","patching_rect":[650.0,165.0,60.0,22.0]}},
+      {"box":{"id":"defaults","maxclass":"message","text":"carrier 760, cellfreq 84, decay_ms 320, amp 0.34","patching_rect":[650.0,205.0,310.0,22.0]}},
+      {"box":{"id":"gen","maxclass":"newobj","text":"gen~ qmw_bloch_event_resonator","numinlets":1,"numoutlets":2,"outlettype":["signal","signal"],"patching_rect":[650.0,285.0,205.0,22.0]}},
+      {"box":{"id":"genlabel","maxclass":"comment","text":"LEFT: real event quadrature     RIGHT: imaginary event quadrature","patching_rect":[650.0,320.0,405.0,22.0]}},
+      {"box":{"id":"leftmeter","maxclass":"meter~","numinlets":1,"numoutlets":1,"patching_rect":[690.0,375.0,18.0,120.0]}},
+      {"box":{"id":"rightmeter","maxclass":"meter~","numinlets":1,"numoutlets":1,"patching_rect":[850.0,375.0,18.0,120.0]}},
+      {"box":{"id":"dac","maxclass":"ezdac~","numinlets":2,"numoutlets":0,"patching_rect":[755.0,530.0,48.0,48.0]}},
+      {"box":{"id":"legend","maxclass":"comment","text":"kind 0 = probability-current crest (shorter)\nkind 1 = return-probability minimum / departure (longer)\n\nThe packet updates the resonant body first; eventid arrives last and strikes it. Population shapes brightness, phase divides real/imaginary energy, and state velocity shortens each mode's memory.","linecount":7,"patching_rect":[40.0,520.0,520.0,130.0]}}
+    ],
+    "lines": [
+      {"patchline":{"source":["udp",0],"destination":["route",0]}},
+      {"patchline":{"source":["route",0],"destination":["fork",0]}},
+      {"patchline":{"source":["fork",0],"destination":["converter",0]}},
+      {"patchline":{"source":["fork",1],"destination":["unpack",0]}},
+      {"patchline":{"source":["fork",2],"destination":["flash",0]}},
+      {"patchline":{"source":["converter",0],"destination":["gen",0]}},
+      {"patchline":{"source":["unpack",0],"destination":["eventid",0]}},
+      {"patchline":{"source":["unpack",1],"destination":["kind",0]}},
+      {"patchline":{"source":["unpack",2],"destination":["simtime",0]}},
+      {"patchline":{"source":["unpack",3],"destination":["eventamp",0]}},
+      {"patchline":{"source":["unpack",4],"destination":["fidelity",0]}},
+      {"patchline":{"source":["unpack",5],"destination":["participation",0]}},
+      {"patchline":{"source":["unpack",6],"destination":["current",0]}},
+      {"patchline":{"source":["loadbang",0],"destination":["defaults",0]}},
+      {"patchline":{"source":["defaults",0],"destination":["gen",0]}},
+      {"patchline":{"source":["gen",0],"destination":["leftmeter",0]}},
+      {"patchline":{"source":["gen",1],"destination":["rightmeter",0]}},
+      {"patchline":{"source":["gen",0],"destination":["dac",0]}},
+      {"patchline":{"source":["gen",1],"destination":["dac",1]}}
+    ],
+    "dependency_cache": [
+      {"name":"qmw_bloch_event_resonator.gendsp","type":"JSON"},
+      {"name":"qmw_bloch_event_to_gen.js","type":"TEXT"}
+    ]
+  }
+}

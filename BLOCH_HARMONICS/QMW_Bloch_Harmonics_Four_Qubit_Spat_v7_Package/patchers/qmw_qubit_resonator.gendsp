@@ -1,0 +1,18 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {"major": 8, "minor": 0, "revision": 0, "architecture": "x64", "modernui": 1},
+    "classnamespace": "dsp.gen",
+    "rect": [100.0, 100.0, 980.0, 560.0],
+    "gridsize": [15.0, 15.0],
+    "boxes": [
+      {"box":{"id":"in","maxclass":"newobj","numinlets":0,"numoutlets":1,"outlettype":[""],"patching_rect":[30.0,30.0,35.0,22.0],"text":"in 1"}},
+      {"box":{"id":"code","maxclass":"codebox","numinlets":1,"numoutlets":1,"outlettype":[""],"patching_rect":[30.0,75.0,900.0,380.0],"code":"Param x(0);\nParam y(0);\nParam z(1);\nParam purity(1);\nParam entropy(0);\nParam coherence(0);\nParam basefreq(55);\nParam amp(0.12);\nHistory sx(0);\nHistory sy(0);\nHistory sz(1);\nHistory p1(0);\nHistory p2(0);\nHistory p3(0);\nHistory p4(0);\nHistory p5(0);\nHistory p6(0);\nHistory p7(0);\nHistory p8(0);\nc = exp(-1/(0.06*samplerate));\nsx = x + c*(sx-x);\nsy = y + c*(sy-y);\nsz = z + c*(sz-z);\nr = clamp(sqrt(sx*sx+sy*sy+sz*sz),0,1);\npur = clamp(purity,0,1);\nent = clamp(entropy,0,1);\ncoh = clamp(coherence,0,1);\nshape = mix(0.65,1.45,pur);\ntilt = clamp(0.90-0.75*coh+0.25*ent,0.05,1);\na1 = pow(abs(sx)+0.0001,shape);\na2 = pow(abs(sy)+0.0001,shape);\na3 = pow(abs(sz)+0.0001,shape);\na4 = pow(abs(2*sx*sy)+0.0001,shape);\na5 = pow(abs(2*sy*sz)+0.0001,shape);\na6 = pow(abs(2*sz*sx)+0.0001,shape);\na7 = pow(abs(sx*sx-sy*sy)+0.0001,shape);\na8 = pow(abs(0.5*(3*sz*sz-r*r))+0.0001,shape);\npi = 3.141592653589793;\ntwopi = 6.283185307179586;\np1 = fract(p1+basefreq/samplerate);\np2 = fract(p2+basefreq*2/samplerate);\np3 = fract(p3+basefreq*3/samplerate);\np4 = fract(p4+basefreq*4/samplerate);\np5 = fract(p5+basefreq*5/samplerate);\np6 = fract(p6+basefreq*6/samplerate);\np7 = fract(p7+basefreq*7/samplerate);\np8 = fract(p8+basefreq*8/samplerate);\ns = a1*sin(twopi*p1+(sx<0)*pi)/pow(1,tilt) + a2*sin(twopi*p2+(sy<0)*pi)/pow(2,tilt) + a3*sin(twopi*p3+(sz<0)*pi)/pow(3,tilt) + a4*sin(twopi*p4+(sx*sy<0)*pi)/pow(4,tilt) + a5*sin(twopi*p5+(sy*sz<0)*pi)/pow(5,tilt) + a6*sin(twopi*p6+(sz*sx<0)*pi)/pow(6,tilt) + a7*sin(twopi*p7+(sx*sx-sy*sy<0)*pi)/pow(7,tilt) + a8*sin(twopi*p8+(3*sz*sz-r*r<0)*pi)/pow(8,tilt);\nout1 = tanh(s*0.42)*amp*(0.35+0.65*r);\n"}},
+      {"box":{"id":"out","maxclass":"newobj","numinlets":1,"numoutlets":0,"patching_rect":[30.0,485.0,40.0,22.0],"text":"out 1"}}
+    ],
+    "lines": [
+      {"patchline":{"source":["in",0],"destination":["code",0]}},
+      {"patchline":{"source":["code",0],"destination":["out",0]}}
+    ]
+  }
+}

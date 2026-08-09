@@ -1,0 +1,92 @@
+AMIN
+296
+one opposite times the uncertainty in the other opposite is equal to
+Uncertainty Relation that takes the general form: the uncertainty in
+Complementarity. For every complementary pair in QM there is an
+opposites and provide a mathematical expression of the Principle of
+V. Mansfield
+The opposites in quantun
+become clearer below.
+or greater than a constant. Precisely what uncertainty means will
+the probabilistic nature
+time preparing the sys
+identical positic
+uncertainties in position (a particle property) and wavelength must
+duality whose Uncertainty Relation states that the product of the
+The best-known example of Complementarity is the wave-particle
+they will vary from on
+taking
+were identically prepar
+experiments. In Figure
+Figures 2 and 3 belo
+tively:
+nature must have great uncertainty and vice versa. More quantita-
+be a constant. It we demand great precision in position then the wave
+horizontal axis. The 1
+or probability of meas
+frequently measured or
+relative frequency occu
+of measurements. In F
+ent to work with inverse wavelengths, k, rather then ).) Position, x,
+wavelength, k = 1/N, respectively. (It is often mathematically coveni-
+where Ax and Ak are the uncertainty in the x-position and inverse
+values the probability o
+plotted on the horizon
+there is almost n
+the most essential nature of a particle.
+expresses the particle nature of the quantum entity since location is
+the narrow peak in k c
+distance of 2 Ax to eith
+the light travelled we were demanding a precise determination of its
+In the experiment in Part I when we measured along which arm
+statistical spread in the
+square deviation of the x
+particle path. In this case its position uncertainty, Ax, was small.
+particle nature, since we were accurately determining its trajectory or
+which are connected by
+In summary, the chic
+on simultaneously knowing its precise wave nature. We had to give
+According to the Uncertainty Relations, we therefore had to give up
+while the chief charact
+choose to measure K = 1
+or the wavelength is indeterminate. A large uncertainty in the wave
+up precise knowledge of k (or equivalently, 1) meaning Ak was large
+By the Uncertainty Rel
+terminateness in positior
+sists of a superposition of many wave functions with different wave-
+nature of a system means that the corresponding wave function con-
+rately knowing its positi
+precisely where the par
+In other words, no single wavelength characterises the wave function
+lengths. Different wavelengths correspond to different possibilities.
+its wave nature or vice
+a totally indeterminate
+ledge of particle position
+of wave requires fixed phase relations between just a few waves with
+when Ak is large. But generating an interference pattern from any type
+completely uncertain, th
+indeterminateness in wavelength (because of small Ax and large k) it is
+well-defined wavelengths. Thus when there is a large uncertainty or
+tion, a tully determinat
+the wave superposition i
+In a particular measur
+a high degree of determinateness in the wave nature of the quantum
+impossible to get a wave interference pattern. In short, interference requires
+their respective phases
+wave functions in the su
+are in constructing the experiment, there is no way simultaneously
+system. Because of this complementarity, no matter how clever we
+a wave interference pattern that also requires small Дк.
+to know along which arm the photon travelled (small Ax) and also get
+value. We cannot predi
+brings one of these possi
+experiment. Consider an experiment in which we simultaneously
+I will define Ax and Ak more precisely through the following ideal
+necessity in the theory.
+possibilities will be act
+measure position and wavelength. Repeat this experiment often, each
+alovely parallel: The un
+of light and the measure
+Recalling the associati
+subliminal
+psychic facto

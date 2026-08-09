@@ -1,0 +1,82 @@
+{
+  "experiment": "qmw.timaean_density_geometry.l4_coherence_v2",
+  "output_directory": "/Users/zlayton/QuantumSonification/timaean_lab/output_l4_v2",
+  "fork": {
+    "fork_index": 1,
+    "forked_from": null
+  },
+  "mesh": {
+    "subdivisions": 3,
+    "vertices": 642,
+    "faces": 1280,
+    "surface_area": 12.506492733969928,
+    "radius_m": 0.25
+  },
+  "mode_count": 25,
+  "eigenvalues": [
+    0.0,
+    1.9999918870299458,
+    1.999991887029952,
+    1.9999918870299551,
+    5.965857910717078,
+    5.9658579107170855,
+    5.965857910717089,
+    5.965857910717094,
+    5.965857910717095,
+    11.826990245264135,
+    11.82699024526416,
+    11.826990245264167,
+    11.826990245264179,
+    11.833780301299466,
+    11.83378030129949,
+    11.833780301299498,
+    19.470100988907042,
+    19.470100988907078,
+    19.47010098890709,
+    19.470100988907095,
+    19.508884349220047,
+    19.508884349220097,
+    19.5088843492201,
+    19.508884349220114,
+    19.50888434922012
+  ],
+  "deformation": {
+    "screening": 8.0,
+    "common_max_displacement": 0.5,
+    "coherence_only_normalized_separately": true
+  },
+  "states": {
+    "pure": {
+      "purity": 1.0,
+      "l1_coherence": 0.0,
+      "von_neumann_entropy": -0.0,
+      "geometry_hash": "184f5fb551f7d1dc987b610a30b75377c00a8f54ff1b939697e97129eb1d906f"
+    },
+    "coherent": {
+      "purity": 0.9999999999999996,
+      "l1_coherence": 4.888366387241872,
+      "von_neumann_entropy": -0.0,
+      "geometry_hash": "6bdf41738a1a8f03ef17560b7889c3a2caa20bb608787e0278fb7d3beb6b508c"
+    },
+    "dephased": {
+      "purity": 0.17854768611214134,
+      "l1_coherence": 0.0,
+      "von_neumann_entropy": 1.755204377357341,
+      "geometry_hash": "41005f861d5071731d6bb639af54080df8f77998aa2e0c5c23885f577baed83b"
+    },
+    "maximally_mixed": {
+      "purity": 0.04,
+      "l1_coherence": 0.0,
+      "von_neumann_entropy": 3.2188758248682,
+      "geometry_hash": "5683dadce246a2542166b962927014377036a3ee6fc4df6983a4660fb98bcb6c"
+    },
+    "coherence_only": {
+      "derived": true,
+      "source": "coherent_minus_dephased",
+      "operator_trace": 0.0,
+      "operator_frobenius_norm": 0.9063400652557837,
+      "max_abs_displacement": 0.5,
+      "geometry_hash": "968472a0ffa608d9c808d43eb2728e19d21aa51c2533a369d3f2e9ec4725f9fe"
+    }
+  }
+}

@@ -17,17 +17,64 @@ class QuantumSnapshot:
 class QuantumMemory:
     decay: float = 0.7
     snapshots: list = field(default_factory=list)
+    # At 100 Hz, an unbounded list retains hundreds of megabytes within
+    # minutes. With decay=0.7, contributions older than this window are far
+    # below floating-point relevance, so bounding it does not alter the live
+    # musical behaviour.
+    max_snapshots: int | None = 512
+    _weighted_total: object = field(default=None, init=False, repr=False)
+    _weight_total: float = field(default=0.0, init=False, repr=False)
+
+    def __post_init__(self):
+        if self.max_snapshots is not None and self.max_snapshots > 0:
+            overflow = len(self.snapshots) - self.max_snapshots
+            if overflow > 0:
+                del self.snapshots[:overflow]
+        self._rebuild_weighted_cache()
+
+    def _rebuild_weighted_cache(self):
+        self._weighted_total = None
+        self._weight_total = 0.0
+        for snapshot in self.snapshots:
+            rho = np.asarray(snapshot.rho, dtype=complex)
+            if self._weighted_total is None:
+                self._weighted_total = rho.copy()
+                self._weight_total = 1.0
+            else:
+                self._weighted_total = rho + self.decay * self._weighted_total
+                self._weight_total = 1.0 + self.decay * self._weight_total
 
     def encode(self, rho, hamiltonian=None, audio_descriptor=None, events=None, metrics=None):
+        rho_array = np.array(rho, dtype=complex)
         snapshot = QuantumSnapshot(
             timestamp=datetime.now().isoformat(timespec="seconds"),
-            rho=np.array(rho, dtype=complex),
+            rho=rho_array,
             hamiltonian=hamiltonian,
             audio_descriptor=audio_descriptor,
             events=events or [],
             metrics=metrics or {},
         )
+        if self._weighted_total is None:
+            self._weighted_total = rho_array.copy()
+            self._weight_total = 1.0
+        else:
+            self._weighted_total = rho_array + self.decay * self._weighted_total
+            self._weight_total = 1.0 + self.decay * self._weight_total
         self.snapshots.append(snapshot)
+        if self.max_snapshots is not None and self.max_snapshots > 0:
+            overflow = len(self.snapshots) - self.max_snapshots
+            if overflow > 0:
+                if overflow == 1:
+                    dropped = self.snapshots[0]
+                    dropped_weight = self.decay ** self.max_snapshots
+                    self._weighted_total = (
+                        self._weighted_total - dropped_weight * dropped.rho
+                    )
+                    self._weight_total -= dropped_weight
+                    del self.snapshots[0]
+                else:
+                    del self.snapshots[:overflow]
+                    self._rebuild_weighted_cache()
         return snapshot
 
     def size(self):
@@ -39,18 +86,10 @@ class QuantumMemory:
         return self.snapshots[-1]
 
     def weighted_density_matrix(self):
-        if not self.snapshots:
+        if self._weighted_total is None or self._weight_total <= 0.0:
             return None
 
-        weights = []
-        total = np.zeros_like(self.snapshots[0].rho, dtype=complex)
-
-        for i, snapshot in enumerate(reversed(self.snapshots)):
-            weight = self.decay ** i
-            weights.append(weight)
-            total += weight * snapshot.rho
-
-        total = total / sum(weights)
+        total = self._weighted_total / self._weight_total
 
         trace = np.trace(total)
         if abs(trace) > 1e-12:

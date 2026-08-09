@@ -1,0 +1,38 @@
+QMW_CRAIVE_Spat128_v9
+Build date: 2026-07-23
+
+PRIMARY ENTRY POINT
+  qmw_density_matrix_craive_spat128_v9.maxpat
+
+STANDALONE CRAIVE RENDERER
+  qmw_craive_spat128_renderer16_v9.maxpat
+
+V9 SPATIAL COMPONENTS
+  qmw_craive_source_router16_v9.js
+  qmw_craive128_layout_v9.maxpat
+  qmw_craive_ceiling6_reference_v9.json
+  CRAIVE128.maxpat
+
+V8 FEEDBACK ENGINE AND DEPENDENCIES
+  qmw_density_matrix_resonator_feedback16_mc_v1.maxpat
+  qmw_feedback_branch_controls16_v1.js
+  qmw_density_matrix_resonator_feedback16_mc_v1_README.md
+  qmw_density_matrix_hilbert_operator16_mc_v1.maxpat
+  qmw_density_matrix16_to_mcs_matrix_v1.js
+  qmw_density_matrix_hilbert_operator16_mc_v1_README.md
+  qmw_density_field_quantum_resonator16_mc_v1.genexpr
+  qmw_density_field_quantum_resonator16_mc_v1_README.txt
+
+DOCUMENTATION AND LICENSE
+  README_QMW_CRAIVE_SPAT128_V9.md
+  LICENSE_CRAIVE.txt
+
+EXTERNAL REQUIREMENT
+  IRCAM Spat 5 with spat5.wfs~ and spat5.viewer
+
+ROOM OUTPUT
+  128-channel MC signal, CRAIVE channels 1-128
+
+INTENTIONALLY EXCLUDED FROM THE WFS OUTPUT
+  CRAIVE channels 129-134: ceiling HoA system
+  CRAIVE channels 135-136: frontal stereo

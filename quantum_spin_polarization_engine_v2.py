@@ -896,6 +896,7 @@ class QuantumSpinPolarizationEngine:
 
         try:
             while True:
+                started = time.monotonic()
                 self.evolve(cfg.interval)
                 self.send_osc()
 
@@ -904,7 +905,8 @@ class QuantumSpinPolarizationEngine:
                     self.print_status()
                     last_print = now
 
-                time.sleep(cfg.interval)
+                elapsed = time.monotonic() - started
+                time.sleep(max(0.0, cfg.interval - elapsed))
 
         except KeyboardInterrupt:
             print()

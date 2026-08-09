@@ -1,0 +1,92 @@
+276
+let A, be the amplitude and O, be the phase angle associated with
+V. Mansfield and J. M. Spiegelman
+let the wave function for the lowest energy state of the hydrogen
+probability of measuring a photon there. Or, for another example,
+Vw. If a detector is placed in the upper arm, Au squared gives the
+The opt
+arms
+measurement is made on the hydrogen atom, the probability of find.
+h refers to the lowest energy of the hydrogen atom. Then if a
+atom be Yn with amplitude An and phase angle On. Here the subscript
+most st
+ments
+Figures
++ V°
+ability statements that must be tested by repeating a large number of
+make predictions about individual events. We can only make prob.
+ing the atom in the lowest energy state is (An)?. It is not possible to
+is at th
+possibil
++
+data with the statistical predictions of (An)
+identical experiments. In other words, you can verity the wave tunc
+Vu
+tion by measuring millions of hydrogen atoms and comparing the
+for part
+1
+through
+sition,
+demands that we make only probability statements.
+the fundamentally acausal or nondeterministic nature of QM, which
+. Here we again encounter
+point, b
+their es.
+place a detector in the upper arm, then the probability of measuring
+Probability statements in QM must always be of the form 'If we
+Wave fi
+total wa
+made is an example of the much discussed system-apparatus interde-
+..?. This dependency upon the actual physical measurement being
+with all
+apparatus is given.
+ability statements unless a complete description of the measurement
+pendency in QM. As we stress below, we cannot even make prob-
+amplitu
+between
+tudes of
+system -there is no more definite or detailed information possible. It
+Nevertheless, the wave function is a maximal specification of the
+upon th
+The st
+of the details and thus we must limit ourselves to probability state-
+is not that there is an objective condition and we are merely ignorant
+of water
+of objec
+left the flame on under the pot or not. We believe there is a true
+ments. For example, we leave home in a hurry and wonder if we
+concrete
+sition sta
+allows us only to assign certain probabilities to each state. Probability
+state of affairs-the flame is either on or not-but our ignorance
+whose a
+simple
+of measurement the system is objectively indefinite— it is emphatically
+in QM is not an expression of ignorance of the true state. Independent
+directly
+Althoug
+true state. Nondeterminism deeply penetrates QM. There are only
+not in a definite condition and we are not merely ignorant of its
+functions
+of wave
+the square of the wave function amplitude. There is no deeper struc-
+probabilities for the outcomes of various measurements, embodied in
+In QA
+more ge
+clicks in our counter.
+ture accounting for the exact occurrences of the sharp and random
+to an int
+experime
+ical form
+III.2 Superposition of wave functions: the new unity
+Tie ding
+arm or along the right arm then the wave function is yu or 4:
+If we choose to measure whether the photon travels along the upper
+function:
+present s
+light trav
+Which
+respectively, with subscripts u and r referring to the upper and right
+at
+drasticall
+• Site
