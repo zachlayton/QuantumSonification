@@ -160,6 +160,19 @@ def compute_modal_packet(
     return packet, solve
 
 
+def flatten_modes(
+    frequencies: np.ndarray,
+    decays: np.ndarray,
+    amplitudes: np.ndarray,
+    pans: np.ndarray,
+) -> list[float]:
+    """Flattens parallel per-mode arrays into [freq, decay, amp, pan] * count."""
+    payload: list[float] = []
+    for frequency, decay, amplitude, pan in zip(frequencies, decays, amplitudes, pans):
+        payload.extend([float(frequency), float(decay), float(amplitude), float(pan)])
+    return payload
+
+
 def build_mode_payload(
     packet: SurfaceModalPacket, seed: int, stereo_width: float
 ) -> list[float]:
@@ -167,17 +180,9 @@ def build_mode_payload(
     count = len(packet.frequencies_hz)
     rng = np.random.default_rng(seed)
     pans = np.clip(rng.uniform(-1.0, 1.0, count) * stereo_width, -1.0, 1.0)
-    payload: list[float] = []
-    for frequency, decay, weight, pan in zip(
-        packet.frequencies_hz,
-        packet.decay_times_seconds,
-        packet.mode_weights,
-        pans,
-    ):
-        payload.extend(
-            [float(frequency), float(decay), float(weight), float(pan)]
-        )
-    return payload
+    return flatten_modes(
+        packet.frequencies_hz, packet.decay_times_seconds, packet.mode_weights, pans
+    )
 
 
 class SonicPiModeStreamer:
@@ -202,11 +207,31 @@ class SonicPiModeStreamer:
         self.seed = seed
         self.stereo_width = stereo_width
 
-    def send_packet(self, packet: SurfaceModalPacket) -> int:
-        payload = build_mode_payload(packet, self.seed, self.stereo_width)
-        count = len(packet.frequencies_hz)
+    def default_pans(self, count: int) -> np.ndarray:
+        """The same deterministic per-mode pan spread send_packet() uses."""
+        rng = np.random.default_rng(self.seed)
+        return np.clip(rng.uniform(-1.0, 1.0, count) * self.stereo_width, -1.0, 1.0)
+
+    def send_modes(
+        self,
+        frequencies: np.ndarray,
+        decays: np.ndarray,
+        amplitudes: np.ndarray,
+        pans: np.ndarray,
+    ) -> int:
+        count = len(frequencies)
+        payload = flatten_modes(frequencies, decays, amplitudes, pans)
         self.client.send(self.address, [count, *payload])
         return count
+
+    def send_packet(self, packet: SurfaceModalPacket) -> int:
+        count = len(packet.frequencies_hz)
+        return self.send_modes(
+            packet.frequencies_hz,
+            packet.decay_times_seconds,
+            packet.mode_weights,
+            self.default_pans(count),
+        )
 
     def send_silence(self) -> None:
         self.client.send(self.silence_address, [])

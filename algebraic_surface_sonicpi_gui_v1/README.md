@@ -13,6 +13,8 @@ It reuses the existing pipeline rather than reimplementing it:
   (cotangent Laplace-Beltrami spectrum)
 - sound design: `surface_material_models_v1.create_surface_model`
   (frequency law, decay, mode weights)
+- optional autonomous sound design: `density.density_matrix_engine_4q.DensityMatrixEngine`
+  (see "Quantum drive" below)
 
 Sonic Pi is the audio engine; this tool only computes and streams modal
 data (`frequency, decay, amplitude, pan`) to it over OSC.
@@ -34,10 +36,15 @@ data (`frequency, decay, amplitude, pan`) to it over OSC.
 
    (Run as a module, not as a bare script — see "Why `-m`" below.)
 
-No extra Python packages are required for the GUI or the OSC client; both
-are stdlib-only (`tkinter`, `socket`, `struct`). `python-osc` is only used,
-optionally, by this package's own test suite to independently verify the
-OSC wire format.
+No extra Python packages are required for the base GUI or the OSC client;
+both are stdlib-only (`tkinter`, `socket`, `struct`), on top of the
+`numpy`/`scipy` the rest of the repository already needs. `python-osc` is
+only used, optionally, by this package's own test suite to independently
+verify the OSC wire format. Quantum drive pulls in whatever
+`density.density_matrix_engine_4q` itself depends on, notably
+`scikit-learn` — that import is deferred, so if it isn't installed the
+"Quantum drive" section shows why it's unavailable instead of the window
+failing to open, and everything else still works normally.
 
 ## Using it
 
@@ -73,6 +80,45 @@ OSC wire format.
 Every control is debounced (~180 ms) and computed on a background thread,
 so the window never freezes; only the most recently requested computation
 is applied if you change something again before an older one finishes.
+
+## Quantum drive
+
+Instead of (or alongside) dragging sliders by hand, "Quantum drive" hands
+sound design over to a live 4-qubit density matrix:
+`density.density_matrix_engine_4q.DensityMatrixEngine`, wrapped by
+`quantum_conductor_v1.QuantumPhaseConductor`. That engine runs a
+continuously self-driven, state-dependent Hamiltonian — it needs no
+external excitation to keep evolving — and produces two update streams:
+
+- **Fast (~20 Hz)**: the phases of the density matrix's off-diagonal
+  coherence terms (`numpy.angle`, literal quantum phase) shimmer each
+  currently-playing mode's amplitude and pan, and the modulated set is
+  sent straight to Sonic Pi. This reuses whatever mesh/material packet was
+  last computed — no re-mesh, no re-solve, so it can run every ~50 ms.
+- **Slow (~every 0.4 s)**: exponentially smoothed coherence and
+  per-qubit Bloch-vector statistics drive the **Wave speed**, **T60**, and
+  **Damping freq. tilt** sliders directly — you'll see them move on their
+  own while it's running. Because it's driving the same sliders you'd drag
+  by hand, it goes through the same debounce/cache path as manual input.
+
+Purity and von Neumann entropy of the full system are deliberately not
+used here: this engine's default state-conditioning keeps the full
+16-dimensional density matrix numerically pure regardless of its noise
+settings, so those two quantities carry no signal in this configuration.
+
+Controls:
+
+- **Modulation depth**: 0 leaves mode amplitudes untouched by phase; 1 is
+  a full phase-driven swing between roughly 50% and 100% of each mode's
+  base weight.
+- **Pan modulation**: blends the static per-mode stereo spread with live
+  phase — 0 is fully static, 1 lets pan follow phase directly.
+- **Start/Stop quantum drive**: while running, this tool is the sole
+  sender of `/algebraic/modes` (manual slider edits still recompute the
+  underlying packet the fast path shimmers, they just stop sending it
+  directly). Stopping hands control back to manual sliders immediately.
+  **Silence** while quantum drive is running will be audibly undone by the
+  next ~50 ms tick — stop quantum drive first if you actually want quiet.
 
 ## Performance
 

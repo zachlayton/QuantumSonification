@@ -8,6 +8,14 @@ re-mesh and re-solve. Sound-design controls (active mode count, material
 model, wave speed, T60, damping) reuse the cached mesh/eigensolve and are
 effectively instant.
 
+Turning on "Quantum drive" hands sound design over to a live 4-qubit
+density matrix (quantum_conductor_v1.QuantumPhaseConductor): its
+continuously evolving coherence phases shimmer each mode's amplitude and
+pan at ~20 Hz, while smoothed coherence/Bloch-vector statistics drift the
+wave speed, T60, and damping tilt sliders on their own -- the same
+debounce/cache path manual dragging uses, just driven by the engine
+instead of your hand.
+
 Run:
     python -m algebraic_surface_sonicpi_gui_v1.gui_v1
 
@@ -33,6 +41,21 @@ from .realtime_bridge_v1 import (
     compute_modal_packet,
 )
 from .osc_client_v1 import SonicPiOSCClient
+
+# quantum_conductor_v1 pulls in density.density_matrix_engine_4q's full
+# dependency chain (notably scikit-learn). The rest of this GUI has no
+# dependency on it, so a missing chain only disables the "Quantum drive"
+# section rather than the whole window.
+try:
+    from .quantum_conductor_v1 import (
+        QuantumConductorConfig,
+        QuantumPhaseConductor,
+        SlowUpdate,
+    )
+
+    QUANTUM_DRIVE_IMPORT_ERROR: Exception | None = None
+except ImportError as exc:
+    QUANTUM_DRIVE_IMPORT_ERROR = exc
 
 DEBOUNCE_MS = 180
 
@@ -98,6 +121,12 @@ class RealtimeGuiApp:
         # interpreter is not thread-safe to call into from a non-main
         # thread); they post results here and the main thread drains it.
         self._results: "queue.Queue[tuple[int, str]]" = queue.Queue()
+        self._quantum_updates: "queue.Queue[SlowUpdate]" = queue.Queue()
+
+        # The most recently computed packet, kept for the quantum
+        # conductor's fast path to shimmer without recomputing it.
+        self._last_packet = None
+        self._quantum_conductor: QuantumPhaseConductor | None = None
 
         self._build_ui()
         self._reconnect()
@@ -206,6 +235,55 @@ class RealtimeGuiApp:
         )
         row += 1
 
+        ttk.Separator(frame, orient="horizontal").grid(
+            row=row, column=0, columnspan=3, sticky="ew", pady=8
+        )
+        row += 1
+
+        ttk.Label(frame, text="Quantum drive", font=("", 9, "bold")).grid(
+            row=row, column=0, columnspan=3, sticky="w"
+        )
+        row += 1
+
+        self.mod_depth_row: _SliderRow | None = None
+        self.pan_mod_row: _SliderRow | None = None
+        self.quantum_toggle_button: ttk.Button | None = None
+        self.quantum_status_var = tk.StringVar(value="quantum drive stopped")
+
+        if QUANTUM_DRIVE_IMPORT_ERROR is not None:
+            ttk.Label(
+                frame,
+                text=f"unavailable ({QUANTUM_DRIVE_IMPORT_ERROR})",
+                foreground="#a00",
+            ).grid(row=row, column=0, columnspan=3, sticky="w")
+            row += 1
+        else:
+            self.mod_depth_row = _SliderRow(
+                frame, row, "Modulation depth", 0.0, 1.0, 0.5, self._on_quantum_config_change
+            )
+            row += 1
+            self.pan_mod_row = _SliderRow(
+                frame, row, "Pan modulation", 0.0, 1.0, 0.6, self._on_quantum_config_change
+            )
+            row += 1
+
+            quantum_button_row = ttk.Frame(frame)
+            quantum_button_row.grid(
+                row=row, column=0, columnspan=3, sticky="ew", pady=(4, 0)
+            )
+            self.quantum_toggle_button = ttk.Button(
+                quantum_button_row,
+                text="Start quantum drive",
+                command=self._toggle_quantum,
+            )
+            self.quantum_toggle_button.pack(side="left")
+            row += 1
+
+            ttk.Label(
+                frame, textvariable=self.quantum_status_var, foreground="#555"
+            ).grid(row=row, column=0, columnspan=3, sticky="w", pady=(4, 0))
+            row += 1
+
         self.status_var = tk.StringVar(value="starting…")
         ttk.Label(frame, textvariable=self.status_var, foreground="#555").grid(
             row=row, column=0, columnspan=3, sticky="w", pady=(8, 0)
@@ -223,6 +301,8 @@ class RealtimeGuiApp:
             self.port_var.set(str(port))
         self.client = SonicPiOSCClient(host, port)
         self.streamer = SonicPiModeStreamer(self.client)
+        if self._quantum_conductor is not None:
+            self._quantum_conductor.streamer = self.streamer
         self.status_var.set(f"target set to {host}:{port}")
 
     def _silence(self) -> None:
@@ -277,13 +357,17 @@ class RealtimeGuiApp:
     ) -> None:
         try:
             packet, solve = compute_modal_packet(config, self.cache)
-            count = 0
-            if streamer is not None:
+            self._last_packet = packet
+            count = len(packet.frequencies_hz)
+            # While quantum drive is running, it owns sending mode data (at
+            # its own faster, phase-shimmered cadence); this path only needs
+            # to keep _last_packet current for it to read.
+            if streamer is not None and self._quantum_conductor is None:
                 count = streamer.send_packet(packet)
             message = (
                 f"{config.surface} · {len(solve.vertices)}v/{len(solve.faces)}f "
                 f"mesh ({solve.elapsed_seconds * 1000:.0f} ms) · "
-                f"{count} modes sent · model={config.material_model}"
+                f"{count} modes · model={config.material_model}"
             )
         except Exception as exc:  # noqa: BLE001 - surfaced to the status bar
             message = f"error: {exc}"
@@ -297,7 +381,60 @@ class RealtimeGuiApp:
                     self.status_var.set(message)
         except queue.Empty:
             pass
+
+        try:
+            while True:
+                self._apply_quantum_update(self._quantum_updates.get_nowait())
+        except queue.Empty:
+            pass
+
         self.root.after(50, self._poll_results)
+
+    # -- Quantum drive ---------------------------------------------------
+    def _on_quantum_config_change(self) -> None:
+        if self._quantum_conductor is not None:
+            self._quantum_conductor.config = self._read_quantum_config()
+
+    def _read_quantum_config(self) -> QuantumConductorConfig:
+        return QuantumConductorConfig(
+            modulation_depth=self.mod_depth_row.get(),
+            pan_modulation=self.pan_mod_row.get(),
+        )
+
+    def _toggle_quantum(self) -> None:
+        if self._quantum_conductor is not None:
+            self._quantum_conductor.stop()
+            self._quantum_conductor = None
+            self.quantum_toggle_button.configure(text="Start quantum drive")
+            self.quantum_status_var.set("quantum drive stopped")
+            return
+
+        conductor = QuantumPhaseConductor(
+            streamer=self.streamer,
+            get_packet=lambda: self._last_packet,
+            on_slow_update=self._quantum_updates.put,
+            config=self._read_quantum_config(),
+        )
+        conductor.start()
+        self._quantum_conductor = conductor
+        self.quantum_toggle_button.configure(text="Stop quantum drive")
+        self.quantum_status_var.set("quantum drive running…")
+
+    def _apply_quantum_update(self, update: SlowUpdate) -> None:
+        if self._quantum_conductor is None:
+            return  # stopped since this update was queued; drop it
+        self.wave_speed_row.var.set(update["wave_speed"])
+        self.wave_speed_row._update_readout()
+        self.t60_row.var.set(update["t60_seconds"])
+        self.t60_row._update_readout()
+        self.damping_tilt_row.var.set(update["damping_frequency_tilt"])
+        self.damping_tilt_row._update_readout()
+        self._on_change()
+        self.quantum_status_var.set(
+            f"coherence={update['coherence']:.2f} "
+            f"bloch_spread={update['bloch_spread']:.2f} "
+            f"mean|z|={update['mean_abs_z']:.2f}"
+        )
 
 
 def main() -> int:

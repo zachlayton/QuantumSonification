@@ -7,6 +7,10 @@
 #
 # Setup (once): Sonic Pi Preferences -> IO -> "Enable OSC Server" ON.
 # Default OSC-in port is 4560, matching the GUI's default target.
+#
+# Same wire protocol either way: when "Quantum drive" is on in the GUI,
+# these same cues just arrive faster (~20 Hz) and with amplitude/pan
+# already shimmering from a live density matrix -- nothing here changes.
 
 set_volume! 0.7
 
