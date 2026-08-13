@@ -37,7 +37,7 @@ from surface_material_models_v1 import (
 from .osc_client_v1 import SonicPiOSCClient
 
 # Surfaces implemented by algebraic_field() in the pipeline module.
-SURFACE_NAMES: tuple[str, ...] = ("tanglecube", "heart")
+SURFACE_NAMES: tuple[str, ...] = ("tanglecube", "heart", "hyperbolic_paraboloid")
 
 # Material models that solve from mesh geometry alone (no external vertex
 # fields). "bioelectric_surface" is intentionally excluded: it requires a

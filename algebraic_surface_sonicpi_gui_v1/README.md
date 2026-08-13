@@ -1,10 +1,10 @@
 # Algebraic Surface -> Sonic Pi (realtime GUI)
 
 A small Tkinter window that lets you drag sliders over an algebraic surface
-(currently `tanglecube` and `heart`, the same two surfaces
-`operators/algebraic_surface_pipeline_v1.py` renders offline) and hear the
-result live through [Sonic Pi](https://sonic-pi.net/), instead of rendering
-an offline WAV impulse response.
+(currently `tanglecube`, `heart`, and `hyperbolic_paraboloid`, the same
+surfaces `operators/algebraic_surface_pipeline_v1.py` renders offline) and
+hear the result live through [Sonic Pi](https://sonic-pi.net/), instead of
+rendering an offline WAV impulse response.
 
 It reuses the existing pipeline rather than reimplementing it:
 
@@ -52,8 +52,10 @@ OSC wire format.
   which currently take the library's defaults rather than GUI sliders, and
   can produce very low (sub-audio) frequencies until those are dialed in
   in code.
-- **Equation parameter (a)**: only affects `tanglecube`; `heart` has no
-  free parameter and ignores it.
+- **Equation parameter (a)**: affects `tanglecube` (the additive constant)
+  and `hyperbolic_paraboloid` (the saddle curvature in `z = a * (x^2 -
+  y^2)`, where a small value such as `1.0` keeps the surface within the
+  sampling bound); `heart` has no free parameter and ignores it.
 - **Mesh resolution / Sampling bound / Radius**: change the surface itself
   — moving these re-meshes and re-solves the eigenproblem (the slow step;
   see Performance below).
