@@ -18,12 +18,18 @@ from pathlib import Path
 import argparse
 import json
 import time
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 
-from geometry_acoustics_bridge_v2 import AcousticBridgeConfig
-if __package__:
+# The living-spectral/Grasshopper bridge and its OSC dependencies are only
+# needed by generate_candidate() and run_living_pipeline(); importing them at
+# module scope would force every caller of the pure surface/mesh functions
+# below (algebraic_field, marching_tetrahedra) to pay for that dependency
+# chain, which matters for lightweight or realtime callers. They are imported
+# lazily inside the functions that use them instead.
+if TYPE_CHECKING:
+    from geometry_acoustics_bridge_v2 import AcousticBridgeConfig
     from .grasshopper_geometry_bridge_v1 import (
         GrasshopperMeshCandidate,
         MeshValidationPolicy,
@@ -33,20 +39,10 @@ if __package__:
         LivingSpectralGeometry,
     )
     from .spectral_geometry_v1 import SpectralGeometryConfig
-else:  # Direct-script compatibility.
-    from grasshopper_geometry_bridge_v1 import (
-        GrasshopperMeshCandidate,
-        MeshValidationPolicy,
+    from surface_material_models_v1 import (
+        SurfaceMaterialConfig,
+        damping_rate_from_t60,
     )
-    from living_spectral_geometry_v1 import (
-        LivingSpectralConfig,
-        LivingSpectralGeometry,
-    )
-    from spectral_geometry_v1 import SpectralGeometryConfig
-from surface_material_models_v1 import (
-    SurfaceMaterialConfig,
-    damping_rate_from_t60,
-)
 
 
 FieldFunction = Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray]
@@ -302,6 +298,16 @@ def generate_candidate(
     config: AlgebraicSurfaceConfig,
     output_directory: str | Path,
 ) -> tuple[GrasshopperMeshCandidate, dict[str, Path]]:
+    if __package__:
+        from .grasshopper_geometry_bridge_v1 import (
+            GrasshopperMeshCandidate,
+            MeshValidationPolicy,
+        )
+    else:  # Direct-script compatibility.
+        from grasshopper_geometry_bridge_v1 import (
+            GrasshopperMeshCandidate,
+            MeshValidationPolicy,
+        )
     output = Path(output_directory)
     output.mkdir(parents=True, exist_ok=True)
     vertices, faces = marching_tetrahedra(config)
@@ -362,6 +368,25 @@ def run_living_pipeline(
     output_directory: str | Path,
     config: PipelineRenderConfig,
 ):
+    from geometry_acoustics_bridge_v2 import AcousticBridgeConfig
+    from surface_material_models_v1 import (
+        SurfaceMaterialConfig,
+        damping_rate_from_t60,
+    )
+
+    if __package__:
+        from .living_spectral_geometry_v1 import (
+            LivingSpectralConfig,
+            LivingSpectralGeometry,
+        )
+        from .spectral_geometry_v1 import SpectralGeometryConfig
+    else:  # Direct-script compatibility.
+        from living_spectral_geometry_v1 import (
+            LivingSpectralConfig,
+            LivingSpectralGeometry,
+        )
+        from spectral_geometry_v1 import SpectralGeometryConfig
+
     if config.t60_seconds <= 0.0:
         raise ValueError("t60_seconds must be positive")
     spectral = SpectralGeometryConfig(
