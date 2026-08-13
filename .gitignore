@@ -36,9 +36,12 @@ env/
 *.tmp
 *.temp
 *.bak
+*.pre_noise_excitation_v1
+
+# Supplied source archive is redundant with the reviewed readable update.
+QMW_Music_of_the_Spheres_Resonator_v1/qmw_platonic_noise_excitation_update_v1.zip
 
 # Packaging/build output
 build/
 dist/
 *.egg-info/
-
