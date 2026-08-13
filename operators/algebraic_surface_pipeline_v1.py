@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Generate a closed algebraic surface and run the living spectral pipeline.
+"""Generate an algebraic surface and run the living spectral pipeline.
 
-The first surface is the tanglecube
+The first surface is the tanglecube (closed)
 
     x^4 - 5 x^2 + y^4 - 5 y^2 + z^4 - 5 z^2 + a = 0
 
-with ``a = 11.8`` by default.  Meshing uses marching tetrahedra so this file
-does not require scikit-image or trimesh.  Output geometry is written both as
-OBJ and as the validated mesh-candidate JSON already consumed by the QMW
+with ``a = 11.8`` by default.  A ``heart`` surface (closed) and a
+``hyperbolic_paraboloid`` saddle (open, clipped to the sampling bound)
+
+    a * (x^2 - y^2) - z = 0
+
+are also available.  Meshing uses marching tetrahedra so this file does not
+require scikit-image or trimesh.  Output geometry is written both as OBJ and
+as the validated mesh-candidate JSON already consumed by the QMW
 Grasshopper/living-geometry bridge.
 """
 
@@ -93,7 +98,16 @@ def algebraic_field(config: AlgebraicSurfaceConfig) -> FieldFunction:
             return q**3 - x**2 * z**3 - 0.1125 * y**2 * z**3
 
         return field
-    raise ValueError("surface must be 'tanglecube' or 'heart'")
+    if name == "hyperbolic_paraboloid":
+        a = float(config.parameter)
+
+        def field(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> np.ndarray:
+            return a * (x**2 - y**2) - z
+
+        return field
+    raise ValueError(
+        "surface must be 'tanglecube', 'heart', or 'hyperbolic_paraboloid'"
+    )
 
 
 # Six tetrahedra around the same cube body diagonal.  Using one decomposition
@@ -311,11 +325,14 @@ def generate_candidate(
     output = Path(output_directory)
     output.mkdir(parents=True, exist_ok=True)
     vertices, faces = marching_tetrahedra(config)
-    equation = (
-        "x^4-5x^2+y^4-5y^2+z^4-5z^2+a=0"
-        if config.surface == "tanglecube"
-        else "(x^2+2.25y^2+z^2-1)^3-x^2z^3-0.1125y^2z^3=0"
-    )
+    equation, is_closed = {
+        "tanglecube": ("x^4-5x^2+y^4-5y^2+z^4-5z^2+a=0", True),
+        "heart": (
+            "(x^2+2.25y^2+z^2-1)^3-x^2z^3-0.1125y^2z^3=0",
+            True,
+        ),
+        "hyperbolic_paraboloid": ("a*(x^2-y^2)-z=0", False),
+    }[config.surface.strip().lower()]
     candidate = GrasshopperMeshCandidate(
         revision=config.revision,
         vertices=vertices,
@@ -336,7 +353,11 @@ def generate_candidate(
         MeshValidationPolicy(
             require_connected=True,
             require_manifold=True,
-            require_closed=True,
+            # Open surfaces (e.g. the hyperbolic paraboloid saddle) exit the
+            # sampling box and are legitimately clipped to a boundary loop
+            # there, unlike the tanglecube/heart isosurfaces which close up
+            # entirely inside the box.
+            require_closed=is_closed,
         )
     )
     stem = "{}_r{:06d}".format(config.surface, config.revision)
@@ -419,8 +440,23 @@ def run_living_pipeline(
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--surface", choices=("tanglecube", "heart"), default="tanglecube")
-    parser.add_argument("--parameter", type=float, default=11.8)
+    parser.add_argument(
+        "--surface",
+        choices=("tanglecube", "heart", "hyperbolic_paraboloid"),
+        default="tanglecube",
+    )
+    parser.add_argument(
+        "--parameter",
+        type=float,
+        default=11.8,
+        help=(
+            "tanglecube: the additive constant a. heart: unused. "
+            "hyperbolic_paraboloid: the saddle curvature a in "
+            "z = a * (x^2 - y^2); pass a small value such as 1.0, since "
+            "the tanglecube default (11.8) pushes most of the surface "
+            "outside the sampling bound."
+        ),
+    )
     parser.add_argument("--resolution", type=int, default=34)
     parser.add_argument("--bound", type=float, default=3.0)
     parser.add_argument("--radius-m", type=float, default=0.25)
