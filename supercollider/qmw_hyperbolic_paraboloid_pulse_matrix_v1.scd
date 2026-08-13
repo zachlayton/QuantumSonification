@@ -80,33 +80,48 @@
 ~qmwHPPlay = { |...args|
 	var server = Server.default;
 	var pulses = ~qmwHPPulses.valueArray(args);
-	var bus = Bus.audio(server, 2);
-	var master;
-	server.bind {
-		~qmwHPPulseDef.add;
-		~qmwHPMasterDef.add;
-	};
-	server.sync;
-	master = Synth(\qmwHPMaster, [\in, bus.index, \out, 0]);
+	// Everything below has to run inside a Routine: .sync and .wait both
+	// yield while waiting on a server reply / the clock, which is only
+	// legal inside a Routine (or Task) -- calling them directly from a
+	// plain function, as evaluating ~qmwHPPlay.() at the top level would,
+	// fails immediately with "yield was called outside of a Routine."
 	~qmwHPRoutine = Routine {
 		var last = 0.0;
+		// bootSync yields until the server is fully up (spawning the process
+		// and sending a single .sync right after, without this, races the
+		// server's boot handshake and can hang on the reply).
+		if (server.serverRunning.not) { server.bootSync; };
+		~qmwHPPulseDef.send(server);
+		~qmwHPMasterDef.send(server);
+		server.sync; // wait for both SynthDefs to finish compiling server-side
+		~qmwHPBus = Bus.audio(server, 2);
+		// \addToTail places master at the end of the default group, and
+		// every pulse below uses the default \addToHead -- so, by group
+		// position rather than by looking up master's node ID, master is
+		// structurally guaranteed to read each pulse's output in the same
+		// control block it was written, with no startup race.
+		~qmwHPMasterSynth = Synth(\qmwHPMaster,
+			[\in, ~qmwHPBus.index, \out, 0], server, \addToTail
+		);
 		pulses.do { |p|
 			(p[\time] - last).max(0).wait;
 			last = p[\time];
-			Synth.before(master, \qmwHPPulse, [
+			Synth(\qmwHPPulse, [
 				\freq, p[\freq], \amp, p[\amp], \decay, p[\decay],
-				\pan, p[\pan], \out, bus.index
-			]);
+				\pan, p[\pan], \out, ~qmwHPBus.index
+			], server, \addToHead);
 		};
 		3.0.wait; // let the final decay tails ring before tearing down
-		master.free;
-		bus.free;
+		~qmwHPMasterSynth.free;
+		~qmwHPBus.free;
 	}.play;
 };
 
 ~qmwHPStop = {
 	~qmwHPRoutine.stop;
 	~qmwHPRoutine = nil;
+	~qmwHPMasterSynth !? { ~qmwHPMasterSynth.free; ~qmwHPMasterSynth = nil; };
+	~qmwHPBus !? { ~qmwHPBus.free; ~qmwHPBus = nil; };
 };
 
 ~qmwHPRenderNRT = { |path, duration = 30.0, sampleRate = 48000, pulseArgs|
