@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Quantum Observables — Prototype</title>
+<style>
+  :root{
+    --bg:#0a0e13; --panel:#10161e; --panel2:#0d131a; --line:#273343;
+    --text:#e8eef7; --muted:#90a1b6; --x:#ff6b6b; --y:#6ee7b7; --z:#7aa2ff;
+    --accent:#6fd3ff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:radial-gradient(circle at 50% 20%,#111925 0%,#0a0e13 55%,#070a0e 100%);
+    color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  body{display:flex;align-items:center;justify-content:center;padding:18px}
+  .app{width:min(1500px,100%);height:min(930px,96vh);border:1px solid #1f2b39;border-radius:22px;
+    background:linear-gradient(180deg,rgba(17,23,31,.97),rgba(8,12,17,.98));
+    box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #1b2531}
+  .brand{letter-spacing:.22em;font-size:13px;color:#b9c6d6;text-transform:uppercase}
+  .title{font-size:18px;font-weight:650}
+  .sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .status{display:flex;gap:10px;align-items:center}
+  .pill{padding:7px 10px;border:1px solid #2a3849;border-radius:999px;font-size:12px;color:#b8c5d5;background:#0d141c}
+  .grid{display:grid;grid-template-columns:320px 1fr 340px;gap:16px;padding:16px;min-height:0}
+  .panel{background:linear-gradient(180deg,#111821,#0c1219);border:1px solid #202c3a;border-radius:18px;padding:16px;min-height:0}
+  .panel h3{margin:0 0 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#c9d3df}
+  .panel .hint{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
+  .readout{display:grid;gap:10px}
+  .rrow{display:grid;grid-template-columns:36px 1fr 60px;align-items:center;gap:10px}
+  .label{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .val{font-variant-numeric:tabular-nums;text-align:right;font-size:12px;color:#c9d6e4}
+  .bar{height:8px;background:#19232f;border-radius:999px;position:relative;overflow:hidden;border:1px solid #233041}
+  .fill{height:100%;width:50%;transform-origin:left center}
+  .fx{background:linear-gradient(90deg,rgba(255,107,107,.15),var(--x))}
+  .fy{background:linear-gradient(90deg,rgba(110,231,183,.15),var(--y))}
+  .fz{background:linear-gradient(90deg,rgba(122,162,255,.15),var(--z))}
+  .section{margin-top:18px;padding-top:16px;border-top:1px solid #1d2936}
+  .knobrow{display:grid;grid-template-columns:1fr 68px;align-items:center;gap:10px;margin:10px 0}
+  input[type=range]{width:100%;accent-color:#8bcdf0}
+  .bigviz{position:relative;overflow:hidden;padding:0}
+  canvas{width:100%;height:100%;display:block}
+  .overlay{position:absolute;left:16px;top:16px;right:16px;display:flex;justify-content:space-between;pointer-events:none}
+  .equation{font-family:Georgia,serif;font-size:18px;color:#d9e4ef;background:rgba(10,15,21,.55);padding:7px 10px;border-radius:10px;border:1px solid rgba(70,90,115,.35)}
+  .mode{display:flex;gap:6px;background:#0a1016;border:1px solid #263444;border-radius:12px;padding:4px}
+  .mode button{pointer-events:auto;border:0;border-radius:8px;padding:8px 12px;background:transparent;color:#9fb0c3;cursor:pointer}
+  .mode button.active{background:#d8ecff;color:#0a1118}
+  .mapline{display:grid;grid-template-columns:34px 22px 1fr;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #192431;font-size:13px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dx{background:var(--x)} .dy{background:var(--y)} .dz{background:var(--z)}
+  select{width:100%;background:#0d151d;color:#d9e5f1;border:1px solid #293747;border-radius:10px;padding:9px}
+  .transport{display:flex;gap:10px;margin-top:14px}
+  .btn{border:1px solid #2b3a4b;background:#101923;color:#dce7f2;border-radius:12px;padding:10px 12px;cursor:pointer;flex:1}
+  .btn.primary{background:#d7ebff;color:#0b1219;border-color:#d7ebff;font-weight:700}
+  footer{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #1b2531;font-size:12px;color:#8192a6}
+  .legend{display:flex;gap:16px}
+  .tiny{display:flex;gap:6px;align-items:center}
+  @media(max-width:1000px){
+    .app{height:auto;min-height:100vh;border-radius:0}
+    .grid{grid-template-columns:1fr}
+    .bigviz{height:520px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="brand">Quantum Listening Lab</div>
+      <div class="title">OBSERVABLES / PAULI EXPECTATION VALUES</div>
+      <div class="sub">State → measurement → visualization → sound</div>
+    </div>
+    <div class="status">
+      <div class="pill" id="audioState">Audio off</div>
+      <div class="pill">Prototype 0.1</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <h3>State</h3>
+      <div class="hint">Move the qubit on the Bloch sphere. For a single qubit, the Bloch coordinates are the Pauli expectation values.</div>
+
+      <div class="knobrow">
+        <div>
+          <div class="label">θ · polar</div>
+          <input id="theta" type="range" min="0" max="3.14159265" step="0.001" value="1.15"/>
+        </div>
+        <div class="val" id="thetaVal">1.15</div>
+      </div>
+      <div class="knobrow">
+        <div>
+          <div class="label">φ · azimuth</div>
+          <input id="phi" type="range" min="-3.14159265" max="3.14159265" step="0.001" value="0.78"/>
+        </div>
+        <div class="val" id="phiVal">0.78</div>
+      </div>
+      <div class="knobrow">
+        <div>
+          <div class="label">motion</div>
+          <input id="motion" type="range" min="0" max="2" step="0.01" value="0.25"/>
+        </div>
+        <div class="val" id="motionVal">0.25</div>
+      </div>
+
+      <div class="section">
+        <h3>Measurement</h3>
+        <div class="hint">These are expectation values, each constrained to [−1, +1].</div>
+        <div class="readout">
+          <div class="rrow"><div class="label">⟨X⟩</div><div class="bar"><div id="bx" class="fill fx"></div></div><div id="vx" class="val"></div></div>
+          <div class="rrow"><div class="label">⟨Y⟩</div><div class="bar"><div id="by" class="fill fy"></div></div><div id="vy" class="val"></div></div>
+          <div class="rrow"><div class="label">⟨Z⟩</div><div class="bar"><div id="bz" class="fill fz"></div></div><div id="vz" class="val"></div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Explore</h3>
+        <div class="hint">Choose a preset or let the state orbit continuously.</div>
+        <select id="preset">
+          <option value="custom">Custom</option>
+          <option value="zplus">|0⟩ / +Z</option>
+          <option value="zminus">|1⟩ / −Z</option>
+          <option value="xplus">|+⟩ / +X</option>
+          <option value="yplus">|+i⟩ / +Y</option>
+          <option value="orbit">Orbit</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="panel bigviz">
+      <canvas id="viz"></canvas>
+      <div class="overlay">
+        <div class="equation">r = (⟨X⟩, ⟨Y⟩, ⟨Z⟩)</div>
+        <div class="mode">
+          <button id="rawBtn" class="active">RAW</button>
+          <button id="compBtn">COMPOSED</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Hear</h3>
+      <div class="hint">RAW mode keeps the mapping explicit. COMPOSED mode turns the same observables into an integrated musical texture.</div>
+
+      <div class="section" style="margin-top:0;padding-top:0;border-top:0">
+        <h3>Current mapping</h3>
+        <div class="mapline"><span class="dot dx"></span><span>⟨X⟩</span><span id="mapX">→ left/right balance</span></div>
+        <div class="mapline"><span class="dot dy"></span><span>⟨Y⟩</span><span id="mapY">→ modulation depth</span></div>
+        <div class="mapline"><span class="dot dz"></span><span>⟨Z⟩</span><span id="mapZ">→ brightness / register</span></div>
+      </div>
+
+      <div class="section">
+        <h3>Audio parameters</h3>
+        <div class="knobrow">
+          <div>
+            <div class="label">base frequency</div>
+            <input id="freq" type="range" min="55" max="330" step="1" value="110"/>
+          </div>
+          <div class="val" id="freqVal">110 Hz</div>
+        </div>
+        <div class="knobrow">
+          <div>
+            <div class="label">level</div>
+            <input id="level" type="range" min="0" max="0.35" step="0.001" value="0.12"/>
+          </div>
+          <div class="val" id="levelVal">0.12</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Interpretation</h3>
+        <div class="hint" id="interpretation">
+          The visualization is diagnostic: the three colored lobes directly track Pauli expectation values. The sound mapping is a compositional choice.
+        </div>
+      </div>
+
+      <div class="transport">
+        <button class="btn primary" id="audioBtn">Start audio</button>
+        <button class="btn" id="freezeBtn">Freeze</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="legend">
+      <span class="tiny"><span class="dot dx"></span> X</span>
+      <span class="tiny"><span class="dot dy"></span> Y</span>
+      <span class="tiny"><span class="dot dz"></span> Z</span>
+    </div>
+    <div>Phenomenon → formalism → listening → making → interpretation</div>
+  </footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const theta = $('theta'), phi = $('phi'), motion = $('motion'), preset = $('preset');
+const canvas = $('viz'), ctx = canvas.getContext('2d');
+let dpr = Math.max(1, devicePixelRatio || 1);
+let running = true, mode = 'raw', lastT = performance.now(), orbit = 0;
+
+function resize(){
+  const r = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, Math.floor(r.width*dpr));
+  canvas.height = Math.max(1, Math.floor(r.height*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize); resize();
+
+function obs(){
+  let th = +theta.value, ph = +phi.value;
+  return {
+    x: Math.sin(th)*Math.cos(ph),
+    y: Math.sin(th)*Math.sin(ph),
+    z: Math.cos(th),
+    th,ph
+  }
+}
+
+function setPreset(v){
+  if(v==='zplus'){theta.value=0;phi.value=0;motion.value=0}
+  if(v==='zminus'){theta.value=Math.PI;phi.value=0;motion.value=0}
+  if(v==='xplus'){theta.value=Math.PI/2;phi.value=0;motion.value=0}
+  if(v==='yplus'){theta.value=Math.PI/2;phi.value=Math.PI/2;motion.value=0}
+  if(v==='orbit'){theta.value=1.15;phi.value=0;motion.value=.55}
+}
+preset.addEventListener('change',()=>setPreset(preset.value));
+[theta,phi,motion].forEach(el=>el.addEventListener('input',()=>preset.value='custom'));
+
+function bipolarBar(el,v){
+  const pct = (v+1)*50;
+  el.style.width = Math.abs(v)*50+'%';
+  el.style.marginLeft = (v<0 ? pct : 50)+'%';
+}
+
+function drawGrid(cx,cy,R){
+  ctx.save(); ctx.translate(cx,cy);
+  ctx.strokeStyle='rgba(112,145,180,.22)'; ctx.lineWidth=1;
+  for(let i=1;i<=4;i++){
+    ctx.beginPath(); ctx.arc(0,0,R*i/4,0,Math.PI*2); ctx.stroke();
+  }
+  for(let a=0;a<Math.PI*2;a+=Math.PI/6){
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function lobe(cx,cy,R,amp,angle,color){
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle);
+  const len = R*(.22+.78*Math.abs(amp));
+  const sign = amp>=0?1:-1;
+  const grad=ctx.createLinearGradient(0,0,len*sign,0);
+  grad.addColorStop(0,'rgba(255,255,255,.02)');
+  grad.addColorStop(1,color);
+  ctx.fillStyle=grad;
+  ctx.strokeStyle=color; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.bezierCurveTo(len*.25*sign,-R*.12,len*.72*sign,-R*.22,len*sign,0);
+  ctx.bezierCurveTo(len*.72*sign,R*.22,len*.25*sign,R*.12,0,0);
+  ctx.fill(); ctx.globalAlpha=.8; ctx.stroke();
+  ctx.restore();
+}
+
+function draw(o,t){
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const cx=w/2,cy=h/2+15,R=Math.min(w,h)*.34;
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.4);
+  g.addColorStop(0,'rgba(55,90,120,.10)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  drawGrid(cx,cy,R);
+
+  const spin=t*.00018;
+  lobe(cx,cy,R,o.x,spin,'rgba(255,107,107,.74)');
+  lobe(cx,cy,R,o.y,spin+Math.PI*2/3,'rgba(110,231,183,.72)');
+  lobe(cx,cy,R,o.z,spin+Math.PI*4/3,'rgba(122,162,255,.76)');
+
+  // state vector
+  const px=cx+R*.82*o.x;
+  const py=cy-R*.82*o.z;
+  ctx.strokeStyle='rgba(220,238,255,.9)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);ctx.stroke();
+  ctx.fillStyle='#dcecff';ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fill();
+
+  // ring of moving phase points
+  ctx.fillStyle='rgba(255,220,160,.85)';
+  for(let i=0;i<18;i++){
+    const a=i/18*Math.PI*2 + o.ph + spin*.6;
+    const rr=R*(.72+.12*Math.sin(i*1.7+o.th*2));
+    ctx.beginPath();ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,1.6,0,Math.PI*2);ctx.fill();
+  }
+}
+
+let ac=null, nodes=null;
+function startAudio(){
+  if(ac){ ac.resume(); $('audioState').textContent='Audio on'; return; }
+  ac = new (window.AudioContext||window.webkitAudioContext)();
+  const master=ac.createGain(); master.gain.value=+level.value; master.connect(ac.destination);
+  function osc(type,f){
+    const o=ac.createOscillator(),g=ac.createGain(),p=ac.createStereoPanner();
+    o.type=type;o.frequency.value=f;g.gain.value=.03;o.connect(g);g.connect(p);p.connect(master);o.start();
+    return {o,g,p}
+  }
+  nodes={master,a:osc('sine',110),b:osc('triangle',220),c:osc('sine',330)};
+  $('audioState').textContent='Audio on';
+}
+$('audioBtn').onclick=async()=>{await startAudio();$('audioBtn').textContent='Audio running'};
+
+function audioUpdate(o){
+  if(!ac||!nodes) return;
+  const now=ac.currentTime, f=+freq.value;
+  nodes.master.gain.setTargetAtTime(+level.value,now,.03);
+
+  if(mode==='raw'){
+    nodes.a.o.frequency.setTargetAtTime(f,now,.03);
+    nodes.b.o.frequency.setTargetAtTime(f*1.5,now,.03);
+    nodes.c.o.frequency.setTargetAtTime(f*2,now,.03);
+
+    nodes.a.p.pan.setTargetAtTime(o.x,now,.03);
+    nodes.b.p.pan.setTargetAtTime(-o.x,now,.03);
+    nodes.c.p.pan.setTargetAtTime(o.x*.5,now,.03);
+
+    nodes.a.g.gain.setTargetAtTime(.02+.09*Math.abs(o.x),now,.03);
+    nodes.b.g.gain.setTargetAtTime(.02+.09*Math.abs(o.y),now,.03);
+    nodes.c.g.gain.setTargetAtTime(.02+.09*Math.abs(o.z),now,.03);
+
+    nodes.b.o.detune.setTargetAtTime(o.y*70,now,.03);
+    nodes.c.o.frequency.setTargetAtTime(f*(1.5+0.8*(o.z+1)/2),now,.03);
+  }else{
+    const brightness=(o.z+1)/2;
+    const tension=(o.y+1)/2;
+    nodes.a.o.frequency.setTargetAtTime(f*(1+0.18*o.x),now,.05);
+    nodes.b.o.frequency.setTargetAtTime(f*(2+tension*2.8),now,.05);
+    nodes.c.o.frequency.setTargetAtTime(f*(3+brightness*5.5),now,.05);
+    nodes.a.g.gain.setTargetAtTime(.04+.08*(1-Math.abs(o.z)),now,.05);
+    nodes.b.g.gain.setTargetAtTime(.02+.08*tension,now,.05);
+    nodes.c.g.gain.setTargetAtTime(.01+.12*brightness,now,.05);
+    nodes.a.p.pan.setTargetAtTime(o.x,now,.05);
+    nodes.b.p.pan.setTargetAtTime(Math.sin(o.ph),now,.05);
+    nodes.c.p.pan.setTargetAtTime(-o.x,now,.05);
+  }
+}
+
+function setMode(m){
+  mode=m;
+  $('rawBtn').classList.toggle('active',m==='raw');
+  $('compBtn').classList.toggle('active',m==='composed');
+  if(m==='raw'){
+    $('mapX').textContent='→ left/right balance';
+    $('mapY').textContent='→ component strength / detune';
+    $('mapZ').textContent='→ register / brightness';
+    $('interpretation').textContent='The visualization is diagnostic: the three colored lobes directly track Pauli expectation values. The sound mapping is deliberately simple and explicit.';
+  }else{
+    $('mapX').textContent='→ trajectory / stereo motion';
+    $('mapY').textContent='→ spectral tension';
+    $('mapZ').textContent='→ brightness / harmonic reach';
+    $('interpretation').textContent='The same observables now drive a more integrated musical texture. This is intentionally interpretive rather than a direct physical identity.';
+  }
+}
+$('rawBtn').onclick=()=>setMode('raw');
+$('compBtn').onclick=()=>setMode('composed');
+$('freezeBtn').onclick=()=>{running=!running;$('freezeBtn').textContent=running?'Freeze':'Run'};
+freq.oninput=()=>freqVal.textContent=freq.value+' Hz';
+level.oninput=()=>levelVal.textContent=(+level.value).toFixed(2);
+
+function frame(t){
+  const dt=(t-lastT)/1000; lastT=t;
+  if(running && +motion.value>0){
+    let p=+phi.value + dt*(+motion.value);
+    if(p>Math.PI) p-=Math.PI*2;
+    phi.value=p;
+  }
+  const o=obs();
+  thetaVal.textContent=o.th.toFixed(2);
+  phiVal.textContent=o.ph.toFixed(2);
+  motionVal.textContent=(+motion.value).toFixed(2);
+  vx.textContent=o.x.toFixed(3); vy.textContent=o.y.toFixed(3); vz.textContent=o.z.toFixed(3);
+  bipolarBar(bx,o.x);bipolarBar(by,o.y);bipolarBar(bz,o.z);
+  draw(o,t); audioUpdate(o);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

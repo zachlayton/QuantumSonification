@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QMW Quantum Metric Field</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="live.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">Quantum Matrix Manifold · effective observer</p>
+        <h1>Quantum Metric Field</h1>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Visualization preset">
+        <button id="analysisPreset" class="active">Analysis</button>
+        <button id="performancePreset">Performance</button>
+      </div>
+    </header>
+    <section class="workspace">
+      <div class="stage">
+        <canvas id="fieldCanvas" tabindex="0" aria-label="Interactive three-dimensional Quantum Metric Field; drag to rotate"></canvas>
+        <div class="hud">
+          <span id="sceneName"></span><span id="revision"></span>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <aside>
+        <label class="select-label" for="sceneSelect">Controlled scene</label>
+        <select id="sceneSelect"></select>
+        <p id="controlledChange" class="change"></p>
+        <p id="provenance" class="change"></p>
+        <div class="diagnostics" id="diagnostics"></div>
+        <div class="live-control">
+          <label class="select-label" for="liveUrl">Live frame WebSocket</label>
+          <div><input id="liveUrl" value="ws://127.0.0.1:8767/qmw/metric/v1" aria-label="Live frame WebSocket URL"><button id="liveConnect">Connect</button></div>
+          <small id="liveStatus" aria-live="polite">offline</small>
+        </div>
+        <div class="section-title"><span>Independent overlays</span><button id="clearAll">Clear</button></div>
+        <div id="overlayControls" class="overlays"></div>
+        <div class="mode-control">
+          <label for="modeIndex">Eigenmode <output id="modeNumber">1</output></label>
+          <input id="modeIndex" type="range" min="0" value="0" step="1">
+        </div>
+      </aside>
+    </section>
+    <footer>Designed effective geometry for sonification and visualization—not literal spacetime gravity.</footer>
+  </main>
+  <!-- Pinned runtime. For offline use, replace this URL with a reviewed local copy. -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" crossorigin="anonymous"></script>
+  <script src="scene_data.js"></script>
+  <script src="live_frame_client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

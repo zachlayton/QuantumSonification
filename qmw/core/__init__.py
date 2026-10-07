@@ -37,8 +37,45 @@ from qmw.core.primitives import (
 from qmw.core.quantum_data_bus import QuantumDataBus
 from qmw.core.state_bus import StateBus
 from qmw.core.state_frame import QuantumStateFrame
+from qmw.core.quantum_spectrum import (
+    QMWEigenTracker,
+    QMWSpectralObserver,
+    QMWSpectralTextLogger,
+    QMWSpectralTrace,
+    QuantumSpectrumFrame,
+    SpectralStepRecord,
+    TrackedEigensystem,
+    analyze_quantum_spectrum,
+    attach_quantum_spectrum,
+)
+
+from qmw.core.transition import (
+    ActivityModel,
+    FrameContext,
+    PopulationWeightedActivity,
+    QuantumUnits,
+    Transition,
+    TransitionEdge,
+    TransitionEngine,
+    TransitionFrame,
+)
+from qmw.core.phonon import (
+    PhononFrame,
+    PhononLatticeEngine,
+    dynamical_matrix_from_couplings,
+)
 
 __all__ = [
+    "ActivityModel",
+    "FrameContext",
+    "PopulationWeightedActivity",
+    "PhononFrame",
+    "PhononLatticeEngine",
+    "QuantumUnits",
+    "Transition",
+    "TransitionEdge",
+    "TransitionEngine",
+    "TransitionFrame",
     "BitArray",
     "ClassicalRegister",
     "DATA_OPERATORS",
@@ -54,15 +91,25 @@ __all__ = [
     "QuantumDataOperator",
     "QuantumDataProcessing",
     "QuantumDataBus",
+    "QMWEigenTracker",
+    "QMWSpectralObserver",
+    "QMWSpectralTextLogger",
+    "QMWSpectralTrace",
     "QuantumStateFrame",
+    "QuantumSpectrumFrame",
     "SamplerRequest",
     "SamplerResult",
     "ShotBitArray",
     "StateBus",
+    "SpectralStepRecord",
+    "TrackedEigensystem",
     "analyze_measurement_history",
+    "analyze_quantum_spectrum",
+    "attach_quantum_spectrum",
     "batch_expectation_from_statevector",
     "data_operator",
     "data_operator_menu_items",
+    "dynamical_matrix_from_couplings",
     "expectation_from_statevector",
     "expectation_values",
     "merge_registers",

@@ -1,0 +1,45 @@
+// QMW Analytic I/Q Rotator 16 MC v2
+//
+// Keeps both quadrature rails through the phase rotation.  out1/out2 and
+// out3/out4 are complete complex pre/post pairs; out5/out6 are deliberately
+// labelled real audition projections and out7 is their matrix-only delta.
+
+Param phase_depth(1);
+Param phase_spread(0);
+Param phase_bias(0);
+Param ssb_hz(0);
+Param projection_angle(0);
+Param delta_gain(1);
+
+History shift_phase(0);
+
+lane = clamp(mc_channel - 1, 0, 15);
+centered_lane = lane - 7.5;
+shift_phase = fract(shift_phase + ssb_hz / samplerate);
+
+theta = phase_bias
+    + in5 * phase_depth
+    + centered_lane * phase_spread
+    + 6.283185307179586 * shift_phase;
+c = cos(theta);
+s = sin(theta);
+
+// Complete norm-preserving rotations: |z'|^2 = |z|^2.
+pre_i = in1 * c - in2 * s;
+pre_q = in1 * s + in2 * c;
+post_i = in3 * c - in4 * s;
+post_q = in3 * s + in4 * c;
+
+// Real audio is created only here, at an explicit final projection angle.
+pc = cos(projection_angle);
+ps = sin(projection_angle);
+pre_projection = pre_i * pc - pre_q * ps;
+post_projection = post_i * pc - post_q * ps;
+
+out1 = pre_i;
+out2 = pre_q;
+out3 = post_i;
+out4 = post_q;
+out5 = pre_projection;
+out6 = post_projection;
+out7 = (post_projection - pre_projection) * clamp(delta_gain, 0, 8);

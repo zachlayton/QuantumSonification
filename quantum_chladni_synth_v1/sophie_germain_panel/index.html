@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QMW / Resonance observatory</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main id="panel">
+    <header class="masthead">
+      <div>
+        <h1>QMW / Resonance observatory</h1>
+        <p class="subtitle">The Sophie Germain Panel · separate views · shared state · linked probe</p>
+      </div>
+      <div class="source-card">
+        <span class="source-heading">READ-ONLY LIVE OBSERVER</span>
+        <span><span id="live-badge" class="badge waiting">WAITING</span> <strong id="source-name">Quantum Chladni</strong></span>
+        <span><span id="revision-label">revision —</span> · <span id="profile-label">profile —</span></span>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Primary display controls">
+      <label>Selected acoustic mode
+        <select id="mode-select" aria-label="Selected acoustic mode"></select>
+      </label>
+      <label>Phase analyzer <output id="analyzer-output">−90°</output>
+        <input id="analyzer-slider" type="range" min="-180" max="180" value="-90" aria-label="Display-only phase analyzer angle">
+      </label>
+      <label>Linked spatial probe <output id="probe-output">1</output>
+        <input id="probe-slider" type="range" min="0" max="0" value="0" aria-label="Linked spatial probe">
+      </label>
+    </section>
+
+    <details class="secondary-controls">
+      <summary>Display-only orientation and event controls</summary>
+      <div class="secondary-control-grid">
+        <label>Camera yaw <output id="yaw-output">24°</output>
+          <input id="yaw-slider" type="range" min="-180" max="180" value="24">
+        </label>
+        <label>Camera pitch <output id="pitch-output">−18°</output>
+          <input id="pitch-slider" type="range" min="-80" max="80" value="-18">
+        </label>
+        <button id="freeze-button" type="button" aria-pressed="false">Freeze display</button>
+      </div>
+      <p class="control-note">Camera controls change only this view. They do not rotate the physical geometry or alter sound.</p>
+    </details>
+
+    <section class="panel-grid">
+      <article class="card big">
+        <h2>01 / Wave field</h2>
+        <p class="caption">Live modal reconstruction · transmitted geometry · linked probe</p>
+        <canvas id="field-canvas" class="wide-canvas" aria-label="Perspective view of the real part of the live modal field"></canvas>
+        <div class="legend"><span><i class="key teal"></i>Displacement</span><span>Point marker: selected probe</span></div>
+      </article>
+
+      <article class="card big">
+        <h2>02 / Flow</h2>
+        <p class="caption">Probability or energy current · shown only when published by the authoritative source</p>
+        <canvas id="flow-canvas" class="wide-canvas" aria-label="Availability view for a source-published current field"></canvas>
+        <div class="legend"><span id="flow-status">Waiting for source declaration</span></div>
+      </article>
+
+      <article class="card">
+        <h2>03 / Modal structure</h2>
+        <p class="caption" id="mode-caption">Selected eigenmode · bright = nodal region</p>
+        <canvas id="mode-canvas" class="field-canvas" aria-label="Selected Laplace-Beltrami eigenmode nodal structure"></canvas>
+        <p class="footnote">Nodal view · common spatial coordinates</p>
+      </article>
+
+      <article class="card">
+        <h2>04 / Quantum intensity</h2>
+        <p class="caption">Spatial projection · |Σ aⱼφⱼ|²</p>
+        <canvas id="intensity-canvas" class="field-canvas" aria-label="Intensity of the live quantum-conditioned modal projection"></canvas>
+        <p class="footnote">Bright = high projected intensity</p>
+      </article>
+
+      <article class="card">
+        <h2>05 / Phase-sensitive view</h2>
+        <p class="caption">Virtual analyzer · local display shift <output id="analyzer-caption">−90°</output></p>
+        <canvas id="quadrature-canvas" class="field-canvas" aria-label="Phase-sensitive companion view of the live complex modal projection"></canvas>
+        <p class="footnote">Display analysis only · source phase is unchanged</p>
+      </article>
+
+      <article class="card trace">
+        <h2>06 / Amplitude history</h2>
+        <p class="caption">Selected probe · shared live samples · real and quadrature components</p>
+        <canvas id="trace-canvas" class="trace-canvas" aria-label="Running real and quadrature amplitude history at the selected probe"></canvas>
+        <div class="legend"><span><i class="key teal"></i>Real</span><span><i class="key amber"></i>Quadrature</span></div>
+      </article>
+
+      <article class="card">
+        <h2>07 / Amplitude histogram</h2>
+        <p class="caption">Same probe and sample history · fixed signed bins</p>
+        <canvas id="histogram-canvas" class="histogram-canvas" aria-label="Histogram of the same live probe samples"></canvas>
+        <p class="footnote">Sample distribution · not measurement outcomes</p>
+      </article>
+    </section>
+
+    <section id="rhythm-workspace" class="rhythm-workspace" aria-labelledby="rhythm-heading">
+      <header class="rhythm-header">
+        <div>
+          <h2 id="rhythm-heading">08 / Admitted event rhythm</h2>
+          <p class="caption" id="event-caption">QPE samples at the frame-publication cadence</p>
+        </div>
+        <div class="rhythm-source" id="rhythm-source">Waiting for admitted records</div>
+      </header>
+      <div class="rhythm-controls">
+        <label>Visible event window <output id="event-window-output">12</output>
+          <input id="event-window-slider" type="range" min="6" max="32" value="12" aria-label="Visible event window">
+        </label>
+        <label>Circle coordinate
+          <select id="event-coordinate">
+            <option value="time">Elapsed observer time</option>
+            <option value="distance">Intrinsic geodesic distance</option>
+          </select>
+        </label>
+        <p id="rhythm-window-label">Latest 12 admitted records</p>
+      </div>
+      <div class="rhythm-grid">
+        <article class="rhythm-card rhythm-primary">
+          <h3>01 / Rhythm necklace</h3>
+          <p class="caption">Recent event times · dot area = source confidence or weight</p>
+          <canvas id="rhythm-canvas" aria-label="Circular rhythm necklace for the visible admitted-event window"></canvas>
+          <div class="legend"><span><i class="key teal"></i>Admitted events</span><span><i class="key amber"></i>Newest event and window seam</span></div>
+        </article>
+        <article class="rhythm-card rhythm-primary">
+          <h3>02 / Source coordinate</h3>
+          <p class="caption" id="coordinate-caption">QPE phase by observer receipt time · not a spatial trajectory</p>
+          <canvas id="event-map-canvas" aria-label="Source coordinate for the visible admitted-event window"></canvas>
+          <p class="footnote" id="coordinate-note">No geodesic path is inferred from QPE frame samples.</p>
+        </article>
+        <article class="rhythm-card rhythm-wide">
+          <h3>03 / Event-aligned history</h3>
+          <p class="caption">Source strength at admitted onset times · no synthetic audio waveform</p>
+          <canvas id="event-trace-canvas" aria-label="Event strength history at admitted source times"></canvas>
+        </article>
+        <article class="rhythm-card rhythm-small">
+          <h3>04 / Inter-onset intervals</h3>
+          <p class="caption">Successive source-recorded durations · expanded local scale</p>
+          <canvas id="interval-canvas" aria-label="Successive admitted-event intervals"></canvas>
+        </article>
+        <article class="rhythm-card rhythm-small">
+          <h3>05 / Interval distribution</h3>
+          <p class="caption">The same visible intervals · bins span the labeled local range</p>
+          <canvas id="interval-histogram-canvas" aria-label="Distribution of visible admitted-event intervals"></canvas>
+        </article>
+      </div>
+      <footer id="selected-event" class="rhythm-status" role="status" aria-live="polite"></footer>
+      <p class="boundary">No arrows, trajectories, or rhythmic gates are inferred from apparent screen motion. Every dot and interval comes from an admitted source record; the panel does not schedule events.</p>
+    </section>
+
+    <aside class="provenance-strip" aria-label="Projection and availability provenance">
+      <span>Geodesic rhythm <strong id="geodesic-status">Waiting for source declaration</strong></span>
+      <span>Geometry operator <strong id="operator-status">—</strong></span>
+      <span>Projection <strong id="projection-status">—</strong></span>
+    </aside>
+
+    <footer class="diagnostics" aria-label="Quantum diagnostics">
+      <span>State <strong id="live-state">waiting</strong></span>
+      <span>Purity <strong id="purity">—</strong></span>
+      <span>Coherence <strong id="coherence">—</strong></span>
+      <span>Entropy <strong id="entropy">—</strong></span>
+      <span>QPE <strong id="qpe-result">—</strong></span>
+      <span>Dominant mode <strong id="dominant-mode">—</strong></span>
+      <span class="schema"><strong id="schema-label">qmw.sophie_germain.panel.v1</strong> · no state update · no audio scheduling</span>
+    </footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

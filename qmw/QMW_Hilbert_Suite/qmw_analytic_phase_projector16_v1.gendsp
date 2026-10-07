@@ -1,0 +1,277 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 9,
+      "minor": 0,
+      "revision": 7,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      100,
+      100,
+      1180,
+      760
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "in1",
+          "maxclass": "newobj",
+          "patching_rect": [
+            30,
+            30,
+            45,
+            22
+          ],
+          "text": "in 1",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in2",
+          "maxclass": "newobj",
+          "patching_rect": [
+            125,
+            30,
+            45,
+            22
+          ],
+          "text": "in 2",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in3",
+          "maxclass": "newobj",
+          "patching_rect": [
+            220,
+            30,
+            45,
+            22
+          ],
+          "text": "in 3",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in4",
+          "maxclass": "newobj",
+          "patching_rect": [
+            315,
+            30,
+            45,
+            22
+          ],
+          "text": "in 4",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "in5",
+          "maxclass": "newobj",
+          "patching_rect": [
+            410,
+            30,
+            45,
+            22
+          ],
+          "text": "in 5",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ]
+        }
+      },
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "patching_rect": [
+            30,
+            85,
+            1080,
+            545
+          ],
+          "numinlets": 5,
+          "numoutlets": 3,
+          "outlettype": [
+            "",
+            "",
+            ""
+          ],
+          "code": "// QMW Analytic Phase Projector 16 MC v1\n//\n// in1/in2: pre-matrix analytic I/Q rails\n// in3/in4: post-matrix complex real/imaginary rails\n// in5: conductor phase, one value per MC lane (radians)\n//\n// out1: analytic rotation before rho\n// out2: analytic rotation after rho\n// out3: matrix-only delta (post - pre)\n//\n// This is deliberately a direct audition path.  The earlier feedback engine\n// only exposed phase inside a low-gain recursive return, which made correct\n// Hilbert processing difficult to hear.  Here phase can rotate every\n// harmonic, spread across harmonic number, and move continuously as a\n// single-sideband shift while remaining sample-synchronous for pre/post A/B.\n\nParam hilbert_depth(1);\nParam phase_depth(1);\nParam phase_spread(0);\nParam phase_bias(0);\nParam ssb_hz(0);\nParam delta_gain(1);\n\nHistory shift_phase(0);\n\nlane = clamp(mc_channel - 1, 0, 15);\ncentered_lane = lane - 7.5;\n\nshift_phase = shift_phase + ssb_hz / samplerate;\nshift_phase = shift_phase - floor(shift_phase);\n\ntheta = phase_bias\n    + in5 * phase_depth\n    + centered_lane * phase_spread\n    + 6.283185307179586 * shift_phase;\n\nc = cos(theta);\ns = sin(theta);\n\npre_rotated = in1 * c - in2 * s;\npost_rotated = in3 * c - in4 * s;\n\ndepth = clamp(hilbert_depth, 0, 1);\npre_audition = mix(in1, pre_rotated, depth);\npost_audition = mix(in3, post_rotated, depth);\n\nout1 = pre_audition;\nout2 = post_audition;\nout3 = (post_audition - pre_audition) * clamp(delta_gain, 0, 8);\n"
+        }
+      },
+      {
+        "box": {
+          "id": "out1",
+          "maxclass": "newobj",
+          "patching_rect": [
+            250,
+            670,
+            55,
+            22
+          ],
+          "text": "out 1",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out2",
+          "maxclass": "newobj",
+          "patching_rect": [
+            470,
+            670,
+            55,
+            22
+          ],
+          "text": "out 2",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      },
+      {
+        "box": {
+          "id": "out3",
+          "maxclass": "newobj",
+          "patching_rect": [
+            690,
+            670,
+            55,
+            22
+          ],
+          "text": "out 3",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "outlettype": []
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "in1",
+            0
+          ],
+          "destination": [
+            "code",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in2",
+            0
+          ],
+          "destination": [
+            "code",
+            1
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in3",
+            0
+          ],
+          "destination": [
+            "code",
+            2
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in4",
+            0
+          ],
+          "destination": [
+            "code",
+            3
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "in5",
+            0
+          ],
+          "destination": [
+            "code",
+            4
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "out1",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            1
+          ],
+          "destination": [
+            "out2",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            2
+          ],
+          "destination": [
+            "out3",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

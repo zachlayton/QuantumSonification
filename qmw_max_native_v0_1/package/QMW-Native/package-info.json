@@ -1,0 +1,17 @@
+{
+  "name": "QMW-Native",
+  "displayname": "QMW Native",
+  "version": "0.1.0",
+  "author": "Quantum Music Workstation",
+  "description": "Seventeen native QMW objects for revision-safe quantum analysis and bounded signal-rate synthesis in Max.",
+  "website": "",
+  "tags": ["quantum", "matrix", "science", "sonification"],
+  "max_version_min": "8.2.0",
+  "max_version_max": "none",
+  "os": {
+    "macintosh": {
+      "platform": ["x64", "aarch64"],
+      "min_version": "11.0.x"
+    }
+  }
+}

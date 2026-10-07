@@ -29,3 +29,40 @@ __all__ = [
     "SpatSourceControl",
     "controls_from_bloch",
 ]
+from qmw.acoustics.spectral_v4 import (
+    SpectralFrequencyPolicyV4,
+    SpectralSonificationPacketV4,
+    SpectralV4OSCSender,
+    SpectralV4StateSubscriber,
+    SpectralVoiceTargetV4,
+    spectral_sonification_packet_v4,
+)
+
+__all__ = [
+    "SpectralFrequencyPolicyV4",
+    "SpectralSonificationPacketV4",
+    "SpectralV4OSCSender",
+    "SpectralV4StateSubscriber",
+    "SpectralVoiceTargetV4",
+    "spectral_sonification_packet_v4",
+]
+
+from qmw.acoustics.phonon import PhononModalAdapter
+
+__all__.append("PhononModalAdapter")
+
+from qmw.acoustics.interference_timbre import (
+    InterferenceTimbreControl,
+    InterferenceTimbreFrame,
+    InterferenceTimbrePacketReceiver,
+    InterferenceTimbrePolicy,
+    InterferenceTimbreProjector,
+)
+
+__all__.extend([
+    "InterferenceTimbreControl",
+    "InterferenceTimbreFrame",
+    "InterferenceTimbrePacketReceiver",
+    "InterferenceTimbrePolicy",
+    "InterferenceTimbreProjector",
+])

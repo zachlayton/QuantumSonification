@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.request import urlopen
 import unittest
 
 import numpy as np
@@ -11,7 +12,13 @@ from quantum_chladni_synth_v1.quantum_chladni_controller_v1 import (
     exact_density_frame,
     load_modal_profile,
     modal_eigenphases,
+    projection_probability_current,
     qpe_condition_modal_distribution,
+)
+from quantum_chladni_synth_v1.sophie_germain_panel_v1 import (
+    SCHEMA as SOPHIE_GERMAIN_SCHEMA,
+    SophieGermainPanelStore,
+    start_sophie_germain_panel,
 )
 
 
@@ -39,6 +46,23 @@ class QuantumChladniTests(unittest.TestCase):
         self.assertEqual(profile.eigenvectors.shape, (96, 24))
         self.assertEqual(profile.vertices.shape, (96, 3))
         self.assertTrue(np.all(profile.frequencies_hz > 0.0))
+
+    def test_rectangular_projection_publishes_gauge_invariant_current(self) -> None:
+        profile = load_modal_profile(mode_count=8, visual_samples=96)
+        amplitudes = np.zeros(8, dtype=np.complex128)
+        amplitudes[1] = 1.0 / np.sqrt(2.0)
+        amplitudes[2] = 1j / np.sqrt(2.0)
+        current = projection_probability_current(profile, amplitudes)
+        self.assertIsNotNone(current)
+        assert current is not None
+        self.assertEqual(current.shape, (96, 3))
+        self.assertGreater(float(np.max(np.linalg.norm(current[:, :2], axis=1))), 0.01)
+        shifted = projection_probability_current(
+            profile,
+            amplitudes * np.exp(1j * 0.73),
+        )
+        np.testing.assert_allclose(current, shifted, atol=1e-12)
+        np.testing.assert_allclose(current[:, 2], 0.0, atol=1e-15)
 
     def test_frame_and_geometry_protocol_are_complete(self) -> None:
         profile = load_modal_profile(mode_count=12, visual_samples=64)
@@ -165,6 +189,101 @@ class QuantumChladniTests(unittest.TestCase):
         address, payload = temporal.messages[-1]
         self.assertEqual(address, "/qmw/temporal/source/density")
         self.assertEqual(len(payload), 2 + 2 * 16 * 16)
+
+    def test_sophie_germain_panel_commits_monotonic_authoritative_frames(self) -> None:
+        profile = load_modal_profile(mode_count=12, visual_samples=64)
+        controller = QuantumChladniController(profile, RecordingClient())
+        store = SophieGermainPanelStore(profile)
+        frame = controller.frame()
+        self.assertTrue(store.observe(frame, observed_at=1.25))
+        self.assertFalse(store.observe(frame, observed_at=1.5))
+        snapshot = store.frame_snapshot()
+        geometry = store.geometry_snapshot()
+        self.assertEqual(snapshot["schema"], SOPHIE_GERMAIN_SCHEMA)
+        self.assertEqual(snapshot["source_revision"], frame.revision)
+        self.assertEqual(geometry["sample_count"], 64)
+        self.assertEqual(geometry["mode_count"], 12)
+        self.assertEqual(len(geometry["eigenvectors"]), 64)
+        self.assertEqual(len(geometry["eigenvectors"][0]), 12)
+        self.assertAlmostEqual(
+            sum(mode["probability"] for mode in snapshot["modes"]), 1.0
+        )
+        self.assertEqual(snapshot["qpe_events"][0]["event_id"], "qpe:1")
+        self.assertIn(
+            "not a geodesic-rhythm onset",
+            snapshot["qpe_events"][0]["timing_semantics"],
+        )
+        self.assertTrue(
+            snapshot["availability"]["probability_or_energy_flow"]["available"]
+        )
+        self.assertEqual(len(snapshot["flow"]["vectors"]), 64)
+        self.assertIn("grad(psi)", snapshot["flow"]["definition"])
+        self.assertIsNone(snapshot["flow"]["continuity_residual"])
+        self.assertIn("display-only", geometry["camera_semantics"])
+
+    def test_sophie_germain_panel_records_existing_geodesic_events_only(self) -> None:
+        profile = load_modal_profile(mode_count=8, visual_samples=64)
+        controller = QuantumChladniController(profile, RecordingClient())
+        store = SophieGermainPanelStore(profile)
+        store.observe(controller.frame(), observed_at=0.5)
+        self.assertTrue(
+            store.observe_geodesic_pulse(
+                record_index=7,
+                site=2,
+                intrinsic_length=0.42,
+                weighted_increment=0.013,
+                source_revision=19,
+                observed_at=0.75,
+            )
+        )
+        self.assertFalse(
+            store.observe_geodesic_pulse(
+                record_index=7,
+                site=2,
+                intrinsic_length=0.42,
+                weighted_increment=0.013,
+                source_revision=19,
+                observed_at=0.8,
+            )
+        )
+        snapshot = store.frame_snapshot()
+        self.assertTrue(snapshot["availability"]["geodesic_rhythm"]["available"])
+        self.assertEqual(snapshot["geodesic_events"][0]["event_id"], "geodesic:2:7")
+        self.assertIn("does not schedule", snapshot["geodesic_events"][0]["timing_semantics"])
+
+    def test_sophie_germain_panel_http_endpoints_and_display_boundaries(self) -> None:
+        profile = load_modal_profile(mode_count=8, visual_samples=64)
+        controller = QuantumChladniController(profile, RecordingClient())
+        panel = start_sophie_germain_panel(profile, port=0)
+        try:
+            panel.store.observe(controller.frame(), observed_at=0.25)
+            with urlopen(panel.url + "api/frame", timeout=2.0) as response:
+                snapshot = json.loads(response.read().decode("utf-8"))
+            with urlopen(panel.url, timeout=2.0) as response:
+                html = response.read().decode("utf-8")
+        finally:
+            panel.close()
+        self.assertEqual(snapshot["status"], "live")
+        self.assertIn("The Sophie Germain Panel", html)
+        self.assertIn("Visible event window", html)
+        self.assertIn("Camera controls change only this view", html)
+        self.assertIn("No arrows, trajectories, or rhythmic gates are inferred", html)
+
+    def test_sophie_germain_static_client_uses_paired_live_projections(self) -> None:
+        source = (
+            HERE / "sophie_germain_panel" / "app.js"
+        ).read_text(encoding="utf-8")
+        for required in (
+            "Math.sqrt(Math.max(0, mode.probability))",
+            "state.geometry.eigenvectors",
+            "fieldReal",
+            "fieldImag",
+            "geodesic_events",
+            "qpe_events",
+            "not geodesic rhythm",
+            "slice(-state.eventWindow)",
+        ):
+            self.assertIn(required, source)
 
 
 if __name__ == "__main__":

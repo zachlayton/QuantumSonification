@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn import metrics
 
 
@@ -28,15 +29,18 @@ class DensityAdapter:
 
     def coherence_l1(self, rho):
         try:
-            import mlx.core as mx
-
-            off_diag = rho.copy()
+            # DensityMatrixEngine is NumPy-authoritative. Importing MLX here
+            # merely to inspect a NumPy rho unnecessarily initialized Metal,
+            # which made the canonical full-profile OSC publisher fail in
+            # headless launches. MLX-native engines can still materialize an
+            # array through NumPy at this read-only diagnostic boundary.
+            off_diag = np.asarray(rho).copy()
             n = off_diag.shape[0]
 
             for i in range(n):
                 off_diag[i, i] = 0.0
 
-            return float(mx.sum(mx.abs(off_diag)))
+            return float(np.sum(np.abs(off_diag)))
         except Exception:
             return 0.0
 

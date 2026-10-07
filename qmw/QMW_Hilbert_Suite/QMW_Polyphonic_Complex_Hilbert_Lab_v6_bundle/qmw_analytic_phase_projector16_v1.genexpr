@@ -1,0 +1,49 @@
+// QMW Analytic Phase Projector 16 MC v1
+//
+// in1/in2: pre-matrix analytic I/Q rails
+// in3/in4: post-matrix complex real/imaginary rails
+// in5: conductor phase, one value per MC lane (radians)
+//
+// out1: analytic rotation before rho
+// out2: analytic rotation after rho
+// out3: matrix-only delta (post - pre)
+//
+// This is deliberately a direct audition path.  The earlier feedback engine
+// only exposed phase inside a low-gain recursive return, which made correct
+// Hilbert processing difficult to hear.  Here phase can rotate every
+// harmonic, spread across harmonic number, and move continuously as a
+// single-sideband shift while remaining sample-synchronous for pre/post A/B.
+
+Param hilbert_depth(1);
+Param phase_depth(1);
+Param phase_spread(0);
+Param phase_bias(0);
+Param ssb_hz(0);
+Param delta_gain(1);
+
+History shift_phase(0);
+
+lane = clamp(mc_channel - 1, 0, 15);
+centered_lane = lane - 7.5;
+
+shift_phase = shift_phase + ssb_hz / samplerate;
+shift_phase = shift_phase - floor(shift_phase);
+
+theta = phase_bias
+    + in5 * phase_depth
+    + centered_lane * phase_spread
+    + 6.283185307179586 * shift_phase;
+
+c = cos(theta);
+s = sin(theta);
+
+pre_rotated = in1 * c - in2 * s;
+post_rotated = in3 * c - in4 * s;
+
+depth = clamp(hilbert_depth, 0, 1);
+pre_audition = mix(in1, pre_rotated, depth);
+post_audition = mix(in3, post_rotated, depth);
+
+out1 = pre_audition;
+out2 = post_audition;
+out3 = (post_audition - pre_audition) * clamp(delta_gain, 0, 8);

@@ -1,0 +1,102 @@
+{
+  "patcher": {
+    "fileversion": 1,
+    "appversion": {
+      "major": 9,
+      "minor": 0,
+      "revision": 0,
+      "architecture": "x64",
+      "modernui": 1
+    },
+    "classnamespace": "dsp.gen",
+    "rect": [
+      100.0,
+      100.0,
+      1100.0,
+      760.0
+    ],
+    "gridsize": [
+      15.0,
+      15.0
+    ],
+    "boxes": [
+      {
+        "box": {
+          "id": "in",
+          "maxclass": "newobj",
+          "numinlets": 0,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ],
+          "patching_rect": [
+            30.0,
+            30.0,
+            35.0,
+            22.0
+          ],
+          "text": "in 1"
+        }
+      },
+      {
+        "box": {
+          "id": "code",
+          "maxclass": "codebox",
+          "numinlets": 1,
+          "numoutlets": 1,
+          "outlettype": [
+            ""
+          ],
+          "patching_rect": [
+            30.0,
+            75.0,
+            1020.0,
+            560.0
+          ],
+          "code": "// QMW Density Field Quantum Resonator 16 MC v1\n//\n// Intended host:\n//   mc.gen~ @chans 16\n//\n// One resonant basis lane is rendered per MC channel:\n//   MC channel 1  -> basis 0  -> m0/ph0/s0/h0\n//   ...\n//   MC channel 16 -> basis 15 -> m15/ph15/s15/h15\n//\n// in1: fundamental-frequency signal in Hz.\n// out1: one MC audio stream per basis lane.\n//\n// The complete density field is still supplied as named parameters.\n// Each MC instance selects its own lane using mc_channel.\n//\n// IMPORTANT:\n// Cycling '74 MC channel numbering is treated here as 1-based.\n// If your Max build reports channel 0 for the first channel, remove \"- 1\"\n// from the lane_index line.\n\nParam m0(0);  Param m1(0);  Param m2(0);  Param m3(0);\nParam m4(0);  Param m5(0);  Param m6(0);  Param m7(0);\nParam m8(0);  Param m9(0);  Param m10(0); Param m11(0);\nParam m12(0); Param m13(0); Param m14(0); Param m15(0);\n\nParam ph0(0);  Param ph1(0);  Param ph2(0);  Param ph3(0);\nParam ph4(0);  Param ph5(0);  Param ph6(0);  Param ph7(0);\nParam ph8(0);  Param ph9(0);  Param ph10(0); Param ph11(0);\nParam ph12(0); Param ph13(0); Param ph14(0); Param ph15(0);\n\nParam s0(0);  Param s1(0);  Param s2(0);  Param s3(0);\nParam s4(0);  Param s5(0);  Param s6(0);  Param s7(0);\nParam s8(0);  Param s9(0);  Param s10(0); Param s11(0);\nParam s12(0); Param s13(0); Param s14(0); Param s15(0);\n\nParam h0(1);  Param h1(2);  Param h2(3);  Param h3(4);\nParam h4(5);  Param h5(6);  Param h6(7);  Param h7(8);\nParam h8(9);  Param h9(10); Param h10(11); Param h11(12);\nParam h12(13); Param h13(14); Param h14(15); Param h15(16);\n\nParam purity(1);\nParam entropy(0);\nParam coherence(0);\n\nParam amp(0.20);\nParam default_freq(55);\nParam attack_ms(12);\nParam slow_decay_ms(900);\nParam fast_decay_ms(70);\nParam phase_smooth_ms(100);\nParam magnitude_smooth_ms(100);\nParam harmonic_smooth_ms(80);\nParam brightness(0.65);\nParam output_ceiling(0.85);\n\nHistory osc_phase(0);\nHistory envelope(0);\nHistory smoothed_magnitude(0);\nHistory smoothed_phase(0);\nHistory smoothed_ratio(1);\n\n// ------------------------------------------------------------\n// Select this MC channel's basis lane.\n// ------------------------------------------------------------\n\nlane_index = clamp(mc_channel - 1, 0, 15);\n\nlane_m =\n    (lane_index == 0) * m0 +\n    (lane_index == 1) * m1 +\n    (lane_index == 2) * m2 +\n    (lane_index == 3) * m3 +\n    (lane_index == 4) * m4 +\n    (lane_index == 5) * m5 +\n    (lane_index == 6) * m6 +\n    (lane_index == 7) * m7 +\n    (lane_index == 8) * m8 +\n    (lane_index == 9) * m9 +\n    (lane_index == 10) * m10 +\n    (lane_index == 11) * m11 +\n    (lane_index == 12) * m12 +\n    (lane_index == 13) * m13 +\n    (lane_index == 14) * m14 +\n    (lane_index == 15) * m15;\n\nlane_ph =\n    (lane_index == 0) * ph0 +\n    (lane_index == 1) * ph1 +\n    (lane_index == 2) * ph2 +\n    (lane_index == 3) * ph3 +\n    (lane_index == 4) * ph4 +\n    (lane_index == 5) * ph5 +\n    (lane_index == 6) * ph6 +\n    (lane_index == 7) * ph7 +\n    (lane_index == 8) * ph8 +\n    (lane_index == 9) * ph9 +\n    (lane_index == 10) * ph10 +\n    (lane_index == 11) * ph11 +\n    (lane_index == 12) * ph12 +\n    (lane_index == 13) * ph13 +\n    (lane_index == 14) * ph14 +\n    (lane_index == 15) * ph15;\n\nlane_s =\n    (lane_index == 0) * s0 +\n    (lane_index == 1) * s1 +\n    (lane_index == 2) * s2 +\n    (lane_index == 3) * s3 +\n    (lane_index == 4) * s4 +\n    (lane_index == 5) * s5 +\n    (lane_index == 6) * s6 +\n    (lane_index == 7) * s7 +\n    (lane_index == 8) * s8 +\n    (lane_index == 9) * s9 +\n    (lane_index == 10) * s10 +\n    (lane_index == 11) * s11 +\n    (lane_index == 12) * s12 +\n    (lane_index == 13) * s13 +\n    (lane_index == 14) * s14 +\n    (lane_index == 15) * s15;\n\nlane_h =\n    (lane_index == 0) * h0 +\n    (lane_index == 1) * h1 +\n    (lane_index == 2) * h2 +\n    (lane_index == 3) * h3 +\n    (lane_index == 4) * h4 +\n    (lane_index == 5) * h5 +\n    (lane_index == 6) * h6 +\n    (lane_index == 7) * h7 +\n    (lane_index == 8) * h8 +\n    (lane_index == 9) * h9 +\n    (lane_index == 10) * h10 +\n    (lane_index == 11) * h11 +\n    (lane_index == 12) * h12 +\n    (lane_index == 13) * h13 +\n    (lane_index == 14) * h14 +\n    (lane_index == 15) * h15;\n\n// ------------------------------------------------------------\n// Global state descriptors.\n// ------------------------------------------------------------\n\npur = clamp(purity, 0, 1);\nent = clamp(entropy, 0, 1);\ncoh = clamp(coherence, 0, 1);\n\nfreq = (in1 > 0) * in1 + (in1 <= 0) * default_freq;\n\n// ------------------------------------------------------------\n// Magnitude smoothing.\n// ------------------------------------------------------------\n\nmag_ms = max(magnitude_smooth_ms, 0.1);\nmag_coeff = exp(-1 / (mag_ms * 0.001 * samplerate));\n\ntarget_magnitude = clamp(lane_m, 0, 1);\nsmoothed_magnitude =\n    target_magnitude +\n    mag_coeff * (smoothed_magnitude - target_magnitude);\n\n// ------------------------------------------------------------\n// Wrapped phase smoothing.\n// ------------------------------------------------------------\n\nphase_ms = max(phase_smooth_ms, 0.1);\nphase_coeff = exp(-1 / (phase_ms * 0.001 * samplerate));\n\nphase_delta = atan2(\n    sin(lane_ph - smoothed_phase),\n    cos(lane_ph - smoothed_phase)\n);\n\nsmoothed_phase =\n    smoothed_phase +\n    (1 - phase_coeff) * phase_delta;\n\n// ------------------------------------------------------------\n// Harmonic-ratio smoothing.\n// ------------------------------------------------------------\n\nratio_ms = max(harmonic_smooth_ms, 0.1);\nratio_coeff = exp(-1 / (ratio_ms * 0.001 * samplerate));\n\ntarget_ratio = max(lane_h, 0.01);\nsmoothed_ratio =\n    target_ratio +\n    ratio_coeff * (smoothed_ratio - target_ratio);\n\n// ------------------------------------------------------------\n// Excitation envelope.\n// ------------------------------------------------------------\n\nspeed = clamp(abs(lane_s), 0, 1);\n\ndecay_ms = mix(\n    slow_decay_ms,\n    fast_decay_ms,\n    speed\n);\n\ndecay_coeff = exp(\n    -1 /\n    (\n        max(decay_ms, 0.1)\n        * 0.001\n        * samplerate\n    )\n);\n\neffective_attack_ms = max(\n    attack_ms * mix(1.35, 0.65, coh),\n    0.1\n);\n\nattack_coeff = exp(\n    -1 /\n    (\n        effective_attack_ms\n        * 0.001\n        * samplerate\n    )\n);\n\n// Higher purity makes excitation more selective.\n// Higher entropy lifts weaker modes.\nexcitation_shape = mix(0.55, 1.6, pur);\n\ntarget_excitation =\n    pow(smoothed_magnitude, excitation_shape)\n    * mix(0.35, 1, ent);\n\nenvelope =\n    (target_excitation > envelope)\n    * (\n        target_excitation\n        + attack_coeff\n        * (envelope - target_excitation)\n    )\n    +\n    (target_excitation <= envelope)\n    * (\n        target_excitation\n        + decay_coeff\n        * (envelope - target_excitation)\n    );\n\n// ------------------------------------------------------------\n// One resonant partial per MC channel.\n// ------------------------------------------------------------\n\nosc_phase = fract(\n    osc_phase\n    + freq\n    * smoothed_ratio\n    / samplerate\n);\n\nbright = clamp(\n    brightness + ent * 0.25,\n    0,\n    1\n);\n\nspectral_rolloff =\n    1 /\n    pow(\n        max(smoothed_ratio, 1),\n        bright\n    );\n\ntwopi = 6.283185307179586;\n\npartial =\n    envelope\n    * sin(\n        twopi * osc_phase\n        + smoothed_phase\n    )\n    * spectral_rolloff;\n\n// No 1/sqrt(16) scaling here:\n// every MC channel remains an independent source.\n// Apply gain compensation only when monitoring or summing.\n\nout1 =\n    tanh(partial * 0.5)\n    * amp\n    * output_ceiling;\n"
+        }
+      },
+      {
+        "box": {
+          "id": "out1",
+          "maxclass": "newobj",
+          "numinlets": 1,
+          "numoutlets": 0,
+          "patching_rect": [
+            30.0,
+            670.0,
+            40.0,
+            22.0
+          ],
+          "text": "out 1"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "patchline": {
+          "source": [
+            "in",
+            0
+          ],
+          "destination": [
+            "code",
+            0
+          ]
+        }
+      },
+      {
+        "patchline": {
+          "source": [
+            "code",
+            0
+          ],
+          "destination": [
+            "out1",
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

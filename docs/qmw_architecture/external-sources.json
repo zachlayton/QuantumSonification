@@ -1,0 +1,25 @@
+{
+  "collider": {
+    "root": "dependencies/qmw_architecture/cern_qmw_001b",
+    "files": {
+      "collider_001a/__init__.py": "c55780ad4ebb77ff5ebdf96fb904133495d3ae84d3902b4b3bd3a566a8374b5f",
+      "collider_001a/__main__.py": "797cfd2cf99df037d7e397dc175ce4614d830d52d5df07fef1250cd8cb1b49b3",
+      "collider_001a/backend.py": "d120a69ca9ba7925a5324ba46aba19769ee3b755faf9f0ff56d3be15e60b811d",
+      "collider_001a/io.py": "f08d365563a4f3fd58748dad3864c6466dec232c23ced41375be1a2592b96e32",
+      "collider_001a/model.py": "60e03984eb6a492c9534f55401504a96fad5a4483862cb11441a517f2a74417c",
+      "collider_001a/report.py": "7089dcc7c6515653ccaa3776b9f52bfdb302f669c7ea444d745c52496e798a14",
+      "collider_001a/synthetic.py": "0f2141c88847ae15e72ec8ecef5b4367199f8a8aaef0e6b96ee4323625297fdc",
+      "collider_001b/__init__.py": "0b920de7aec04e938009fd010ddb7ae134b4fae304a0e63a458f29ecb9026092",
+      "collider_001b/spectrum.py": "bd9f1f10bb3e2b74837a2801777d259e6c22ccf6c249a9929fd07e2b81931f07"
+    }
+  },
+  "decay": {
+    "archive": "dependencies/qmw_architecture/qmw_decay_engine_architecture.zip",
+    "sha256": "4eecc287893db35757d6ae5c266f9bff4e0cc0c88201cbafed09eeea403f8bb8",
+    "package_prefix": "qmw_decay_engine"
+  },
+  "lorentz_frame": {
+    "path": "qmw/qmw_lorentz_excitation_v0.1.0/qmw/frames/lorentz_frame.py",
+    "sha256": "4736dfa652cf6a6e00facf5e39fcf6a247bd09a87af234de383c559db56d7b8c"
+  }
+}

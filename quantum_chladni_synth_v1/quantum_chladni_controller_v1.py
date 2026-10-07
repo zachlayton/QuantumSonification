@@ -10,7 +10,7 @@ import math
 import signal
 import threading
 import time
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 
@@ -86,6 +86,8 @@ class QuantumChladniFrame:
     qpe_phase: float
     qpe_dominant_mode: int
     qpe_confidence: float
+    probability_current: np.ndarray | None = None
+    probability_current_definition: str | None = None
 
     @property
     def mode_count(self) -> int:
@@ -159,7 +161,10 @@ def qpe_condition_modal_distribution(
     )
 
 
-def _plate_profile(mode_count: int = 24) -> ModalProfile:
+def _plate_profile(
+    mode_count: int = 24,
+    visual_samples: int = 768,
+) -> ModalProfile:
     """Portable fallback: rectangular-membrane Laplacian spectrum."""
     pairs = sorted(
         ((m * m + n * n, m, n) for m in range(1, 9) for n in range(1, 9)),
@@ -170,13 +175,21 @@ def _plate_profile(mode_count: int = 24) -> ModalProfile:
     index = np.arange(len(pairs), dtype=np.float64)
     decays = 2.2 / (1.0 + 0.045 * index)
     weights = 1.0 / np.sqrt(1.0 + index)
-    side = 28
+    sample_count = max(64, int(visual_samples))
+    rows = max(
+        divisor
+        for divisor in range(1, int(math.sqrt(sample_count)) + 1)
+        if sample_count % divisor == 0
+    )
+    columns = sample_count // rows
     x, y = np.meshgrid(
-        np.linspace(-1.0, 1.0, side),
-        np.linspace(-1.0, 1.0, side),
+        np.linspace(-1.0, 1.0, columns),
+        np.linspace(-1.0, 1.0, rows),
         indexing="xy",
     )
-    vertices = np.column_stack((x.reshape(-1), y.reshape(-1), np.zeros(side * side)))
+    vertices = np.column_stack(
+        (x.reshape(-1), y.reshape(-1), np.zeros(sample_count))
+    )
     eigenvectors = np.column_stack(
         [
             np.sin(item[1] * math.pi * (vertices[:, 0] + 1.0) * 0.5)
@@ -195,6 +208,59 @@ def _plate_profile(mode_count: int = 24) -> ModalProfile:
     )
 
 
+def projection_probability_current(
+    profile: ModalProfile,
+    amplitudes: np.ndarray,
+) -> np.ndarray | None:
+    """Return Im(conj(psi) grad psi) for a complete planar sample grid.
+
+    This is the instantaneous probability current of the controller's
+    QPE-conditioned spatial projection with hbar/m = 1.  It is deliberately
+    unavailable for imported surfaces because their downsampled packets do not
+    currently retain mesh connectivity or a surface-gradient operator.
+    """
+
+    coefficients = np.asarray(amplitudes, dtype=np.complex128)
+    if coefficients.shape != (len(profile.eigenvalues),):
+        raise ValueError("amplitudes must match the modal profile")
+    if profile.name != "rectangular_membrane":
+        return None
+    vertices = np.asarray(profile.vertices, dtype=np.float64)
+    unique_x = np.unique(vertices[:, 0])
+    unique_y = np.unique(vertices[:, 1])
+    if (
+        len(unique_x) < 2
+        or len(unique_y) < 2
+        or len(unique_x) * len(unique_y) != len(vertices)
+        or np.any(np.abs(vertices[:, 2]) > 1e-12)
+    ):
+        return None
+    x_index = {float(value): index for index, value in enumerate(unique_x)}
+    y_index = {float(value): index for index, value in enumerate(unique_y)}
+    psi = np.asarray(profile.eigenvectors @ coefficients, dtype=np.complex128)
+    psi_grid = np.empty((len(unique_y), len(unique_x)), dtype=np.complex128)
+    for value, vertex in zip(psi, vertices):
+        psi_grid[y_index[float(vertex[1])], x_index[float(vertex[0])]] = value
+    edge_order = 2 if min(len(unique_x), len(unique_y)) >= 3 else 1
+    derivative_y, derivative_x = np.gradient(
+        psi_grid,
+        unique_y,
+        unique_x,
+        edge_order=edge_order,
+    )
+    current_x = np.imag(np.conjugate(psi_grid) * derivative_x)
+    current_y = np.imag(np.conjugate(psi_grid) * derivative_y)
+    result = np.zeros((len(vertices), 3), dtype=np.float64)
+    for index, vertex in enumerate(vertices):
+        row = y_index[float(vertex[1])]
+        column = x_index[float(vertex[0])]
+        result[index, 0] = current_x[row, column]
+        result[index, 1] = current_y[row, column]
+    if np.any(~np.isfinite(result)):
+        raise ValueError("probability current must be finite")
+    return result
+
+
 def load_modal_profile(
     path: str | Path | None = None,
     mode_count: int = 24,
@@ -202,7 +268,7 @@ def load_modal_profile(
 ) -> ModalProfile:
     selected = Path(path) if path is not None else DEFAULT_MODAL_PACKET
     if not selected.exists():
-        return _plate_profile(mode_count)
+        return _plate_profile(mode_count, visual_samples)
     with np.load(selected, allow_pickle=False) as packet:
         required = ("eigenvalues", "frequencies_hz", "decay_times_seconds", "mode_weights")
         missing = [name for name in required if name not in packet]
@@ -215,7 +281,7 @@ def load_modal_profile(
         weights = np.asarray(packet["mode_weights"][:count], dtype=np.float64)
     geometry_path = selected.with_name("spectral_geometry.npz")
     if not geometry_path.exists():
-        return _plate_profile(count)
+        return _plate_profile(count, visual_samples)
     with np.load(geometry_path, allow_pickle=False) as geometry:
         vertices = np.asarray(geometry["vertices"], dtype=np.float64)
         eigenvectors = np.asarray(geometry["eigenvectors"][:, :count], dtype=np.float64)
@@ -292,6 +358,7 @@ class QuantumChladniController:
         temporal_client: Any | None = None,
         qpe_bits: int = 5,
         random_seed: int = 20260719,
+        frame_observer: Callable[[QuantumChladniFrame], Any] | None = None,
     ) -> None:
         self.profile = profile
         self.client = client
@@ -299,6 +366,7 @@ class QuantumChladniController:
         self.entanglement = float(np.clip(entanglement, 0.0, 1.0))
         self.temporal_client = temporal_client
         self.qpe_bits = int(np.clip(int(qpe_bits), 2, 10))
+        self.frame_observer = frame_observer
         self._rng = np.random.default_rng(random_seed)
         self.running = True
         self.revision = 0
@@ -351,6 +419,10 @@ class QuantumChladniController:
         # the exact QPE posterior that drives both V*a and resonator gains.
         probabilities = qpe.posterior
         amplitudes = np.sqrt(probabilities) * np.exp(1j * np.angle(amplitudes))
+        probability_current = projection_probability_current(
+            self.profile,
+            amplitudes,
+        )
         descriptors = engine.quantum_descriptors
         entropy_norm = descriptors.entropy_bits / max(descriptors.max_mixed_entropy_bits, 1e-12)
         coherence_norm = min(1.0, descriptors.coherence_l1 / max(descriptors.dimension - 1, 1))
@@ -381,6 +453,13 @@ class QuantumChladniController:
             qpe.measured_phase,
             qpe.dominant_mode,
             qpe.confidence,
+            probability_current,
+            (
+                "Im(conj(psi) * grad(psi)); hbar_over_mass=1; "
+                "instantaneous QPE-conditioned projection"
+                if probability_current is not None
+                else None
+            ),
         )
 
     def publish(self, frame: QuantumChladniFrame) -> None:
@@ -484,7 +563,10 @@ class QuantumChladniController:
             with self._lock:
                 active = self.running
             if active:
-                self.publish(self.frame())
+                frame = self.frame()
+                self.publish(frame)
+                if self.frame_observer is not None:
+                    self.frame_observer(frame)
             self._stop.wait(max(0.0, period - (time.monotonic() - started)))
 
 
@@ -502,6 +584,13 @@ def main() -> int:
     parser.add_argument("--visual-samples", type=int, default=768)
     parser.add_argument("--temporal-host", default="127.0.0.1")
     parser.add_argument("--temporal-port", type=int, default=7444)
+    parser.add_argument(
+        "--panel-port",
+        type=int,
+        default=0,
+        help="serve the read-only Sophie Germain panel on this local port",
+    )
+    parser.add_argument("--panel-host", default="127.0.0.1")
     args = parser.parse_args()
 
     from pythonosc.dispatcher import Dispatcher
@@ -513,6 +602,16 @@ def main() -> int:
         max(1, args.modes),
         max(64, args.visual_samples),
     )
+    panel = None
+    if args.panel_port:
+        from .sophie_germain_panel_v1 import start_sophie_germain_panel
+
+        panel = start_sophie_germain_panel(
+            profile,
+            host=args.panel_host,
+            port=args.panel_port,
+        )
+        print(f"Sophie Germain panel: {panel.url}")
     controller = QuantumChladniController(
         profile,
         SimpleUDPClient(args.host, args.out_port),
@@ -520,6 +619,7 @@ def main() -> int:
         entanglement=args.entanglement,
         temporal_client=SimpleUDPClient(args.temporal_host, args.temporal_port),
         qpe_bits=args.qpe_bits,
+        frame_observer=None if panel is None else panel.store.observe,
     )
     dispatcher = Dispatcher()
     dispatcher.map("/qmw/chladni/control/run", lambda _address, value: controller.set_running(value))
@@ -555,6 +655,8 @@ def main() -> int:
     finally:
         server.shutdown()
         server.server_close()
+        if panel is not None:
+            panel.close()
     return 0
 
 

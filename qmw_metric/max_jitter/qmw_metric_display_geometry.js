@@ -1,0 +1,35 @@
+/*
+Visible Jitter geometry derived only from authoritative qmw_metric_* matrices.
+Contour/glyph/color operations here are display math, not field reconstruction.
+*/
+autowatch=1;inlets=1;outlets=2;
+var fields={},lastCommit=-1,modeIndex=0;
+var ids=["density","potential","contours","spatial_metric","lapse","curvature","hessian_principal","probability_current","vorticity","eigenmodes","trajectory"];
+var enabled={},opacity={};for(var i=0;i<ids.length;i++){enabled[ids[i]]=0;opacity[ids[i]]=.78}
+function anything(){var a=arrayfromargs(arguments),name=messagename;if(name==="overlay"){control(a);return}if(name==="mode"){modeIndex=Math.max(0,parseInt(a[0]));return}if(name==="commit"){render(parseInt(a[0]));return}if(a.length&&String(a[0]).indexOf("qmw_metric_")===0)fields[name]=String(a[0])}
+function control(a){var name=String(a[0]);if(ids.indexOf(name)<0)return;enabled[name]=a[1]?1:0;opacity[name]=a.length>2?Math.max(0,Math.min(1,Number(a[2]))):opacity[name];if(lastCommit>=0)render(lastCommit)}
+function matrix(name){return fields[name]?new JitterMatrix(fields[name]):null}
+function value(m,x,y,plane){var v=m.getcell2d(x,y);return v instanceof Array?v[plane||0]:v}
+function dims(m){var d=m.dim;return[d[0],d.length>1?d[1]:1]}
+function bounds(m){var d=dims(m),lo=1e30,hi=-1e30;for(var y=0;y<d[1];y++)for(var x=0;x<d[0];x++){var v=value(m,x,y);lo=Math.min(lo,v);hi=Math.max(hi,v)}if(hi===lo)hi=lo+1;return[lo,hi]}
+function norm(v,b,symmetric){if(symmetric){var m=Math.max(Math.abs(b[0]),Math.abs(b[1]),1e-12);return .5+.5*v/m}return(v-b[0])/(b[1]-b[0])}
+function color(name,t){t=Math.max(0,Math.min(1,t));if(name==="density")return[t,.22+.5*t,.08,1];if(name==="lapse")return[.05,.35+.65*t,.5+.4*t,1];if(name==="potential")return[.18+.82*t,.08+.2*(1-t),.45*(1-t),1];if(name==="eigenmodes")return[t,.45+.3*t,1-t,1];return[t,.12+.35*(1-Math.abs(2*t-1)),1-t,1]}
+function render(revision){if(revision<lastCommit){outlet(1,"stale_display_commit",revision);return}var potential=matrix("potential"),density=matrix("density");if(!potential||!density){outlet(1,"incomplete_display_frame",revision);return}lastCommit=revision;var d=dims(potential),nx=d[0],ny=d[1],pb=bounds(potential),pmax=Math.max(Math.abs(pb[0]),Math.abs(pb[1]),1e-12),surface=new JitterMatrix("qmw_metric_display_surface",3,"float32",nx,ny),rgba=new JitterMatrix("qmw_metric_display_rgba",4,"float32",nx,ny);
+  outlet(0,"contours_alpha",enabled.contours?opacity.contours:0);outlet(0,"metric_alpha",enabled.spatial_metric?opacity.spatial_metric:0);outlet(0,"hessian_alpha",enabled.hessian_principal?opacity.hessian_principal:0);outlet(0,"current_alpha",enabled.probability_current?opacity.probability_current:0);outlet(0,"connection_alpha",enabled.probability_current?opacity.probability_current:0);outlet(0,"trajectory_alpha",enabled.trajectory?opacity.trajectory:0);
+  var scalarNames=["density","potential","lapse","curvature","vorticity","eigenmodes"],scalarMatrices={},scalarBounds={};for(var s=0;s<scalarNames.length;s++){var sn=scalarNames[s],mn=sn==="eigenmodes"?"eigenmode_"+modeIndex:sn,sm=matrix(mn);if(sm){scalarMatrices[sn]=sm;scalarBounds[sn]=bounds(sm)}}
+  for(var y=0;y<ny;y++)for(var x=0;x<nx;x++){var px=(x/(nx-1)-.5)*2.5,py=(y/(ny-1)-.5)*2.5,pz=-.72*value(potential,x,y)/pmax,acc=[.025,.03,.06],weight=.15;for(var q=0;q<scalarNames.length;q++){var id=scalarNames[q],fm=scalarMatrices[id];if(!fm||!enabled[id])continue;var c=color(id,norm(value(fm,x,y),scalarBounds[id],id==="potential"||id==="curvature"||id==="vorticity"||id==="eigenmodes")),a=opacity[id];acc[0]+=c[0]*a;acc[1]+=c[1]*a;acc[2]+=c[2]*a;weight+=a}surface.setcell2d(x,y,[px,py,pz]);rgba.setcell2d(x,y,[Math.min(1,acc[0]/weight),Math.min(1,acc[1]/weight),Math.min(1,acc[2]/weight),1])}
+  outlet(0,"surface",surface.name,revision);outlet(0,"surface_color",rgba.name,revision);
+  if(enabled.contours)emitContours(potential,nx,ny,pmax,revision);else clear("contours",revision);
+  if(enabled.spatial_metric)emitMetric(nx,ny,pmax,potential,revision);else clear("metric_grid",revision);
+  if(enabled.hessian_principal)emitHessian(nx,ny,pmax,potential,revision);else clear("hessian_glyphs",revision);
+  if(enabled.probability_current){emitVector("probability_current","current_glyphs",nx,ny,pmax,potential,revision);emitVector("phase_connection","connection_glyphs",nx,ny,pmax,potential,revision)}else{clear("current_glyphs",revision);clear("connection_glyphs",revision)}
+  if(enabled.trajectory)emitTrajectory(revision);else clear("trajectory",revision);outlet(1,"display_commit",revision)
+}
+function lineMatrix(name,vertices){var count=Math.max(1,vertices.length),m=new JitterMatrix("qmw_metric_display_"+name,3,"float32",count);if(!vertices.length)m.setcell1d(0,[0,0,-100]);else for(var i=0;i<vertices.length;i++)m.setcell1d(i,vertices[i]);outlet(0,name,m.name,lastCommit)}
+function clear(name,revision){lineMatrix(name,[])}
+function xyz(x,y,z,nx,ny){return[(x/(nx-1)-.5)*2.5,(y/(ny-1)-.5)*2.5,z]}
+function emitContours(p,nx,ny,pmax,revision){var b=bounds(p),v=[],levels=10;for(var l=1;l<levels;l++){var level=b[0]+(b[1]-b[0])*l/levels;for(var y=0;y<ny-1;y++)for(var x=0;x<nx-1;x++){var a=[value(p,x,y),value(p,x+1,y),value(p,x,y+1),value(p,x+1,y+1)];if(Math.min.apply(null,a)<=level&&Math.max.apply(null,a)>=level){var z=-.72*level/pmax+.008,q=xyz(x+.42,y+.5,z,nx,ny),r=xyz(x+.58,y+.5,z,nx,ny);v.push(q,r)}}}lineMatrix("contours",v)}
+function emitMetric(nx,ny,pmax,p,revision){var g00=matrix("metric_00"),g11=matrix("metric_11"),v=[],stride=4;if(!g00||!g11){clear("metric_grid",revision);return}for(var y=2;y<ny;y+=stride)for(var x=2;x<nx;x+=stride){var z=-.72*value(p,x,y)/pmax+.014,lx=.045*Math.sqrt(Math.max(0,value(g00,x,y))),ly=.045*Math.sqrt(Math.max(0,value(g11,x,y))),q=xyz(x,y,z,nx,ny);v.push([q[0]-lx,q[1],z],[q[0]+lx,q[1],z],[q[0],q[1]-ly,z],[q[0],q[1]+ly,z])}lineMatrix("metric_grid",v)}
+function emitHessian(nx,ny,pmax,p,revision){var h00=matrix("hessian_00"),h01=matrix("hessian_01"),h11=matrix("hessian_11"),v=[],stride=4;if(!h00||!h01||!h11){clear("hessian_glyphs",revision);return}for(var y=2;y<ny;y+=stride)for(var x=2;x<nx;x+=stride){var angle=.5*Math.atan2(2*value(h01,x,y),value(h00,x,y)-value(h11,x,y)),dx=.055*Math.cos(angle),dy=.055*Math.sin(angle),z=-.72*value(p,x,y)/pmax+.025,q=xyz(x,y,z,nx,ny);v.push([q[0]-dx,q[1]-dy,z],[q[0]+dx,q[1]+dy,z])}lineMatrix("hessian_glyphs",v)}
+function emitVector(prefix,outName,nx,ny,pmax,p,revision){var vx=matrix(prefix+"_x"),vy=matrix(prefix+"_y"),v=[],stride=4,max=1e-12;if(!vx||!vy){clear(outName,revision);return}for(var y=0;y<ny;y++)for(var x=0;x<nx;x++)max=Math.max(max,Math.sqrt(value(vx,x,y)*value(vx,x,y)+value(vy,x,y)*value(vy,x,y)));for(var yy=2;yy<ny;yy+=stride)for(var xx=2;xx<nx;xx+=stride){var z=-.72*value(p,xx,yy)/pmax+.035,q=xyz(xx,yy,z,nx,ny),dx=.09*value(vx,xx,yy)/max,dy=.09*value(vy,xx,yy)/max;v.push(q,[q[0]+dx,q[1]+dy,z])}lineMatrix(outName,v)}
+function emitTrajectory(revision){var t=matrix("trajectory"),v=[];if(!t){clear("trajectory",revision);return}var d=dims(t);for(var i=0;i<d[0];i++){var q=t.getcell1d(i),x=q instanceof Array?q[0]:0,y=q instanceof Array?q[1]:0;v.push([x,y,.09])}lineMatrix("trajectory",v)}

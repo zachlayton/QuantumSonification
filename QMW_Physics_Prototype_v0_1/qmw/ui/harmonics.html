@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QMW · Harmonic String</title>
+<style>
+*{box-sizing:border-box}body{background:#101e27;color:#dfedef;font:15px/1.5 system-ui;margin:0}main{max-width:1100px;margin:auto;padding:28px}h1{font-size:28px;margin:0}h2{font-size:18px;margin-top:0}.muted{color:#a0b9c2}header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}button,select,input{font:inherit}button,select,input[type=text]{background:#22343f;color:#dfedef;border:1px solid #48616a;border-radius:6px;padding:9px;cursor:pointer}button:hover,button.active{background:#78d9cc;color:#10252b}section{background:#172a35;border:1px solid #314e5a;border-radius:10px;padding:20px;margin:16px 0}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}label{display:block;margin:12px 0 4px}select,input[type=text]{width:100%}input[type=range]{width:100%;accent-color:#78d9cc}.lattice{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.lattice button{min-height:75px}.lattice small{display:block;font-size:12px}#selected{font-size:23px;color:#f4cc82}.trace{font:13px/1.6 monospace;max-height:220px;overflow:auto}#error{color:#ffb8a2}canvas{width:100%;height:160px}a{color:#78d9cc}@media(max-width:700px){.layout{grid-template-columns:1fr}header{display:block}}
+</style></head><body><main>
+<header><div><div class="muted">Quantum Music Workstation</div><h1>Harmonic string lattice</h1><div class="muted">One string, changing selected modes.</div></div><button id="audio">Enable string audio</button></header>
+<div id="error" role="status"></div>
+<section><div id="selected">Path: 2 → 3 → 5 → 7 → 5 → 3</div><p class="muted">I map each source event to a string mode. The event supplies the impulse; the string’s length, tension, mass and stiffness determine the mode frequency. Existing modes keep ringing.</p><div id="clock">Connecting to the physics source…</div></section>
+<div class="layout"><section><h2>Melodic traversal</h2><label for="excitation">Excitation</label><select id="excitation"><option value="harmonic">Selected harmonic / string mode</option><option value="contact">Physical point contact</option></select>
+<label for="traversal">Traversal</label><select id="traversal"><option value="walk">Advance one path step per source event</option><option value="region">Source region chooses a path node</option><option value="held">Hold the selected mode</option></select>
+<label for="path">Harmonic path (1–16)</label><input id="path" type="text" value="2, 3, 5, 7, 5, 3"><p class="muted">The path adds no rhythm clock. Click a lattice node to hold it for the next source event.</p>
+<label for="volume">Output gain</label><input id="volume" type="range" min="0" max="0.1" step="0.001" value="0.03"><div id="meter" class="muted">Output peak —</div>
+<label for="pickup">Left pickup position</label><input id="pickup" type="range" min="0.02" max="0.98" step="0.01" value="0.18">
+<button id="audition">Audition selected mode once</button><p class="muted">Audition is a manual 0.0015 N s impulse, separate from source events.</p>
+</section><section><h2>Modes 1–16</h2><div id="lattice" class="lattice"></div><p class="muted">L = 0.86 m · T = 90 N · μ = 0.008 kg/m · EI = 0.0025 N m². Stiffness makes upper modes slightly sharper than exact integer harmonics.</p></section></div>
+<section><h2>Source activity</h2><canvas id="field" width="1000" height="160"></canvas><div id="diagnostics" class="muted"></div><div id="trace" class="trace"></div></section>
+</main><script>
+'use strict';
+const $=id=>document.getElementById(id);
+let context=null,node=null,master=null,enabled=false,starting=false,gain=.03,frequencies=[],path=[2,3,5,7,5,3],step=0,held=2,seen=new Set(),run=null,lastTime=-1,baseline=false,model=null,polling=false;
+function error(message){$('error').textContent=message;}
+function highlight(n){held=n;for(const b of $('lattice').children)b.classList.toggle('active',Number(b.dataset.mode)===n);$('selected').textContent='Mode '+n+' · '+(frequencies[n-1]||0).toFixed(2)+' Hz';}
+function mapEvent(e){
+  if($('excitation').value==='contact')return e;
+  const traversal=$('traversal').value;
+  const region=Math.min(15,Math.max(0,Math.floor((e.position-.08)/.84*16)));
+  const n=traversal==='held'?held:traversal==='region'?path[region%path.length]:path[step++%path.length];
+  highlight(n);return {...e,harmonic_index:n};
+}
+function trace(e){const row=document.createElement('div');row.textContent=(e.harmonic_index?'Mode '+e.harmonic_index+' · '+frequencies[e.harmonic_index-1].toFixed(2)+' Hz':'Contact '+e.position.toFixed(3)+' L')+' · '+e.impulse_ns.toPrecision(3)+' N s · source t='+e.t.toFixed(3);$('trace').prepend(row);while($('trace').children.length>12)$('trace').lastChild.remove();}
+async function setup(){
+  if(node)return;
+  if(context)await context.close();context=new AudioContext();
+  const response=await fetch('/api/string?sample_rate='+context.sampleRate);if(!response.ok)throw Error('Mechanical coefficients unavailable');
+  const c=await response.json();frequencies=c.frequency_hz;buildLattice();
+  await context.audioWorklet.addModule('/harmonic-worklet.js');
+  node=new AudioWorkletNode(context,'physical-string',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:c});
+  master=context.createGain();master.gain.value=0;
+  const safety=context.createDynamicsCompressor();safety.threshold.value=-1;safety.knee.value=0;safety.ratio.value=20;safety.attack.value=.001;safety.release.value=.1;
+  node.connect(master);master.connect(safety);safety.connect(context.destination);
+  node.port.postMessage({pickups:[Number($('pickup').value),.31]});
+  node.port.onmessage=({data})=>{if(data.peak!=null){const peak=data.peak*gain;$('meter').textContent='Output peak '+(peak>0?(20*Math.log10(peak)).toFixed(1):'−∞')+' dBFS'+(peak>.8?' · lower output gain':'');}};
+  node.onprocessorerror=()=>{node.disconnect();node=null;enabled=false;$('audio').textContent='Enable string audio';error('Audio processor stopped; enable audio to restart.');};
+}
+$('audio').onclick=async()=>{if(starting)return;starting=true;try{await setup();await context.resume();enabled=!enabled;master.gain.setTargetAtTime(enabled?gain:0,context.currentTime,.02);$('audio').textContent=enabled?'Mute string audio':'Enable string audio';error('');}catch(e){error(e.message);}finally{starting=false;}};
+$('volume').oninput=()=>{gain=Number($('volume').value);if(master)master.gain.setTargetAtTime(enabled?gain:0,context.currentTime,.02);};
+$('pickup').oninput=()=>{if(node)node.port.postMessage({pickups:[Number($('pickup').value),.31]});};
+$('path').onchange=()=>{const candidate=$('path').value.trim().split(/[\s,]+/).map(Number);if(!candidate.length||candidate.some(n=>!Number.isInteger(n)||n<1||n>16)){error('Use mode numbers 1–16 separated by commas.');return;}path=candidate;step=0;error('');};
+$('audition').onclick=async()=>{try{await setup();await context.resume();enabled=true;master.gain.setTargetAtTime(gain,context.currentTime,.02);$('audio').textContent='Mute string audio';const e={t:0,impulse_ns:.0015,contact_s:.0015,width_m:.006,position:.23,harmonic_index:held};node.port.postMessage({event:e});highlight(held);error('');}catch(e){error(e.message);}};
+function buildLattice(){ $('lattice').replaceChildren();for(let n=1;n<=16;n++){const b=document.createElement('button');b.dataset.mode=n;b.textContent='H'+n;const hz=document.createElement('small');hz.textContent=frequencies[n-1]?frequencies[n-1].toFixed(1)+' Hz':'—';b.append(hz);b.onclick=()=>{$('excitation').value='harmonic';$('traversal').value='held';highlight(n);};$('lattice').append(b);}}
+function plot(values){const ctx=$('field').getContext('2d'),w=1000,h=160;ctx.clearRect(0,0,w,h);if(!values?.length)return;const max=Math.max(...values,1e-12);ctx.strokeStyle='#78d9cc';ctx.beginPath();values.forEach((v,i)=>{const x=i/(values.length-1)*w,y=h-8-(v/max)*(h-16);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();}
+async function refresh(){if(polling)return;polling=true;try{
+  const response=await fetch('/api/state');if(!response.ok)throw Error('Physics source unavailable');const s=await response.json();
+  if(run!==s.run_id||s.physics.t<lastTime||model!==s.controls.model){seen.clear();baseline=false;step=0;if(node)node.port.postMessage({clearContacts:true});}
+  run=s.run_id;model=s.controls.model;lastTime=s.physics.t;
+  const fresh=(s.force_history||[]).filter(e=>!seen.has(e.event_id));const batchStart=fresh.length?Math.min(...fresh.map(e=>e.t)):0;
+  for(const e of fresh){seen.add(e.event_id);if(baseline&&node){const mapped=mapEvent(e);node.port.postMessage({event:mapped,delay_s:Math.max(0,e.t-batchStart)});trace(mapped);}}
+  baseline=true;if(seen.size>4000)seen=new Set([...seen].slice(-2000));
+  $('clock').textContent=s.controls.model+' · source t='+s.physics.t.toFixed(3)+' · frame '+s.physics.sequence+' · '+(s.controls.running?'running':'paused');
+  const o=s.physics.observables;
+  $('diagnostics').textContent=(o.norm!=null?'Source norm / trace '+o.norm.toFixed(6):o.total_charge!=null?'Source charge '+o.total_charge.toFixed(6):'Source diagnostics')+' · energy '+(o.total_energy!=null?o.total_energy.toFixed(6):'unavailable')+(model==='lindblad'?' · no spatial flux coupling for this model':'');
+  plot(s.physics.observables.probability_density||s.visualization.field_magnitude);
+}catch(e){error(e.message);}finally{polling=false;}}
+buildLattice();fetch('/api/string').then(r=>r.json()).then(c=>{frequencies=c.frequency_hz;buildLattice();});refresh();setInterval(refresh,100);
+</script></body></html>

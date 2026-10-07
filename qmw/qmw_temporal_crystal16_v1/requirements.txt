@@ -1,0 +1,5 @@
+numpy>=1.26
+
+# Optional live OSC publication:
+# python-osc>=1.8
+

@@ -1,0 +1,274 @@
+// QMW Density-Field Harmonic-Modal Resonator 16 MC v4
+//
+// Musically coherent hybrid monitor. A restrained, phase-stable harmonic
+// carrier preserves the strong sixteen-harmonic reference of the earlier
+// instrument. Around it, quantum-field motion excites damped noise-driven
+// modes. Hamiltonian ratios deform the scaffold only by an explicit amount.
+//
+// Intended host:
+//   mc.gen~ @gen qmw_density_field_harmonic_modal_resonator16_mc_v3 @chans 16
+//
+// in1: fundamental frequency in Hz
+// out1: one resonant basis lane per MC channel
+
+Param m0(0);  Param m1(0);  Param m2(0);  Param m3(0);
+Param m4(0);  Param m5(0);  Param m6(0);  Param m7(0);
+Param m8(0);  Param m9(0);  Param m10(0); Param m11(0);
+Param m12(0); Param m13(0); Param m14(0); Param m15(0);
+
+Param ph0(0);  Param ph1(0);  Param ph2(0);  Param ph3(0);
+Param ph4(0);  Param ph5(0);  Param ph6(0);  Param ph7(0);
+Param ph8(0);  Param ph9(0);  Param ph10(0); Param ph11(0);
+Param ph12(0); Param ph13(0); Param ph14(0); Param ph15(0);
+
+Param s0(0);  Param s1(0);  Param s2(0);  Param s3(0);
+Param s4(0);  Param s5(0);  Param s6(0);  Param s7(0);
+Param s8(0);  Param s9(0);  Param s10(0); Param s11(0);
+Param s12(0); Param s13(0); Param s14(0); Param s15(0);
+
+Param h0(1);  Param h1(2);  Param h2(3);  Param h3(4);
+Param h4(5);  Param h5(6);  Param h6(7);  Param h7(8);
+Param h8(9);  Param h9(10); Param h10(11); Param h11(12);
+Param h12(13); Param h13(14); Param h14(15); Param h15(16);
+
+Param purity(1);
+Param entropy(0);
+Param coherence(0);
+
+Param amp(0.46);
+Param default_freq(55);
+Param magnitude_smooth_ms(80);
+Param harmonic_smooth_ms(180);
+Param harmonic_lock(1.0);
+Param quantum_spectrum_morph(0);
+Param max_quantum_detune_cents(50);
+Param reference_tone(0.20);
+Param excitation_attack_ms(4);
+Param ring_decay_ms(1250);
+Param transient_sensitivity(14);
+Param speed_drive(0.10);
+Param motion_threshold(0.025);
+Param phase_change_drive(0.02);
+Param excitation_floor(0.0002);
+Param resonance_q(34);
+Param coherence_q_depth(42);
+Param entropy_damping(0.68);
+Param brightness(0.72);
+Param output_ceiling(0.88);
+
+History smoothed_magnitude(0);
+History smoothed_ratio(1);
+History previous_magnitude(0);
+History previous_phase(0);
+History excitation_envelope(0);
+History ic1eq(0);
+History ic2eq(0);
+History dc_x(0);
+History dc_y(0);
+History reference_phase(0);
+
+lane_index = clamp(mc_channel - 1, 0, 15);
+
+lane_m =
+    (lane_index == 0) * m0 + (lane_index == 1) * m1 +
+    (lane_index == 2) * m2 + (lane_index == 3) * m3 +
+    (lane_index == 4) * m4 + (lane_index == 5) * m5 +
+    (lane_index == 6) * m6 + (lane_index == 7) * m7 +
+    (lane_index == 8) * m8 + (lane_index == 9) * m9 +
+    (lane_index == 10) * m10 + (lane_index == 11) * m11 +
+    (lane_index == 12) * m12 + (lane_index == 13) * m13 +
+    (lane_index == 14) * m14 + (lane_index == 15) * m15;
+
+lane_ph =
+    (lane_index == 0) * ph0 + (lane_index == 1) * ph1 +
+    (lane_index == 2) * ph2 + (lane_index == 3) * ph3 +
+    (lane_index == 4) * ph4 + (lane_index == 5) * ph5 +
+    (lane_index == 6) * ph6 + (lane_index == 7) * ph7 +
+    (lane_index == 8) * ph8 + (lane_index == 9) * ph9 +
+    (lane_index == 10) * ph10 + (lane_index == 11) * ph11 +
+    (lane_index == 12) * ph12 + (lane_index == 13) * ph13 +
+    (lane_index == 14) * ph14 + (lane_index == 15) * ph15;
+
+lane_s =
+    (lane_index == 0) * s0 + (lane_index == 1) * s1 +
+    (lane_index == 2) * s2 + (lane_index == 3) * s3 +
+    (lane_index == 4) * s4 + (lane_index == 5) * s5 +
+    (lane_index == 6) * s6 + (lane_index == 7) * s7 +
+    (lane_index == 8) * s8 + (lane_index == 9) * s9 +
+    (lane_index == 10) * s10 + (lane_index == 11) * s11 +
+    (lane_index == 12) * s12 + (lane_index == 13) * s13 +
+    (lane_index == 14) * s14 + (lane_index == 15) * s15;
+
+lane_h =
+    (lane_index == 0) * h0 + (lane_index == 1) * h1 +
+    (lane_index == 2) * h2 + (lane_index == 3) * h3 +
+    (lane_index == 4) * h4 + (lane_index == 5) * h5 +
+    (lane_index == 6) * h6 + (lane_index == 7) * h7 +
+    (lane_index == 8) * h8 + (lane_index == 9) * h9 +
+    (lane_index == 10) * h10 + (lane_index == 11) * h11 +
+    (lane_index == 12) * h12 + (lane_index == 13) * h13 +
+    (lane_index == 14) * h14 + (lane_index == 15) * h15;
+
+pur = clamp(purity, 0, 1);
+ent = clamp(entropy, 0, 1);
+coh = clamp(coherence, 0, 1);
+speed = clamp(abs(lane_s), 0, 1);
+effective_speed = clamp(
+    (speed - motion_threshold) / max(1 - motion_threshold, 0.001),
+    0,
+    1
+);
+target_magnitude = clamp(lane_m, 0, 1);
+
+mag_seconds = max(magnitude_smooth_ms, 0.1) * 0.001;
+mag_coeff = exp(-1 / max(mag_seconds * samplerate, 1));
+smoothed_magnitude = target_magnitude
+    + mag_coeff * (smoothed_magnitude - target_magnitude);
+
+harmonic_ratio = lane_index + 1;
+quantum_ratio = max(lane_h, 0.01);
+
+// Harmonic Lock is now a true stability control. At 1 the bank is exactly
+// harmonic. At 0 the conductor may bend each partial only within the stated
+// cents window. Fifty cents is narrow enough to preserve the order of all
+// sixteen adjacent harmonic lanes.
+max_detune_octaves = clamp(max_quantum_detune_cents, 0, 50) / 1200;
+quantum_deviation_octaves = log(max(quantum_ratio / harmonic_ratio, 0.000001))
+    / log(2);
+bounded_deviation_octaves = clamp(
+    quantum_deviation_octaves,
+    -max_detune_octaves,
+    max_detune_octaves
+);
+bounded_quantum_ratio = harmonic_ratio
+    * pow(2, bounded_deviation_octaves);
+locked_ratio = mix(
+    bounded_quantum_ratio,
+    harmonic_ratio,
+    clamp(harmonic_lock, 0, 1)
+);
+
+// Raw Hamiltonian-gap tuning is deliberately separate. It can radically
+// reorganize pitch, but no longer happens accidentally when Lock is reduced.
+target_ratio = mix(
+    locked_ratio,
+    quantum_ratio,
+    clamp(quantum_spectrum_morph, 0, 1)
+);
+
+// MIDI/key pitch remains an unambiguous fundamental in every mode.
+target_ratio = (lane_index == 0) + (lane_index > 0) * target_ratio;
+
+ratio_seconds = max(harmonic_smooth_ms, 0.1) * 0.001;
+ratio_coeff = exp(-1 / max(ratio_seconds * samplerate, 1));
+smoothed_ratio = target_ratio
+    + ratio_coeff * (smoothed_ratio - target_ratio);
+
+// Field motion injects energy. A change of population makes a sharp strike;
+// sustained state velocity behaves more like breath or bow pressure.
+magnitude_change = abs(target_magnitude - previous_magnitude);
+phase_change = abs(atan2(
+    sin(lane_ph - previous_phase),
+    cos(lane_ph - previous_phase)
+)) / 3.141592653589793;
+previous_magnitude = target_magnitude;
+previous_phase = lane_ph;
+
+transient_strike = clamp(
+    transient_sensitivity * magnitude_change
+    + phase_change_drive * phase_change,
+    0,
+    1
+) * sqrt(smoothed_magnitude);
+
+floor_energy = max(excitation_floor, 0)
+    * (0.15 + 0.85 * sqrt(smoothed_magnitude));
+sustained_energy = speed_drive
+    * effective_speed
+    * sqrt(smoothed_magnitude);
+target_energy = max(sustained_energy, floor_energy);
+
+attack_seconds = max(excitation_attack_ms, 0.1) * 0.001;
+attack_coeff = exp(-1 / max(attack_seconds * samplerate, 1));
+
+// Fast-moving lanes ring for less time; coherent pure states ring longer.
+effective_decay_ms = max(
+    ring_decay_ms
+    * mix(1.20, 0.55, effective_speed)
+    * mix(0.72, 1.18, pur * coh),
+    8
+);
+decay_coeff = exp(-1 / max(effective_decay_ms * 0.001 * samplerate, 1));
+
+excitation_envelope =
+    (target_energy > excitation_envelope)
+    * (target_energy + attack_coeff
+        * (excitation_envelope - target_energy))
+    +
+    (target_energy <= excitation_envelope)
+    * (target_energy + decay_coeff
+        * (excitation_envelope - target_energy));
+
+// Population and phase discontinuities are true strikes. They bypass the
+// slower sustained-energy attack so a one-sample parameter change cannot be
+// averaged away.
+excitation_envelope = max(excitation_envelope, transient_strike);
+
+// A TPT state-variable bandpass is the actual resonant body. The quantum
+// state changes its excitation and damping; it does not directly sweep an
+// oscillator phase.
+base_frequency = (in1 > 0) * in1 + (in1 <= 0) * default_freq;
+mode_frequency = clamp(
+    base_frequency * smoothed_ratio,
+    20,
+    samplerate * 0.44
+);
+
+// The reference carrier never receives the conductor's phase. It supplies a
+// stable musical ruler; quantum phase remains reserved for the analytic
+// Hilbert projection downstream.
+reference_phase = fract(reference_phase + mode_frequency / samplerate);
+
+q_target = resonance_q
+    + coherence_q_depth * coh * pur;
+q_effective = clamp(
+    q_target * (1 - entropy_damping * ent),
+    2,
+    90
+);
+
+raw_excitation = noise();
+drive = raw_excitation
+    * excitation_envelope
+    * mix(0.68, 1.15, ent);
+
+g = tan(3.141592653589793 * mode_frequency / samplerate);
+k = 1 / q_effective;
+a1 = 1 / (1 + g * (g + k));
+a2 = g * a1;
+a3 = g * a2;
+
+v3 = drive - ic2eq;
+v1 = a1 * ic1eq + a2 * v3;
+v2 = ic2eq + a2 * ic1eq + a3 * v3;
+ic1eq = 2 * v1 - ic1eq;
+ic2eq = 2 * v2 - ic2eq;
+
+q_normalization = sqrt(q_effective * 0.08);
+spectral_rolloff = 1 / pow(max(smoothed_ratio, 1), brightness * 0.55);
+reference_signal = sin(6.283185307179586 * reference_phase)
+    * sqrt(smoothed_magnitude)
+    * spectral_rolloff
+    * clamp(reference_tone, 0, 0.5);
+modal_raw = v1
+    * q_normalization
+    * spectral_rolloff
+    * amp;
+
+// Remove sub-audio residue without limiting the internal resonance.
+dc_coeff = exp(-6.283185307179586 * 18 / samplerate);
+modal_dc = modal_raw - dc_x + dc_coeff * dc_y;
+dc_x = modal_raw;
+dc_y = modal_dc;
+
+out1 = (reference_signal + modal_dc) * output_ceiling;

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qmw-physics-prototype"
+version = "0.1.0"
+description = "Inspectable equation-driven physics and sound prototype for QMW"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "scipy>=1.10"]
+
+[project.scripts]
+qmw-physics = "qmw.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["qmw*"]
+
+[tool.setuptools.package-data]
+qmw = ["ui/*.html"]
