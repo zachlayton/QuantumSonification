@@ -79,21 +79,21 @@ class QuantumGranularProjector:
         p = np.clip(np.asarray(populations, dtype=float), 0.0, None)
         total = float(np.sum(p))
         if total <= 1e-15:
-            return np.full_like(p, 1.0 / max(1, p.size))
+            return np.zeros_like(p)
         return p / total
 
     @staticmethod
     def _site_entropy(populations: np.ndarray) -> float:
         p = QuantumGranularProjector._normalized_site_distribution(populations)
         nonzero = p[p > 1e-15]
-        if p.size <= 1:
+        if p.size <= 1 or nonzero.size == 0:
             return 0.0
         return float(-np.sum(nonzero * np.log(nonzero)) / np.log(p.size))
 
     @staticmethod
     def _population_center(populations: np.ndarray) -> float:
         p = QuantumGranularProjector._normalized_site_distribution(populations)
-        if p.size <= 1:
+        if p.size <= 1 or float(np.sum(p)) <= 1e-15:
             return 0.5
         positions = np.linspace(0.0, 1.0, p.size)
         return float(np.dot(positions, p))
@@ -108,7 +108,11 @@ class QuantumGranularProjector:
         if activity <= 1e-15:
             return 0.0, 0.5, 0.0
         direction = float(np.clip(np.sum(j) / activity, -1.0, 1.0))
-        edge_positions = (np.arange(j.size, dtype=float) + 0.5) / j.size
+        edge_positions = (
+            np.asarray([0.5], dtype=float)
+            if j.size == 1
+            else np.linspace(0.0, 1.0, j.size)
+        )
         center = float(np.dot(edge_positions, magnitude) / activity)
         return direction, center, activity
 
