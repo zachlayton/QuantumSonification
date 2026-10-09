@@ -44,6 +44,21 @@ parameters; two independent parameter writers would overwrite one another.
 No density-field route, density engine, conductor registration or feedback
 matrix is changed by this experiment.
 
+## SuperCollider with spatial deformation
+
+The same field stream also drives the native SuperCollider instrument in
+`supercollider/qmw_yang_mills_modal_v1.scd`. Send to its printed language port:
+
+```bash
+python -m yang_mills_v1 --osc --port 57120 --steps 0
+```
+
+Its `~qmwYMDeformation.(0..1)` control applies an area-preserving spatial flow
+to the sixteen-lane excitation map while keeping modal frequencies fixed.
+`~qmwYMCoupling.(0..1)` independently sets field-excitation gain. See
+[`QMW_YANG_MILLS_MODAL_V1.md`](../supercollider/QMW_YANG_MILLS_MODAL_V1.md) for
+loading, GUI controls, the conservation contract and native integration tests.
+
 ## Numerical model
 
 This is source-free classical Hamiltonian Yang–Mills evolution in **2+1

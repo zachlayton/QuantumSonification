@@ -1,5 +1,25 @@
 # QMW + SuperCollider
 
+## Yang–Mills modal resonator and spatial deformation
+
+Load `qmw_yang_mills_modal_v1.scd` by its saved path, then stream the classical
+SU(2) module to the printed language port:
+
+```sh
+python -m yang_mills_v1 --osc --port 57120 --steps 0
+```
+
+Raise the initially muted master with `~qmwYMMaster.(0.15)`. Use
+`~qmwYMDeformation.(0.5)` to redistribute excitation through an area-preserving
+spatial flow, `~qmwYMCoupling.(0.7)` for independent excitation gain, and
+`~qmwYMGui.()` for the controls. Sixteen native noise-excited `Ringz` modes retain
+fixed harmonic tuning. Python remains the field solver.
+
+See [`QMW_YANG_MILLS_MODAL_V1.md`](QMW_YANG_MILLS_MODAL_V1.md) for loading,
+controls, the excitation-power conservation contract, lifecycle and actual
+SuperCollider integration tests.
+
+
 The project-wide Max-to-SuperCollider priorities, including geometry, modal,
 wavetable, Bohmian, and excitation systems, are in
 [`PORTING_PLAN.md`](PORTING_PLAN.md).
@@ -214,3 +234,4 @@ summed granular output; it does not run as a parallel sine oscillator layer.
 Evaluate the file and test without Python using `~qmwZGTest.()`. For live data,
 start the conductor with `--supercollider-port 57120`. Use `~qmwZGStatus.()` to
 confirm frames and `~qmwZGStop.()` to free the instrument.
+
