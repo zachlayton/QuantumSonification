@@ -23,6 +23,12 @@ from qmw.core.data_processing import (
     slice_bits,
     slice_shots,
 )
+from qmw.core.physics_frame import (
+    DEFAULT_FRAME_SAMPLES,
+    PhysicsFrame,
+    QuantumFrame,
+    QuantumFrameAccumulator,
+)
 from qmw.core.primitives import (
     DEFAULT_QMW_REGISTERS,
     EstimatorBatchRequest,
@@ -42,6 +48,7 @@ __all__ = [
     "BitArray",
     "ClassicalRegister",
     "DATA_OPERATORS",
+    "DEFAULT_FRAME_SAMPLES",
     "DEFAULT_QMW_REGISTERS",
     "EstimatorBatchRequest",
     "EstimatorBatchResult",
@@ -51,9 +58,12 @@ __all__ = [
     "MeasurementEventBus",
     "MeasurementHistoryAnalysis",
     "MeasurementStats",
+    "PhysicsFrame",
     "QuantumDataOperator",
     "QuantumDataProcessing",
     "QuantumDataBus",
+    "QuantumFrame",
+    "QuantumFrameAccumulator",
     "QuantumStateFrame",
     "SamplerRequest",
     "SamplerResult",
