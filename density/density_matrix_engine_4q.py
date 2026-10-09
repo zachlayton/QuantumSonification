@@ -35,6 +35,7 @@ from guidance.live_bohm_guidance_v1 import (
     LiveBohmGuidance,
 )
 from guidance.four_qubit_configuration_guidance_v1 import current_matrix
+from qmw.core import QuantumDataBus, QuantumFrameAccumulator, QuantumStateFrame
 from hamiltonian.hamiltonian_state import HamiltonianState
 from hamiltonian.hamiltonian_translator_v1 import HamiltonianTranslator
 from qmw_circuit_bridge import PilotFrame, QMWCircuitBridge
@@ -410,9 +411,21 @@ class DensityMatrixEngine:
         state_publication: StatePublicationConfig | None = None,
         bohm_config: BohmGuidanceConfig | None = None,
         temporal_layer: LiveTemporalLayer16 | None = None,
+        data_bus: QuantumDataBus | None = None,
+        trajectory_samples: int = 2048,
     ):
         self.rng = np.random.default_rng()
         self.verbose = bool(verbose)
+
+        # QMW live-state publication. QuantumStateFrame remains the one-tick
+        # transport object; QuantumFrameAccumulator builds the canonical
+        # 2048-sample PhysicsFrame trajectory without changing engine ownership.
+        self.data_bus = data_bus or QuantumDataBus()
+        self.physics_frame_accumulator = QuantumFrameAccumulator(
+            samples=int(trajectory_samples)
+        )
+        self.data_bus.state_bus.subscribe(self.physics_frame_accumulator)
+        self.latest_state_frame: QuantumStateFrame | None = None
 
         self.params = {
         # Noise
@@ -1607,6 +1620,126 @@ class DensityMatrixEngine:
             event.osc_payload(),
         )
 
+    @staticmethod
+    def _statevector_if_pure(rho, tolerance=1e-9):
+        """Return a canonical statevector only when rho is numerically pure.
+
+        Mixed density operators do not have a unique psi, so the live frame
+        deliberately omits psi in that case rather than fabricating one.
+        """
+        state = normalize_density(rho)
+        eigenvalues, eigenvectors = np.linalg.eigh(state)
+        index = int(np.argmax(eigenvalues))
+        dominant = float(np.real(eigenvalues[index]))
+        residual = float(np.sum(np.clip(np.real(eigenvalues), 0.0, None)) - dominant)
+        if abs(1.0 - dominant) > tolerance or residual > tolerance:
+            return None
+
+        psi = np.asarray(eigenvectors[:, index], dtype=np.complex128)
+        pivot = int(np.argmax(np.abs(psi)))
+        if abs(psi[pivot]) > 1e-15:
+            psi = psi * np.exp(-1j * np.angle(psi[pivot]))
+        return psi
+
+    @staticmethod
+    def _exchange_edge_currents(hamiltonian, rho):
+        """Aggregate computational-basis current over q0-q1-q2-q3 exchanges.
+
+        The underlying current matrix uses J[m,n] > 0 for flow n -> m.
+        Each reported edge sums only basis transitions that exchange one
+        excitation 10 -> 01 across that neighboring qubit pair while leaving
+        the other two bits unchanged. Positive current therefore means
+        q0->q1, q1->q2, or q2->q3 respectively.
+        """
+        currents = current_matrix(hamiltonian, rho)
+        edge_values = np.zeros(3, dtype=float)
+
+        for edge, (left, right) in enumerate(((0, 1), (1, 2), (2, 3))):
+            total = 0.0
+            for source in range(DIMENSION):
+                bits = list(format(source, "04b"))
+                if bits[left] != "1" or bits[right] != "0":
+                    continue
+                destination_bits = bits.copy()
+                destination_bits[left] = "0"
+                destination_bits[right] = "1"
+                destination = int("".join(destination_bits), 2)
+                total += float(currents[destination, source])
+            edge_values[edge] = total
+
+        return edge_values
+
+    def _publish_state_frame(self, hamiltonian, dt, local_bloch=None):
+        """Publish the authoritative post-step quantum state to QMW StateBus."""
+        state = normalize_density(self.rho)
+        hamiltonian = np.asarray(hamiltonian, dtype=np.complex128)
+        bloch = (
+            self.local_bloch_vectors(state)
+            if local_bloch is None
+            else np.asarray(local_bloch, dtype=float)
+        )
+
+        site_populations = np.clip(
+            0.5 * (1.0 - bloch[:, 2]),
+            0.0,
+            1.0,
+        )
+        edge_currents = self._exchange_edge_currents(
+            hamiltonian,
+            state,
+        )
+        energy = float(np.real(np.trace(state @ hamiltonian)))
+        commutator = hamiltonian @ state - state @ hamiltonian
+        commutator_activity = float(np.linalg.norm(commutator, ord="fro"))
+        purity_value = float(np.real(np.trace(state @ state)))
+        psi = self._statevector_if_pure(state)
+
+        arrays = {
+            "site_populations": site_populations,
+            "pauli_x": bloch[:, 0].copy(),
+            "pauli_y": bloch[:, 1].copy(),
+            "pauli_z": bloch[:, 2].copy(),
+            "edge_currents": edge_currents,
+        }
+        if psi is not None:
+            arrays["psi"] = psi
+
+        frame = QuantumStateFrame(
+            t=float(self.logical_time),
+            dt=float(dt),
+            rho=state.copy(),
+            hamiltonian=hamiltonian.copy(),
+            source_name="density_matrix_engine_4q",
+            source_descriptor=self.source_descriptor,
+            observables={
+                "energy": energy,
+                "purity": purity_value,
+                "commutator_activity": commutator_activity,
+            },
+            arrays=arrays,
+            metadata={
+                "state_revision": int(self.state_revision),
+                "configuration_revision": int(self.configuration_revision),
+                "last_event_id": int(self.last_event_id),
+                "last_event_type": str(self.last_event_type),
+                "psi_available": psi is not None,
+                "excitation_source": str(self.excitation_source_kind),
+            },
+        )
+        self.latest_state_frame = frame
+        self.data_bus.publish_state(frame)
+        return frame
+
+    @property
+    def physics_frame_ready(self):
+        return self.physics_frame_accumulator.ready
+
+    def physics_frame(self, require_full=True):
+        """Return the accumulated live PhysicsFrame trajectory on demand."""
+        return self.physics_frame_accumulator.to_physics_frame(
+            require_full=bool(require_full)
+        )
+
     def partial_trace(self, rho, keep, n_qubits=4):
         """
         Trace out all qubits except those listed in `keep`.
@@ -2106,6 +2239,13 @@ class DensityMatrixEngine:
             },
         }
 
-    
-    
+        # 7. Publish one authoritative live tick. The subscribed
+        # QuantumFrameAccumulator turns these ticks into the canonical
+        # 2048-sample PhysicsFrame without copying a full trajectory each step.
+        self._publish_state_frame(
+            hamiltonian,
+            dt,
+            local_bloch=local_bloch,
+        )
+
         return self.rho
