@@ -36,6 +36,8 @@ from guidance.live_bohm_guidance_v1 import (
 )
 from guidance.four_qubit_configuration_guidance_v1 import current_matrix
 from qmw.core import QuantumDataBus, QuantumFrameAccumulator, QuantumStateFrame
+from qmw.io import GranularOSCPublisher, LiveGranularBridge
+from qmw.projectors import QuantumGranularProjector
 from hamiltonian.hamiltonian_state import HamiltonianState
 from hamiltonian.hamiltonian_translator_v1 import HamiltonianTranslator
 from qmw_circuit_bridge import PilotFrame, QMWCircuitBridge
@@ -413,6 +415,9 @@ class DensityMatrixEngine:
         temporal_layer: LiveTemporalLayer16 | None = None,
         data_bus: QuantumDataBus | None = None,
         trajectory_samples: int = 2048,
+        enable_granular_output: bool = True,
+        granular_osc_host: str = "127.0.0.1",
+        granular_osc_port: int = 7405,
     ):
         self.rng = np.random.default_rng()
         self.verbose = bool(verbose)
@@ -426,6 +431,23 @@ class DensityMatrixEngine:
         )
         self.data_bus.state_bus.subscribe(self.physics_frame_accumulator)
         self.latest_state_frame: QuantumStateFrame | None = None
+
+        # Granular synthesis is a subscriber/projection layer, not part of
+        # quantum evolution. The same projector serves immediate live ticks and
+        # complete 2048-sample PhysicsFrame blocks.
+        self.granular_projector = QuantumGranularProjector()
+        self.granular_publisher = None
+        self.granular_bridge = None
+        if enable_granular_output:
+            self.granular_publisher = GranularOSCPublisher(
+                projector=self.granular_projector,
+                host=str(granular_osc_host),
+                port=int(granular_osc_port),
+            )
+            self.granular_bridge = LiveGranularBridge(
+                self.data_bus.state_bus,
+                self.granular_publisher,
+            )
 
         self.params = {
         # Noise
@@ -1739,6 +1761,24 @@ class DensityMatrixEngine:
         return self.physics_frame_accumulator.to_physics_frame(
             require_full=bool(require_full)
         )
+
+    def granular_controls(self, require_full=True):
+        """Project the accumulated live PhysicsFrame into grain controls."""
+        return self.granular_projector.project(
+            self.physics_frame(require_full=require_full)
+        )
+
+    @property
+    def last_granular_control(self):
+        if self.granular_bridge is None:
+            return None
+        return self.granular_bridge.last_control
+
+    def close_granular_output(self):
+        if self.granular_bridge is not None:
+            self.granular_bridge.close()
+            self.granular_bridge = None
+            self.granular_publisher = None
 
     def partial_trace(self, rho, keep, n_qubits=4):
         """
