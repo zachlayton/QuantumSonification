@@ -214,3 +214,32 @@ summed granular output; it does not run as a parallel sine oscillator layer.
 Evaluate the file and test without Python using `~qmwZGTest.()`. For live data,
 start the conductor with `--supercollider-port 57120`. Use `~qmwZGStatus.()` to
 confirm frames and `~qmwZGStop.()` to free the instrument.
+
+## Hyperbolic paraboloid pulse matrix
+
+`qmw_hyperbolic_paraboloid_pulse_matrix_v1.scd` is a self-contained,
+Python-free sonification of the `hyperbolic_paraboloid` surface added to
+`operators/algebraic_surface_pipeline_v1.py` (`z = a * (x^2 - y^2)`). Rather
+than solving eigenmodes, it plays the surface's own (x, y) sampling grid
+directly as a time x pitch matrix: column (x) is time, scanning the saddle
+across the piece; row (y) is pitch, one partial per row; height (z) sets
+each pulse's amplitude, decay, and pan, so the saddle's positive lobe
+(`x^2 > y^2`) and negative lobe (`y^2 > x^2`) read as loud/short/right-panned
+versus quiet/long/left-panned pulses, and the near-diagonal ridge where
+`z ~ 0` carves an audible silent "X" through the piece.
+
+Evaluate the file, then:
+
+```supercollider
+~qmwHPPlay.();   // play live (boot a server first)
+~qmwHPStop.();   // stop early
+```
+
+To bounce directly to a WAV without a live server or audio device:
+
+```supercollider
+~qmwHPRenderNRT.("/absolute/path/out.wav");   // 30-second stereo render
+```
+
+Both paths share one `~qmwHPPulses` geometry function, so the live and
+offline renders are always the same piece.

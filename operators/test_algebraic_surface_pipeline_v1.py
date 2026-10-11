@@ -76,6 +76,47 @@ class AlgebraicSurfacePipelineTests(unittest.TestCase):
             )
             np.testing.assert_allclose(rhino_vertex, meter_vertex * 1000.0)
 
+    def test_hyperbolic_paraboloid_is_open_connected_manifold(self) -> None:
+        config = AlgebraicSurfaceConfig(
+            surface="hyperbolic_paraboloid",
+            parameter=1.0,
+            resolution=16,
+            radius_m=0.2,
+        )
+        vertices, faces = marching_tetrahedra(config)
+        self.assertGreater(len(faces), 0)
+        self.assertTrue(
+            np.isclose(np.max(np.linalg.norm(vertices, axis=1)), 0.2)
+        )
+        candidate = GrasshopperMeshCandidate(
+            revision=1,
+            vertices=vertices,
+            faces=faces,
+            source="test",
+        )
+        diagnostics = candidate.validate(
+            MeshValidationPolicy(require_closed=False)
+        )
+        self.assertEqual(diagnostics.connected_components, 1)
+        self.assertGreater(diagnostics.boundary_edge_count, 0)
+        self.assertEqual(diagnostics.nonmanifold_edge_count, 0)
+
+    def test_hyperbolic_paraboloid_candidate_generation_succeeds(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            candidate, paths = generate_candidate(
+                AlgebraicSurfaceConfig(
+                    surface="hyperbolic_paraboloid",
+                    parameter=1.0,
+                    resolution=14,
+                    radius_m=0.1,
+                ),
+                Path(directory),
+            )
+            self.assertEqual(
+                candidate.metadata["surface"], "hyperbolic_paraboloid"
+            )
+            self.assertTrue(paths["obj"].exists())
+
 
 if __name__ == "__main__":
     unittest.main()
