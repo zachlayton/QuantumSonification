@@ -91,3 +91,27 @@ def test_live_density_engine_does_not_invent_psi_for_mixed_state():
     trajectory = engine.physics_frame()
     assert trajectory.psi is None
     assert trajectory.rho.shape == (1, 16, 16)
+
+
+def test_live_2048_frame_exports_graph_musicxml(tmp_path):
+    from music21 import converter
+    from procedural_notation_v1.physics_frame_score import write_physics_frame_score
+    from procedural_notation_v1.generate_physics_frame_score import example_frame
+    import json
+
+    reference = example_frame()
+    engine = _bare_engine(reference.rho[0], samples=2048)
+    hamiltonian = np.diag(np.linspace(-1, 1, 16))
+    for i in range(2048):
+        engine.rho = reference.rho[i].copy()
+        engine.logical_time = reference.t[i]
+        engine._publish_state_frame(hamiltonian, reference.t[1] - reference.t[0])
+    assert engine.physics_frame_ready
+    captured = engine.physics_frame()
+    output = write_physics_frame_score(
+        captured, tmp_path / "live.musicxml", sample_indices=[0, 2047],
+    )
+    assert len(converter.parse(output).parts) == 32
+    timing = json.loads(output.with_suffix(".timing.json").read_text())
+    assert timing["physical_times"] == [captured.t[0], captured.t[-1]]
+    np.testing.assert_allclose(captured.rho, reference.rho)
