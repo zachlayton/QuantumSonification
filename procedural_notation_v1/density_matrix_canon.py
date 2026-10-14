@@ -29,6 +29,7 @@ def build_density_matrix_cable_net_canon(
     snapshot_gap_ticks: int = 4,
     transpose_collections: bool = False,
     fixed_set_transpositions: Sequence[int] | None = None,
+    snapshot_onset_ticks: Sequence[int] | None = None,
 ) -> nx.DiGraph:
     """Use matrix magnitude, phase, and populations as a 32-voice score."""
     if cable_net.graph.get("rows") != 16 or cable_net.graph.get("columns") != 16:
@@ -58,6 +59,21 @@ def build_density_matrix_cable_net_canon(
             )
         ):
             raise ValueError("fixed_set_transpositions must contain five distinct integers")
+
+    if snapshot_onset_ticks is None:
+        snapshot_onset_ticks = tuple(
+            i * (16 * slot_ticks + snapshot_gap_ticks)
+            for i in range(len(density_snapshots))
+        )
+    else:
+        snapshot_onset_ticks = tuple(snapshot_onset_ticks)
+        if (len(snapshot_onset_ticks) != len(density_snapshots)
+                or any(isinstance(t, bool) or not isinstance(t, int) or t < 0
+                       for t in snapshot_onset_ticks)):
+            raise ValueError("snapshot_onset_ticks must contain one nonnegative integer per snapshot")
+        if any(b - a < 16 * slot_ticks for a, b in
+               zip(snapshot_onset_ticks, snapshot_onset_ticks[1:])):
+            raise ValueError("snapshot onsets must leave room for each 16-slot traversal")
 
     observable_values = tuple(
         weighted_z_expectation(density)
@@ -92,6 +108,7 @@ def build_density_matrix_cable_net_canon(
             coherence_threshold=coherence_threshold,
             slot_ticks=slot_ticks,
             snapshot_gap_ticks=snapshot_gap_ticks,
+            snapshot_onset_ticks=snapshot_onset_ticks,
             transpose_collections=transpose_collections,
             snapshot_transpositions=snapshot_transpositions,
             fixed_set_transpositions=fixed_set_transpositions,
@@ -110,6 +127,7 @@ def build_density_matrix_cable_net_canon(
             coherence_threshold=coherence_threshold,
             slot_ticks=slot_ticks,
             snapshot_gap_ticks=snapshot_gap_ticks,
+            snapshot_onset_ticks=snapshot_onset_ticks,
             transpose_collections=transpose_collections,
             snapshot_transpositions=snapshot_transpositions,
             fixed_set_transpositions=fixed_set_transpositions,
@@ -130,6 +148,7 @@ def build_density_matrix_cable_net_canon(
         voices=tuple(voices),
         voice_count=32,
         snapshot_count=len(density_snapshots),
+        snapshot_onset_ticks=tuple(snapshot_onset_ticks),
         coherence_threshold=float(coherence_threshold),
         slot_ticks=slot_ticks,
         snapshot_gap_ticks=snapshot_gap_ticks,
@@ -168,13 +187,13 @@ def _add_density_voice(
     coherence_threshold: float,
     slot_ticks: int,
     snapshot_gap_ticks: int,
+    snapshot_onset_ticks: Sequence[int],
     transpose_collections: bool,
     snapshot_transpositions: Sequence[int],
     fixed_set_transpositions: Sequence[int] | None,
 ) -> None:
     collection = TORUS_HEXATONIC_SET if family == "ket" else TORUS_PENTATONIC_SET
     previous_event = None
-    snapshot_span = 16 * slot_ticks + snapshot_gap_ticks
     for snapshot_index, density in enumerate(density_snapshots):
         maximum_magnitude = float(np.max(np.abs(density)))
         moving_indices = (
@@ -204,7 +223,7 @@ def _add_density_voice(
                 duration_ticks = max(duration_ticks, 3)
             onset_tick = (
                 entry_index
-                + snapshot_index * snapshot_span
+                + snapshot_onset_ticks[snapshot_index]
                 + local_step * slot_ticks
                 + phase_offset_ticks
             )
@@ -318,6 +337,8 @@ def _ranked_fixed_transpositions(
 
 
 def _validate_density_matrix(density: np.ndarray) -> None:
+    if not np.all(np.isfinite(density)):
+        raise ValueError("density matrix must be finite")
     if density.shape != (16, 16):
         raise ValueError("every density matrix must have shape 16 by 16")
     if not np.allclose(density, density.conj().T):
