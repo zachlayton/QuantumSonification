@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0-prototype",
+  "base_repository": "zachlayton/QuantumSonification",
+  "base_branch": "preservation/code-only-2026-10-07",
+  "base_commit": "a6bf1f2fba996498271e0e12de06d6a12a4d4818",
+  "base_instrument": "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v4_2b.scd",
+  "effects_implementation": "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v3.scd",
+  "effects_mixer": "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_v42b_audio_bus_mixer.scd",
+  "spatial_renderer_source": "QMW_CRAIVE_Spat128_v9",
+  "audio_hardware_channels": {
+    "1-2": "existing processed stereo output, including hybrid stereo and shared FX",
+    "3-4": "existing continuous field stereo",
+    "5-20": "optional hybrid dry displacement pickups"
+  },
+  "osc_ports": {
+    "sc_hybrid": 17920,
+    "hamiltonian_controls": 17921
+  },
+  "physics": {
+    "hbar": 1,
+    "mass": 1,
+    "domain": [
+      -1,
+      1
+    ],
+    "boundary": "Dirichlet",
+    "points": 128,
+    "modes_projected": 16,
+    "default_model_rate": 0.1,
+    "projection_hz": 30
+  },
+  "default_synthesis": {
+    "density": 8,
+    "duration": 0.08,
+    "carrier": 165,
+    "center": 0.5,
+    "width": 0.15,
+    "f0": 55,
+    "decay": 2,
+    "gain": 0.03,
+    "blend": 0,
+    "attack": 0.1,
+    "release": 1,
+    "envelopeDepth": 0,
+    "densityDepth": 0,
+    "normalize": 1,
+    "fxSend": 0,
+    "spatial": 0,
+    "phase": 0
+  },
+  "physical_temperature_supported": false,
+  "max_spat_hardware_validation": "pending"
+}
