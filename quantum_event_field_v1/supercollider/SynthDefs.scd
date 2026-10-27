@@ -3,19 +3,39 @@ FX equations below are retained from the v4.2b-loaded v3 pulse voice. */
 (
 ~qefDefine = {
     var voice = SynthDef(\qefWaveletV1, {
-        |out=0, popBus=0, site=0, source=1, duration=0.3, strength=0.5|
+        |out=0, popBus=0, site=0, source=1, duration=0.3, strength=0.5,
+        obsBus=0, mappingBus=0, mappingEnabled=0, pairIndex=0, pairDirection=1|
         var p = In.kr(popBus, 4).max(0);
         var pa = Select.kr(site, p), pb = Select.kr(source, p);
         var morph = Lag.kr(pb / (pa + pb).max(1e-9), 0.01);
         var weightsA = \weightsA.kr([0.25, 0.25, 0.25, 0.25]);
         var weightsB = \weightsB.kr([0.25, 0.25, 0.25, 0.25]);
-        var weights = ((weightsA * (1-morph)) + (weightsB * morph)).max(0).sqrt;
+        var values = Lag.kr(In.kr(obsBus, 16), 0.01);
+        var mapping = In.kr(mappingBus, 4) * mappingEnabled.clip(0, 1);
+        var depth = Lag.kr(mapping.copyRange(0, 2).clip(0, 1), 0.03);
+        var pairRe = Select.kr(pairIndex.clip(0, 5), values.copyRange(0, 5));
+        var pairIm = Select.kr(pairIndex.clip(0, 5), values.copyRange(6, 11)) * pairDirection;
+        var coherence = (2 * (pairRe.squared + pairIm.squared).sqrt).clip(0, 1);
+        var phase = pairIm.atan2(pairRe);
+        var power = ((weightsA * (1-morph)) + (weightsB * morph)).max(0);
+        var tilted = power * (1 + ((0..3) * coherence * depth[0]));
+        // At depth zero this is the original power envelope, exactly.
+        var weights = (tilted * (power.sum / tilted.sum.max(1e-9))).sqrt;
+        var angle = phase * (1..4);
+        var carriers = SinOsc.ar(110 * (site+1) * (1..4), 0);
+        var quadrature = SinOsc.ar(110 * (site+1) * (1..4), pi/2);
+        var rotated = (carriers * angle.cos) + (quadrature * angle.sin);
+        // Crossfade phasors, never interpolate wrapped angles. Near-zero
+        // coherence reduces the contribution of its undefined/noisy phase.
+        var phaseMix = coherence * depth[1];
+        var partials = ((carriers * (1-phaseMix)) + (rotated * phaseMix)) * weights;
+        var dirac = Lag.kr(Select.kr(mapping[3].round.clip(0,3), values.copyRange(12,15)), 0.03);
+        var pan = (((site/3*1.6)-0.8) + (0.4 * depth[2] * dirac)).clip(-1,1);
         var life = EnvGen.ar(Env([0, 1, 0], [0.003, duration], [0, -6.9]),
             doneAction: Done.freeSelf);
-        var partials = SinOsc.ar(110 * (site+1) * (1..4), 0) * weights;
         // Different sites may share frequencies; the state label is its base harmonic.
         var mono = Mix(partials) * 0.5 * life * strength.clip(0, 1);
-        Out.ar(out, Pan2.ar(mono, (site/3*1.6)-0.8));
+        Out.ar(out, Pan2.ar(mono, pan));
     });
     var mixer = SynthDef(\qefMixerV1, {
         |inBus=0, out=0, fxSendBus=0, gain=0.08, fxSend=0, enabled=1,

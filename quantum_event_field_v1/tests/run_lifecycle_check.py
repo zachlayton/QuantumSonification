@@ -43,6 +43,8 @@ def translate(data: bytes, reply) -> bytes | None:
     name, offset = unpack_string(data)
     if name == "/sync":
         reply(osc_string("/synced") + data[offset:])
+    elif name == "/c_setn":
+        return data
     return None
 
 

@@ -1,5 +1,5 @@
 {
-  "revision": "qmw-probability-flow-event-field-v1",
+  "revision": "qmw-probability-flow-event-field-v1.1-observables",
   "date": "2026-10-27",
   "base_branch": "preservation/code-only-2026-10-07",
   "base_commit": "a6bf1f2fba996498271e0e12de06d6a12a4d4818",
@@ -18,7 +18,11 @@
     "decay_scale": 1,
     "gain": 0.08,
     "fx_send": 0,
-    "fundamental_hz": 110
+    "fundamental_hz": 110,
+    "coherence_depth": 0,
+    "phase_depth": 0,
+    "dirac_depth": 0,
+    "dirac_index": 0
   },
   "audio_mapping": {
     "partial_count": 4,
@@ -38,5 +42,55 @@
     "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v4_2.scd": "fbaec0e98cd218dee79574aab57a7d9e2fbbb60c561bc99dc1ca67d535f45a32",
     "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v3.scd": "a32983d234f97d1b55b4a7d40f8664dd590dbc794fc5b2f644c3218ea0fa5157",
     "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_v42b_audio_bus_mixer.scd": "3a3873321adcee958ca8dbda3e9e32eccfe7a85bf605d57c9311dfa130b236bc"
+  },
+  "previous_revision_commit": "1bddf796d849f9b52fbef2e11175c76852967dcb",
+  "observable_mapping": {
+    "state_source": "same Model.scd complex amplitudes, no separate evolution",
+    "coherence_order": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "coherence_convention": "rho_ab = a_a conjugate(a_b)",
+    "phase_valid_threshold": 1e-09,
+    "dirac_basis": [
+      "1000",
+      "0100",
+      "0010",
+      "0001"
+    ],
+    "dirac_operators": [
+      "beta = Z tensor I",
+      "alpha_x = X tensor X",
+      "alpha_y = X tensor Y",
+      "alpha_z = X tensor Z"
+    ],
+    "dirac_interpretation": "algebraic expectations in XX sector, not relativistic dynamics",
+    "maximum_pan_offset": 0.4,
+    "display_hz": 25,
+    "observable_bus_channels": 16,
+    "mapping_bus_channels": 4,
+    "display_snapshot_limit": 64
   }
 }

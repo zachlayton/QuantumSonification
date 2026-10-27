@@ -7,7 +7,7 @@ import struct
 import sys
 
 
-def validate(path: Path) -> dict:
+def validate(path: Path, observables: bool = False) -> dict:
     raw = path.read_bytes()
     assert raw[:4] == b"RIFF" and raw[8:12] == b"WAVE"
     offset, audio, fmt = 12, None, None
@@ -31,26 +31,36 @@ def validate(path: Path) -> dict:
     assert 0.001 < peak < 0.0641, peak
 
     def segment(start, end, channel=0):
-        return values[int(start * rate) * 4 + channel:int(end * rate) * 4:4]
+        return values[round(start * rate) * 4 + channel:round(end * rate) * 4:4]
 
     def rms(samples):
         return math.sqrt(sum(v * v for v in samples) / len(samples))
 
-    dry, ring, fuzz = (segment(start, start + 6) for start in (0.2, 10.2, 20.2))
-    levels = [rms(a) for a in (dry, ring, fuzz)]
+    starts = (0.2, 10.2, 20.2, 30.2, 40.2) if observables else (0.2, 10.2, 20.2)
+    sections = [segment(start, start + 6) for start in starts]
+    dry = sections[0]
+    levels = [rms(a) for a in sections]
     assert min(levels) > 0.001, "silent section"
-    assert rms([a - b for a, b in zip(dry, ring)]) > 0.001, "ring bypassed"
-    assert rms([a - b for a, b in zip(dry, fuzz)]) > 0.001, "fuzz bypassed"
+    differences = [rms([a - b for a, b in zip(dry, section)]) for section in sections[1:]]
+    assert min(differences) > 0.0001, "inaudible/bypassed mapping or effect"
+    restore_error = None
+    if observables:
+        restore_error = max(abs(a - b) for channel in (0, 1)
+                            for a, b in zip(segment(5, 6, channel), segment(45, 46, channel)))
+        assert restore_error < 1e-6, "live zero-depth bypass differs from baseline"
     send_error = max(abs(values[i + 2] - values[i] * 0.4)
                      for i in range(len(values)) if i % 4 < 2)
     assert send_error < 1e-7, "send differs from post-FX field"
-    for start, end in ((30.5, 30.9), (31.5, 31.7)):
+    end_time = 50 if observables else 30
+    for start, end in ((end_time + 0.5, end_time + 0.9), (end_time + 1.5, end_time + 1.7)):
         for channel in range(4):
             assert max(map(abs, segment(start, end, channel))) < 1e-7, "mute leaked"
     return {"sample_rate": rate, "channels": channels, "peak": peak,
-            "dry_ring_fuzz_left_rms": levels, "send_max_error": send_error,
+            "sections": ["baseline", "brightness", "phase", "Dirac pan", "combined then bypass"] if observables else ["dry", "ring", "fuzz"],
+            "left_rms": levels, "difference_from_baseline_rms": differences,
+            "live_bypass_max_error": restore_error, "send_max_error": send_error,
             "sound_off_and_zero_gain_silent": True}
 
 
 if __name__ == "__main__":
-    print(json.dumps(validate(Path(sys.argv[1])), indent=2))
+    print(json.dumps(validate(Path(sys.argv[1]), "--observables" in sys.argv[2:]), indent=2))

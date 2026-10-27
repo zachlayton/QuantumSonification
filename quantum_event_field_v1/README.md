@@ -1,4 +1,4 @@
-# QMW probability-flow event field v1
+# QMW probability-flow event field v1.1
 
 A SuperCollider-only addition to **Scalar Field v4.2b**, built on
 `preservation/code-only-2026-10-07`. It turns the evolving probability currents
@@ -21,6 +21,54 @@ If v4.2b is already open, evaluate only `supercollider/EventFieldAddon.scd`.
 The base's existing sources can also sound: use their own level controls to
 isolate this field. Its level and send are separate from the seven stored
 source-send slots. The original files and preset banks are unchanged.
+
+## Live observables and optional sound mappings
+
+Press **Observables / matrices** in the field panel. The separate window shows:
+
+- Four local Bloch vectors, numerical X/Y/Z coordinates, excitation populations
+  and local purities. In this fixed one-excitation model, X and Y are exactly
+  zero and Z is `1 - 2p`. Local purity is `(1 + |Bloch|^2)/2`; the complete
+  model state remains pure even when a local qubit is mixed.
+- All six coherences `rho_ab = a_a conjugate(a_b)`, with real/imaginary parts,
+  magnitude and phase. Click a row for its complex-plane phase wheel. A phase
+  is displayed as undefined when magnitude is at or below `1e-9`.
+- The three signed edge currents, positive to the right. With this Hamiltonian
+  and basis, `j_(a->a+1) = 2 Im(rho_a,a+1)`.
+- Four Hermitian Dirac-operator expectations and a selectable fixed 4x4 matrix.
+  In this representation, `beta = Z tensor I` and `alpha_i = X tensor sigma_i`;
+  equivalently, `beta = gamma^0` and `alpha_i = gamma^0 gamma^i`. The displayed
+  expectation is `Tr(rho A)`.
+
+The Dirac basis is explicitly **|1000>, |0100>, |0010>, |0001>**. The tensor
+labels describe an abstract four-level encoding, not the first two physical
+qubits. These are algebraic projections of the XX state; no relativistic
+Hamiltonian, physical velocity or Dirac spin interpretation has been added.
+
+All projections are derived from the same complex amplitudes used for event
+generation, in `Observables.scd`. The observer never advances a separate state.
+Its 25 Hz display consumes snapshots delayed by the audio's nominal 120 ms
+lookahead. Closing the observer leaves audio running; reopening it shows the
+current state. A stopped instrument retains its last displayed snapshot.
+
+Three new depth controls start at **zero**:
+
+| Control | Sound mapping |
+| --- | --- |
+| Coherence -> upper partials | Each wavelet uses its own destination/source coherence, `c = 2 abs(rho_destination,source)`. Harmonic power k is multiplied by `1 + (k-1)c * depth`, then renormalized to preserve the original total power weight. |
+| Coherence -> phase / interference | Crossfades each carrier with a quadrature reconstruction rotated by k times that pair's relative phase. The crossfade amount is `c * depth`, so vanishing coherence removes the contribution of undefined phase. Interference can change amplitude. |
+| Dirac expectation -> stereo motion | The selected expectation adds up to `0.4 * depth * expectation` to each voice's original pan position, bounded to the stereo range. Choose beta or alpha_x/y/z in the observer. |
+
+Mappings use shared control buses and affect existing tails as well as new
+events. Their depths do not change the Hamiltonian, event thresholds or decay
+calculations. Selecting a coherence row changes only its displayed phase wheel;
+sound always uses each wavelet's destination/source pair. The table uses a<b
+ordering, so the audio phase is conjugated when the destination is b.
+
+The phase mapping interpolates quadrature signals rather than wrapped angles;
+crossing -pi/pi is continuous. Changing phase over time can introduce modulation
+sidebands around the 110 Hz harmonic carriers. With all depths at zero, the
+original v1 render is sample-identical; the original preset banks stay intact.
 
 ## What drives the sound
 
@@ -99,9 +147,13 @@ Run from this directory with SuperCollider 3.13 or later:
 ```sh
 sclang -D tests/CompileCheck.scd
 sclang -D tests/ModelCheck.scd
+sclang -D tests/ObservablesCheck.scd
+sclang -D tests/GuiCheck.scd
 python3 tests/run_lifecycle_check.py
 sclang -D tests/RenderCheck.scd
 python3 tests/validate_render.py /tmp/qmw_event_field_check.wav
+QMW_EVENT_OBSERVABLES=1 QMW_EVENT_RENDER=/tmp/qmw_observables.wav sclang -D tests/RenderCheck.scd
+python3 tests/validate_render.py /tmp/qmw_observables.wav --observables
 ```
 
 `RenderCheck` uses the OS temporary directory by default; set `QMW_EVENT_RENDER`
@@ -123,3 +175,14 @@ headroom, audible FX differences, exact send routing and mute silence.
 
 See `validation.json` for the recorded results and `provenance.json` for the
 preserved base revision and mapping settings.
+
+ObservablesCheck compares 228 states against independent full 16-state Pauli
+expectations and complex tensor-product Dirac matrices, including Clifford
+anticommutation, Hermiticity, global-phase invariance, coherence orientation and
+undefined phase at zero magnitude. GuiCheck draws all four matrices and checks
+observer close/reopen; `QMW_EVENT_GUI_DIR` optionally writes inspection PNGs.
+
+With `QMW_EVENT_OBSERVABLES=1`, RenderCheck makes a 52-second render containing
+the same field with mappings off, brightness only, phase only, Dirac pan only,
+and all three followed by a live return to zero. The validator checks audible
+differences and restoration of the baseline, including already-sounding tails.
