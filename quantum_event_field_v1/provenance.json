@@ -1,0 +1,42 @@
+{
+  "revision": "qmw-probability-flow-event-field-v1",
+  "date": "2026-10-27",
+  "base_branch": "preservation/code-only-2026-10-07",
+  "base_commit": "a6bf1f2fba996498271e0e12de06d6a12a4d4818",
+  "input": "exact theoretical open XX chain, one-excitation sector",
+  "basis": [
+    "1000",
+    "0100",
+    "0010",
+    "0001"
+  ],
+  "default_initial_site": 0,
+  "model": "H/J = nearest-neighbour adjacency; tau = Jt/hbar",
+  "defaults": {
+    "flow_per_event": 0.08,
+    "seconds_per_tau": 0.8,
+    "decay_scale": 1,
+    "gain": 0.08,
+    "fx_send": 0,
+    "fundamental_hz": 110
+  },
+  "audio_mapping": {
+    "partial_count": 4,
+    "decay_bounds_seconds": [
+      0.03,
+      3
+    ],
+    "attack_seconds": 0.003,
+    "release_curve": -6.9,
+    "spectral_smoothing_seconds": 0.01,
+    "voice_limit": 96,
+    "scheduling_lookahead_seconds": 0.12,
+    "target_update_seconds": 0.005
+  },
+  "preserved_base_sha256": {
+    "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v4_2b.scd": "c3d582be8313456275a2cd0a17b2f380452ba2631c1df9c326374521abdde7eb",
+    "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v4_2.scd": "fbaec0e98cd218dee79574aab57a7d9e2fbbb60c561bc99dc1ca67d535f45a32",
+    "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_scalar_field_observer_v3.scd": "a32983d234f97d1b55b4a7d40f8664dd590dbc794fc5b2f644c3218ea0fa5157",
+    "qmw/QMW_Spectral_V4_Portable/supercollider/qmw_v42b_audio_bus_mixer.scd": "3a3873321adcee958ca8dbda3e9e32eccfe7a85bf605d57c9311dfa130b236bc"
+  }
+}

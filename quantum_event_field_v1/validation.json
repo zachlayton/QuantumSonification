@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-27",
+  "runtime": "SuperCollider 3.13.0 (Ubuntu 24.04, offscreen Qt)",
+  "compile": "PASS: addon and both SynthDefs",
+  "model": {
+    "status": "PASS",
+    "normalization_max_error": 6.6613381477509e-16,
+    "continuity_max_error": 4.5143155880112e-10,
+    "events_tau_0_to_36": 413,
+    "refinement_steps_tau": [
+      0.005,
+      0.0025
+    ],
+    "onset_refinement_max_error_tau": 0.00086370891594356,
+    "onset_refinement_max_error_seconds_at_default_scale": 0.000690967132754848
+  },
+  "lifecycle": {
+    "status": "PASS",
+    "method": "real sclang addon with UDP protocol stub, not live audio",
+    "cases": [
+      "start",
+      "wavelet OSC and spectral endpoint arguments",
+      "Sound off pauses theory and event creation",
+      "control clamping and nonfinite rejection",
+      "flow threshold reset",
+      "96-voice limit and drop accounting",
+      "delayed cleanup",
+      "restart",
+      "host group rebuild",
+      "server quit"
+    ]
+  },
+  "audio": {
+    "status": "PASS",
+    "method": "real scsynth non-real-time render; 32 seconds, 4 channels",
+    "sample_rate": 48000,
+    "channels": 4,
+    "peak": 0.0640014037489891,
+    "dry_ring_fuzz_left_rms": [
+      0.009213185129720046,
+      0.007858439584354287,
+      0.03273618247036885
+    ],
+    "send_max_error": 1.1175870888446848e-09,
+    "sound_off_and_zero_gain_silent": true
+  },
+  "not_verified": [
+    "Mac audio device and live host graph",
+    "MiClouds and VST plugin return audio"
+  ],
+  "scope": "Only quantum_event_field_v1 is added; existing base code and presets are unchanged."
+}
