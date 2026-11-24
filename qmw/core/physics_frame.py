@@ -311,3 +311,8 @@ class QuantumFrameAccumulator:
         return PhysicsFrame.from_state_frames(
             self._frames
         )
+
+
+# Clearer name for this class: it is a time trajectory, not a spatial snapshot.
+# See qmw.core.field_frame.FieldFrame for the per-tick field snapshot.
+PhysicsTrajectory = PhysicsFrame

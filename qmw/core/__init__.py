@@ -26,6 +26,7 @@ from qmw.core.data_processing import (
 from qmw.core.physics_frame import (
     DEFAULT_FRAME_SAMPLES,
     PhysicsFrame,
+    PhysicsTrajectory,
     QuantumFrame,
     QuantumFrameAccumulator,
 )
@@ -80,4 +81,28 @@ __all__ = [
     "post_select_where",
     "slice_bits",
     "slice_shots",
+]
+
+from qmw.core.domain import Domain
+from qmw.core.module_spec import ModuleSpec, PortSpec
+from qmw.core.field_frame import (
+    ConservationData,
+    Diagnostics,
+    FieldFrame,
+    ObservableData,
+    RegionalData,
+    StateData,
+)
+
+__all__ += [
+    "ConservationData",
+    "Diagnostics",
+    "Domain",
+    "FieldFrame",
+    "ModuleSpec",
+    "ObservableData",
+    "PhysicsTrajectory",
+    "PortSpec",
+    "RegionalData",
+    "StateData",
 ]

@@ -9,3 +9,7 @@ __all__ = [
     "GranularControlFrame",
     "QuantumGranularProjector",
 ]
+
+from qmw.projectors.regions import RegionProjector
+
+__all__ += ["RegionProjector"]
